@@ -24,6 +24,8 @@ export default [
         console: 'readonly',
         global: 'readonly',
         process: 'readonly',
+        window: 'readonly',
+        require: 'readonly',
       },
     },
     plugins: {
@@ -72,6 +74,13 @@ export default [
     files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*.{js,jsx,ts,tsx}'],
     rules: {
       'no-console': 'off',
+    },
+  },
+  {
+    files: ['**/storage/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      'no-console': 'off', // Allow console in storage files since they're wrapped in __DEV__
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any in storage compatibility layers
     },
   },
 ];

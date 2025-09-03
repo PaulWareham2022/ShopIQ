@@ -1,0 +1,657 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Initialize Expo React Native Project",
+        "description": "Set up the Expo React Native project scaffold for ShopIQ, targeting iOS first with Android optional, using the latest Expo SDK 53 and React Native 0.77 with New Architecture enabled by default. Ensure compliance with 2025 minimum OS requirements and App Store tooling.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Use Expo SDK 53 (2025) with React Native 0.77, which enables the New Architecture by default for enhanced performance and future compatibility. Initialize the project with the TypeScript template using the latest create-expo-app and expo@^53.0.0. Configure project metadata and versioning. Set up ESLint, Prettier, and Husky for code quality. Ensure compatibility with the latest SQLite and MMKV modules for Expo SDK 53 and the New Architecture. Use `expo install --fix` and `expo-doctor` to ensure all packages are compatible with SDK 53 and the New Architecture. Minimum OS requirements: Android 7+ (API 35), iOS 15.1+. Xcode 16+ is required for iOS builds to meet App Store requirements. Use `expo-doctor` to validate both package and environment compatibility.",
+        "testStrategy": "Verify project builds and runs on iOS simulator and physical device (iOS 15.1+), and Android 7+ device/emulator. Run lint and type checks. Use `expo-doctor` to validate package, environment, and architecture compatibility. Test SQLite and MMKV integration under Expo SDK 53.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Expo project with TypeScript template using SDK 53",
+            "description": "Run `npx create-expo-app@latest ShopIQ -t expo-template-blank-typescript` to create the project scaffold with Expo SDK 53 and React Native 0.77. Use expo@^53.0.0.",
+            "status": "done",
+            "dependencies": [],
+            "details": "Ensure the project is initialized with Expo SDK 53 and React Native 0.77. Use the latest stable create-expo-app and specify the TypeScript template.\n<info added on 2025-09-03T01:03:27.266Z>\nSuccessfully initialized Expo project with SDK 53.0.22, using React 19.0.0 and React Native 0.79.6 (latest). TypeScript template is configured properly. Project files have been moved to the root directory, preserving existing .taskmaster and CSV files. package.json name updated to \"shopiq\". Proceed to verify New Architecture configuration in subtask 1.2.\n</info added on 2025-09-03T01:03:27.266Z>",
+            "testStrategy": "Project initializes successfully and `expo --version` reports 53.x. TypeScript template is used."
+          },
+          {
+            "id": 2,
+            "title": "Enable and verify New Architecture",
+            "description": "Confirm that New Architecture is enabled by default in Expo SDK 53. Verify `newArchEnabled` is true in app config and project files.",
+            "status": "done",
+            "dependencies": [],
+            "details": "Expo SDK 53 enables New Architecture by default. Confirm in app.json or Podfile.properties.json that `newArchEnabled` is true, and that the project is using the new architecture for both iOS and Android.\n<info added on 2025-09-03T01:04:31.784Z>\nSuccessfully verified New Architecture configuration:\n\n✅ Confirmed `newArchEnabled: true` in app.json (line 9)\n✅ Updated app.json metadata: name \"ShopIQ\", slug \"shopiq\"\n✅ Fixed React Native version compatibility (0.79.6 → 0.79.5)\n✅ All expo-doctor checks passed (17/17)\n✅ New Architecture is active and properly configured for SDK 53\n\nThe project is now properly configured with New Architecture enabled by default as expected for Expo SDK 53.\n</info added on 2025-09-03T01:04:31.784Z>",
+            "testStrategy": "Check configuration files and run `expo-doctor` to confirm New Architecture is active."
+          },
+          {
+            "id": 3,
+            "title": "Set up code quality tools",
+            "description": "Configure ESLint, Prettier, and Husky for code linting, formatting, and pre-commit hooks.",
+            "status": "in-progress",
+            "dependencies": [],
+            "details": "Install and configure ESLint, Prettier, and Husky. Set up pre-commit hooks for linting and formatting.",
+            "testStrategy": "Run lint and format checks. Verify Husky pre-commit hooks trigger on commit."
+          },
+          {
+            "id": 4,
+            "title": "Configure project metadata and versioning",
+            "description": "Set up app.json/app.config.js with correct project name, slug, version, and other metadata. Ensure minimum OS requirements: Android 7+ (API 35), iOS 15.1+.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Update project metadata to reflect ShopIQ branding and versioning. Set minimum OS versions in app.json/app.config.js as required by Expo SDK 53.",
+            "testStrategy": "Metadata is correct in app.json/app.config.js. Build fails if minimum OS requirements are not met."
+          },
+          {
+            "id": 5,
+            "title": "Verify SQLite and MMKV compatibility",
+            "description": "Install and test the latest Expo SQLite and MMKV modules, ensuring they work with Expo SDK 53 and the New Architecture.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Install the latest compatible versions of Expo SQLite and MMKV. Test basic CRUD operations and confirm compatibility with New Architecture.",
+            "testStrategy": "Run integration tests for SQLite and MMKV. Confirm no compatibility warnings in `expo-doctor`."
+          },
+          {
+            "id": 6,
+            "title": "Ensure package and environment compatibility with Expo SDK 53",
+            "description": "Run `expo install --fix` and `expo-doctor` to check and resolve any compatibility issues with dependencies and environment (including Xcode 16+ for iOS).",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Use `expo install --fix` to update dependencies. Run `expo-doctor` to validate both package and environment compatibility, including OS and tooling requirements.",
+            "testStrategy": "`expo-doctor` reports no critical issues. All dependencies and environment meet Expo SDK 53 requirements."
+          },
+          {
+            "id": 7,
+            "title": "Test project on iOS simulator and physical device",
+            "description": "Build and run the project on both iOS simulator (iOS 15.1+) and a physical iOS device to verify correct initialization and compatibility. Test on Android 7+ device/emulator as optional.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Ensure project builds and runs on iOS simulator and device with Xcode 16+. Optionally verify on Android 7+ emulator/device.",
+            "testStrategy": "App launches and runs without errors on iOS 15.1+ simulator and device. Optionally verify Android 7+ compatibility."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Local Storage Layer",
+        "description": "Integrate SQLite (via Expo SQLite) and MMKV for fast, reliable local persistence of app data.",
+        "details": "Research latest Expo SQLite and react-native-mmkv versions. Abstract storage access with repository pattern. Design migration strategy for schema changes. Ensure UUIDv4 generation for all entities. Store timestamps in ISO format.",
+        "testStrategy": "Write unit tests for CRUD operations and migration logic. Validate data integrity and performance under stress.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Research and Select Latest SQLite and MMKV Libraries",
+            "description": "Identify and document the latest stable versions of Expo SQLite and react-native-mmkv compatible with the project. Review changelogs and known issues.",
+            "dependencies": [],
+            "details": "Check npm, official documentation, and GitHub for both libraries. Note any breaking changes or configuration requirements.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Set Up SQLite Integration",
+            "description": "Install and configure Expo SQLite in the project, ensuring persistence and compatibility with both Android and iOS.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Follow Expo documentation for installation and configuration. Verify database creation, table setup, and basic CRUD operations.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Set Up MMKV Integration",
+            "description": "Install and configure react-native-mmkv for fast key-value storage, ensuring it works alongside SQLite.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Install MMKV, configure for both platforms, and validate basic read/write operations. Document any platform-specific steps.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Repository Pattern Abstraction",
+            "description": "Abstract storage access behind a repository pattern to unify SQLite and MMKV usage and facilitate future changes.",
+            "dependencies": [
+              "2.2",
+              "2.3"
+            ],
+            "details": "Design interfaces for data access. Implement repositories for each storage engine. Ensure all app data access goes through these abstractions.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Design and Implement Migration Strategy",
+            "description": "Develop a robust migration system to handle schema changes in SQLite and data structure changes in MMKV.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "Define migration versioning, write migration scripts, and implement logic to apply migrations on app startup. Document rollback and error handling.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement UUIDv4 and ISO Timestamp Handling",
+            "description": "Ensure all entities have UUIDv4 identifiers and all timestamps are stored in ISO 8601 format.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "Integrate UUIDv4 generation in entity creation logic. Standardize timestamp formatting and parsing across storage layers.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Write Unit Tests for CRUD and Migration Logic",
+            "description": "Develop comprehensive unit tests covering CRUD operations, repository abstraction, and migration scenarios for both storage engines.",
+            "dependencies": [
+              "2.5",
+              "2.6"
+            ],
+            "details": "Test data integrity, error handling, and edge cases. Validate UUID and timestamp correctness. Ensure tests run in CI environment.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Define Data Models and Types",
+        "description": "Create TypeScript interfaces and SQLite schemas for Supplier, InventoryItem, Offer, UnitConversion, and Bundle entities as per PRD.",
+        "details": "Strictly follow PRD field definitions. Use Zod for runtime validation. Implement UUIDv4 generation (use 'react-native-uuid'). Ensure canonical units and conversion factors are enforced. Include soft-delete fields for future sync.",
+        "testStrategy": "Unit test model validation and schema enforcement. Validate Zod parsing and error handling.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Analyze PRD and Extract Field Definitions",
+            "description": "Review the Product Requirements Document (PRD) to identify and extract all field definitions for Supplier, InventoryItem, Offer, UnitConversion, and Bundle entities.",
+            "dependencies": [],
+            "details": "Ensure all required and optional fields, data types, constraints, and business rules are captured for each entity. Document any ambiguities or missing information for clarification.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Define TypeScript Interfaces for Entities",
+            "description": "Create TypeScript interfaces for Supplier, InventoryItem, Offer, UnitConversion, and Bundle based on the extracted PRD field definitions.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Map each field to appropriate TypeScript types, ensuring strict typing and alignment with business requirements. Include comments for any special logic or constraints.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create SQLite Schemas for Entities",
+            "description": "Design SQLite table schemas for each entity, ensuring correct data types, constraints, and relationships as per PRD and best practices.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Define tables using appropriate SQLite types (e.g., TEXT, INTEGER, REAL) and constraints (PRIMARY KEY, NOT NULL, UNIQUE, FOREIGN KEY). Ensure normalization and referential integrity.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate Zod Validation Schemas",
+            "description": "Implement Zod schemas for runtime validation of each entity, mirroring the TypeScript interfaces and enforcing all field constraints.",
+            "dependencies": [
+              "3.2"
+            ],
+            "details": "Ensure Zod schemas validate required fields, types, and custom business rules. Prepare for integration with form validation and data parsing.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement UUIDv4 Generation and Canonical Unit Logic",
+            "description": "Add logic for UUIDv4 generation using 'react-native-uuid' and enforce canonical units and conversion factors in both models and schemas.",
+            "dependencies": [
+              "3.2",
+              "3.3"
+            ],
+            "details": "Ensure all entities use UUIDv4 as primary keys where required. Implement logic to store and validate canonical units and conversion factors, supporting accurate normalization.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add Soft-Delete Fields and Test Validation",
+            "description": "Extend all models and schemas with soft-delete fields to support future sync, and write unit tests for Zod validation and schema enforcement.",
+            "dependencies": [
+              "3.2",
+              "3.3",
+              "3.4",
+              "3.5"
+            ],
+            "details": "Add fields such as 'deletedAt' or 'isDeleted' to all entities. Write unit tests to verify Zod parsing, error handling, and correct enforcement of soft-delete logic.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Develop Unit Conversion Utilities",
+        "description": "Build utilities for converting between units (mass, volume, count, length, area) and normalizing quantities.",
+        "details": "Implement conversion logic using a static reference table. Use Zod to validate conversion requests. Support mass (kg↔g), volume (L↔ml), and others as per PRD. Ensure extensibility for future units.",
+        "testStrategy": "Comprehensive unit tests for all conversion paths. Fuzz test with edge cases and invalid input.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Inventory CRUD Module",
+        "description": "Implement inventory management: add, edit, delete, and list items with canonical units and shelf-life sensitivity.",
+        "details": "Build React Native screens for inventory CRUD. Use Formik v3+ and Zod for form validation. Store items in SQLite/MMKV. Support optional category, shelf-life, and attributes. Optimize for fast entry and editing.",
+        "testStrategy": "E2E tests with Detox for all CRUD flows. Unit tests for validation and persistence.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Supplier CRUD Module",
+        "description": "Implement supplier management: add, edit, delete, and list suppliers with shipping policy fields.",
+        "details": "Build React Native screens for supplier CRUD. Validate country/region codes (ISO 3166), currency (ISO 4217), and membership fields. Store shipping policy as JSON. Support notes and URL patterns.",
+        "testStrategy": "E2E tests for supplier CRUD. Unit tests for field validation and persistence.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Offer Capture Form with Normalization",
+        "description": "Create offer entry form with manual input, automatic unit conversion, and computed price-per-canonical-unit.",
+        "details": "Use Formik and Zod for validation. Auto-fill date. Link offers to inventory and supplier. Compute normalized price-per-unit (incl/excl shipping/tax). Store raw capture and computed fields. Support optional photo URI stub.",
+        "testStrategy": "E2E tests for offer entry. Unit tests for normalization logic and computed fields.",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Offer Entry Form UI",
+            "description": "Create the user interface for the offer capture form, including fields for manual input, unit selection, price, date, inventory, supplier, and optional photo URI.",
+            "dependencies": [],
+            "details": "Ensure the form layout is user-friendly and supports all required fields. Prepare UI elements for future extensibility and canonical unit display.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Integrate Formik and Zod for Validation",
+            "description": "Implement form state management and validation using Formik and Zod, enforcing required fields, correct data types, and business rules.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Define Zod schemas for validation and connect them to Formik. Display validation errors inline and ensure type safety throughout the form.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Auto-Fill and Linking Logic",
+            "description": "Add logic to auto-fill the current date, and enable linking of offers to inventory items and suppliers within the form.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "Ensure the date field defaults to today and is editable. Provide dropdowns or selectors for inventory and supplier linkage, fetching data as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Compute Normalized Price-Per-Unit",
+            "description": "Develop logic to automatically convert entered units to canonical units and compute the normalized price-per-unit, including/excluding shipping and tax.",
+            "dependencies": [
+              "7.3"
+            ],
+            "details": "Integrate with unit conversion utilities. Calculate and display normalized price fields in real time as the user enters data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Store Raw and Computed Fields",
+            "description": "Implement logic to persist both the raw user input and the computed/normalized fields in the local storage layer.",
+            "dependencies": [
+              "7.4"
+            ],
+            "details": "Ensure all relevant data is saved, including canonical units, computed prices, and links to inventory and supplier. Use repository pattern for storage abstraction.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Add Optional Photo URI Stub and Write Tests",
+            "description": "Add support for an optional photo URI field and implement unit and E2E tests for form logic, normalization, and computed fields.",
+            "dependencies": [
+              "7.5"
+            ],
+            "details": "Allow users to optionally attach a photo URI. Write comprehensive tests for all form features, including validation, normalization, and storage.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Comparison Engine Implementation",
+        "description": "Develop engine to compute best price-per-unit for each inventory item, including historical trend and effective comparator.",
+        "details": "Implement logic for price-per-canonical-unit (excl/incl shipping/tax). Use SQLite queries for sorting and filtering. Highlight best offer and show historical prices. Support configuration for comparator selection.",
+        "testStrategy": "Unit tests for comparator logic. E2E tests for comparison view accuracy.",
+        "priority": "high",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Comparator Logic and Configuration",
+            "description": "Specify the logic for comparing inventory items, including configuration options for selecting different comparators (e.g., price-per-unit, total price, historical trend). Design a flexible interface to allow runtime comparator selection.",
+            "dependencies": [],
+            "details": "Document comparator strategies and configuration schema. Ensure extensibility for future comparator types. Validate with stakeholders.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Price-per-Canonical-Unit Calculation",
+            "description": "Develop logic to compute price-per-canonical-unit for each offer, supporting both exclusion and inclusion of shipping and tax. Ensure calculations are accurate and handle edge cases (e.g., missing data, zero units).",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Implement calculation functions in the comparison engine. Integrate with data models for offers and inventory items. Write unit tests for calculation accuracy.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Develop SQLite Queries for Sorting and Filtering",
+            "description": "Create efficient SQLite queries to sort and filter inventory items and offers based on computed price-per-unit and other comparator criteria. Support dynamic query generation based on user configuration.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Optimize queries for performance. Ensure compatibility with local storage schema. Test with large datasets for scalability.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Historical Price Tracking",
+            "description": "Design and implement logic to track and store historical prices for each inventory item and offer. Enable retrieval and display of price trends over time.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Extend data models and storage schema to support historical data. Implement update and retrieval logic. Provide API for accessing historical trends.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Highlight Best Offer Logic",
+            "description": "Develop logic to identify and highlight the best offer for each inventory item based on the selected comparator and current configuration. Ensure visual and programmatic distinction of the best offer.",
+            "dependencies": [
+              "8.3",
+              "8.4"
+            ],
+            "details": "Integrate with UI highlighting mechanism. Support edge cases (e.g., ties, missing data). Validate with test scenarios.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Write Unit and End-to-End Tests",
+            "description": "Develop comprehensive unit and E2E tests for all comparison engine logic, including comparator selection, price calculations, sorting/filtering, historical tracking, and best offer highlighting.",
+            "dependencies": [
+              "8.1",
+              "8.2",
+              "8.3",
+              "8.4",
+              "8.5"
+            ],
+            "details": "Use Jest for unit tests and Detox for E2E tests. Cover edge cases, error handling, and performance. Integrate with CI pipeline.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Inventory Comparison View UI",
+        "description": "Build UI to display per-item comparisons, sorted by normalized price-per-unit, with best offer highlight and historical trend.",
+        "details": "Use FlatList for performance. Prominently display normalized price-per-unit. Show best deal and historical prices. Support tap-to-open supplier URL if present. Optimize for fast scanning and clarity.",
+        "testStrategy": "E2E tests for sorting, highlighting, and navigation. UI snapshot tests for layout.",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Shelf-Life Sensitivity Warning",
+        "description": "Implement informational flag for shelf-life sensitive items when high-quantity purchases risk expiry.",
+        "details": "Detect shelf-life sensitive items and large quantity offers. Show warning banner in offer entry and comparison views. Use configurable threshold for warning logic. No expiry math in MVP.",
+        "testStrategy": "Unit tests for warning logic. E2E tests for UI display under relevant conditions.",
+        "priority": "medium",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Quality Rating and Notes Feature",
+        "description": "Enable optional quality rating (1–5) and free-form notes for offers and suppliers.",
+        "details": "Add rating and notes fields to offer and supplier forms. Store in SQLite. Display in comparison and detail views. Use star rating UI component (e.g., react-native-star-rating-widget).",
+        "testStrategy": "Unit tests for rating/notes persistence. E2E tests for entry and display.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Ultra-Fast Capture UX Optimization",
+        "description": "Optimize offer and inventory entry forms for minimal required fields, keyboard efficiency, and smart unit defaults.",
+        "details": "Implement keyboard shortcuts, auto-focus, and smart defaults based on item type. Use React Native Paper or NativeBase for performant form components. Profile and minimize form latency.",
+        "testStrategy": "E2E tests for entry speed. Usability tests for keyboard flow and default selection.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Barcode Scanner Stub Integration",
+        "description": "Add UI stub for future barcode scanning using Expo Camera, with placeholder logic.",
+        "details": "Integrate Expo Camera v5+ and show barcode scan button in offer entry. Display stubbed result and log for future implementation. Ensure permissions are handled gracefully.",
+        "testStrategy": "Manual test for UI presence and permission handling. Unit test for stub logic.",
+        "priority": "low",
+        "dependencies": [
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Share Sheet/URL Parsing Stub Integration",
+        "description": "Add UI stub for future share sheet and URL parsing for supplier pages.",
+        "details": "Implement share sheet button in offer entry. Log received URLs and show placeholder parsing result. Prepare pluggable parser interface for future extension.",
+        "testStrategy": "Manual test for UI presence and URL logging. Unit test for stub logic.",
+        "priority": "low",
+        "dependencies": [
+          13
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "CSV Import/Export Functionality",
+        "description": "Enable CSV import/export for inventory and offers, with UUID assignment and schema versioning.",
+        "details": "Use 'react-native-csv' or 'papaparse' for parsing/generation. Validate CSV against schema. Assign UUIDs to imported records. Export with current schema version. Handle errors and duplicates gracefully.",
+        "testStrategy": "Unit tests for import/export logic. E2E tests for file selection and data integrity.",
+        "priority": "medium",
+        "dependencies": [
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Unit and Integration Test Suite",
+        "description": "Develop comprehensive unit and integration tests for conversion, normalization, CRUD, and comparison logic.",
+        "details": "Use Jest v29+ for unit tests. Use Detox for E2E tests. Cover edge cases, error handling, and performance. Integrate with CI pipeline (GitHub Actions).",
+        "testStrategy": "Run full test suite on CI. Monitor coverage and fix regressions.",
+        "priority": "high",
+        "dependencies": [
+          15
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set Up Jest for Unit Testing",
+            "description": "Install and configure Jest v29+ for the project, including necessary presets and scripts for running unit tests.",
+            "dependencies": [],
+            "details": "Install jest, @types/jest, and configure jest-expo preset in package.json. Add test scripts for running and watching tests.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Set Up Detox for End-to-End Testing",
+            "description": "Install and configure Detox for E2E testing, ensuring compatibility with the current project and test environment.",
+            "dependencies": [],
+            "details": "Install Detox, configure Detox scripts, and set up device configurations for running E2E tests.\n<info added on 2025-09-03T00:52:11.375Z>\nReplace Detox with Maestro for E2E testing. Install the Maestro CLI and set up YAML-based test flows for end-to-end scenarios. Maestro offers a simpler setup process, improved Expo compatibility, built-in flakiness handling, and faster execution compared to Detox. No complex device configuration is required; instead, define test steps declaratively in YAML files and run them using the Maestro CLI. Integrate Maestro into the CI pipeline for automated E2E test execution.\n</info added on 2025-09-03T00:52:11.375Z>",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Write Unit Tests for Conversion and Normalization Logic",
+            "description": "Develop comprehensive unit tests for all conversion and normalization functions using Jest.",
+            "dependencies": [
+              "16.1"
+            ],
+            "details": "Identify conversion and normalization modules, write test cases for typical, edge, and error scenarios, and ensure coverage.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Write Unit Tests for CRUD and Comparison Logic",
+            "description": "Create unit tests for CRUD operations and comparison logic, validating correct behavior and data integrity.",
+            "dependencies": [
+              "16.1"
+            ],
+            "details": "Test all CRUD functions and comparison algorithms, including historical trend and price-per-unit calculations.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Cover Edge Cases and Error Handling in Tests",
+            "description": "Expand test suites to include edge cases, error handling, and performance scenarios for all tested logic.",
+            "dependencies": [
+              "16.3",
+              "16.4"
+            ],
+            "details": "Review all logic for potential edge cases, invalid inputs, and error conditions. Add tests to ensure robust handling and performance.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate Test Suites with CI Pipeline and Monitor Coverage",
+            "description": "Configure CI pipeline (GitHub Actions) to run all test suites, monitor code coverage, and report regressions.",
+            "dependencies": [
+              "16.1",
+              "16.2",
+              "16.3",
+              "16.4",
+              "16.5"
+            ],
+            "details": "Set up CI workflows to execute Jest and Detox tests, generate coverage reports, and enforce coverage thresholds.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "App Theming and UI Consistency",
+        "description": "Implement consistent theming and UI components for all screens, ensuring accessibility and clarity.",
+        "details": "Use React Native Paper or NativeBase for theming. Define color palette, typography, and spacing. Ensure WCAG accessibility compliance. Apply consistent styles across all screens.",
+        "testStrategy": "UI snapshot tests. Accessibility audits using axe-core/react-native.",
+        "priority": "medium",
+        "dependencies": [
+          16
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Prepare Documentation and Release Notes",
+        "description": "Document data models, normalization logic, UX flows, and known limitations. Prepare release notes for MVP.",
+        "details": "Use TypeDoc for API docs. Write user guide and developer onboarding docs. Document normalization/comparator logic and shelf-life warning. List known issues and future roadmap.",
+        "testStrategy": "Manual review of documentation for completeness and clarity. Peer review by team.",
+        "priority": "medium",
+        "dependencies": [
+          17
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-03T00:35:08.862Z",
+      "updated": "2025-09-03T01:04:42.447Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

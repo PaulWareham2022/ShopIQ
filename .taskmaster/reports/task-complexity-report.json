@@ -1,0 +1,157 @@
+{
+	"meta": {
+		"generatedAt": "2025-09-03T00:44:54.294Z",
+		"tasksAnalyzed": 18,
+		"totalTasks": 18,
+		"analysisCount": 18,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Initialize Expo React Native Project",
+			"complexityScore": 4,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the initialization process into: (1) Create Expo project with TypeScript template, (2) Configure project metadata and versioning, (3) Set up ESLint, Prettier, and Husky, (4) Ensure SQLite and MMKV compatibility, (5) Initial iOS simulator/device build, (6) Run lint and type checks.",
+			"reasoning": "Project initialization is a standard process but involves multiple setup steps for code quality and platform compatibility. Each tool (ESLint, Prettier, Husky) and storage library (SQLite, MMKV) requires configuration, but there are established patterns and templates for these tasks."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Local Storage Layer",
+			"complexityScore": 7,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into: (1) Research and select latest SQLite/MMKV libraries, (2) Set up SQLite integration, (3) Set up MMKV integration, (4) Implement repository pattern abstraction, (5) Design and implement migration strategy, (6) Implement UUIDv4 and ISO timestamp handling, (7) Write unit tests for CRUD and migration.",
+			"reasoning": "Integrating two storage engines, abstracting access, and handling migrations adds significant complexity. Ensuring data integrity, performance, and future-proofing with migrations and UUIDs requires careful design and thorough testing."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Comparison Engine Implementation",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Decompose into: (1) Define comparator logic and configuration, (2) Implement price-per-canonical-unit calculation (excl/incl shipping/tax), (3) Develop SQLite queries for sorting/filtering, (4) Implement historical price tracking, (5) Highlight best offer logic, (6) Write unit and E2E tests.",
+			"reasoning": "Building a performant, configurable comparison engine with historical analysis and database integration is complex. It requires robust business logic, efficient queries, and comprehensive testing to ensure accuracy and scalability."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Define Data Models and Types",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into: (1) Analyze PRD and extract field definitions, (2) Define TypeScript interfaces, (3) Create SQLite schemas, (4) Integrate Zod validation, (5) Implement UUIDv4 and canonical unit logic, (6) Add soft-delete fields and test validation.",
+			"reasoning": "Defining models and schemas with strict validation, canonicalization, and future sync support is moderately complex. It requires careful mapping between business requirements, TypeScript, and database schemas, plus runtime validation."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Share Sheet/URL Parsing Stub Integration",
+			"complexityScore": 3,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down into: (1) Add share sheet button to offer entry UI, (2) Log received URLs and display placeholder result, (3) Prepare pluggable parser interface for future use.",
+			"reasoning": "As a stub, this task is straightforward: UI addition, logging, and interface scaffolding. No real parsing or business logic is required at this stage."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Barcode Scanner Stub Integration",
+			"complexityScore": 3,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Expand into: (1) Integrate Expo Camera and handle permissions, (2) Add barcode scan button and stub logic to offer entry, (3) Display and log stubbed scan result.",
+			"reasoning": "This is a UI and permissions stub with no real scanning or data processing. The main complexity is handling camera permissions gracefully and providing a placeholder experience."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Unit and Integration Test Suite",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Decompose into: (1) Set up Jest for unit tests, (2) Set up Detox for E2E tests, (3) Write unit tests for conversion/normalization logic, (4) Write unit tests for CRUD and comparison logic, (5) Cover edge cases and error handling, (6) Integrate with CI and monitor coverage.",
+			"reasoning": "Comprehensive testing across multiple domains (logic, CRUD, E2E) and CI integration is moderately complex, requiring coverage planning, tooling setup, and maintenance."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Offer Capture Form with Normalization",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into: (1) Design offer entry form UI, (2) Integrate Formik and Zod for validation, (3) Implement auto-fill and linking logic, (4) Compute normalized price-per-unit, (5) Store raw and computed fields, (6) Add optional photo URI stub and write tests.",
+			"reasoning": "Form development with validation, normalization logic, and entity linking is moderately complex, especially with computed fields and extensibility for future features."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Quality Rating and Notes Feature",
+			"complexityScore": 4,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into: (1) Add rating and notes fields to forms, (2) Store and retrieve in SQLite, (3) Display in comparison/detail views, (4) Integrate star rating UI component and test.",
+			"reasoning": "Adding optional fields and UI components is a common extension pattern. Complexity is low to moderate due to integration with forms, storage, and display logic."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Ultra-Fast Capture UX Optimization",
+			"complexityScore": 5,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand into: (1) Analyze and minimize required fields, (2) Implement keyboard shortcuts and auto-focus, (3) Add smart unit defaults by item type, (4) Use performant form components, (5) Profile and optimize form latency.",
+			"reasoning": "UX optimization for speed involves several focused improvements, each with moderate complexity. Profiling and optimizing for performance requires iterative testing and refinement."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Develop Unit Conversion Utilities",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on develop unit conversion utilities.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Inventory CRUD Module",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on inventory crud module.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Supplier CRUD Module",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on supplier crud module.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Inventory Comparison View UI",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on inventory comparison view ui.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Shelf-Life Sensitivity Warning",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on shelf-life sensitivity warning.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "CSV Import/Export Functionality",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on csv import/export functionality.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "App Theming and UI Consistency",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on app theming and ui consistency.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Prepare Documentation and Release Notes",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on prepare documentation and release notes.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		}
+	]
+}

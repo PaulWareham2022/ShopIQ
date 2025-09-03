@@ -3,6 +3,7 @@
     "name": "ShopIQ",
     "slug": "shopiq",
     "version": "1.0.0",
+    "description": "Smart grocery price comparison app for finding the best deals across suppliers",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,18 +13,45 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shopiq.app",
+      "buildNumber": "1",
+      "deploymentTarget": "17.0"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.shopiq.app",
+      "versionCode": 1,
       "edgeToEdgeEnabled": true
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
+          }
+        }
+      ],
+      "expo-sqlite",
+      "expo-dev-client"
+    ],
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "shopiq-project-id"
+      }
+    },
+    "owner": "shopiq-team"
   }
 }

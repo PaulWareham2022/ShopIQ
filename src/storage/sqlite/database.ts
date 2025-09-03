@@ -103,7 +103,8 @@ class WebDatabase {
       };
 
       callback(mockTx);
-      if (successCallback) successCallback();
+      // TODO: track pending async ops and flush when they complete.
+      setTimeout(() => successCallback?.(), 0);
     } catch (error) {
       if (__DEV__) {
         console.error('[Web DB] Transaction error:', error);

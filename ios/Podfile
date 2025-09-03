@@ -4,7 +4,9 @@ require File.join(File.dirname(`node --print "require.resolve('react-native/pack
 require 'json'
 podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
 
-ENV['RCT_NEW_ARCH_ENABLED'] = '0' if podfile_properties['newArchEnabled'] == 'false'
+if podfile_properties.key?('newArchEnabled')
+  ENV['RCT_NEW_ARCH_ENABLED'] = (podfile_properties['newArchEnabled'].to_s == 'true') ? '1' : '0'
+end
 ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = (podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR'] || '0').to_s
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '17.0'
@@ -31,8 +33,19 @@ target 'ShopIQ' do
 
   config = use_native_modules!(config_command)
 
-  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
-  use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
+  fw_val = podfile_properties['ios.useFrameworks'] || ENV['USE_FRAMEWORKS']
+  if fw_val
+    normalized = fw_val.to_s.strip.downcase
+    case normalized
+    when 'static' then use_frameworks! :linkage => :static
+    when 'dynamic' then use_frameworks! :linkage => :dynamic
+    when '1', 'true', 'yes' then use_frameworks!
+    when '0', 'false', 'no' then # no frameworks
+    else
+      puts "[Podfile] Unrecognized USE_FRAMEWORKS='#{fw_val}', defaulting to dynamic frameworks"
+      use_frameworks!
+    end
+  end
 
   use_react_native!(
     :path => config[:reactNativePath],

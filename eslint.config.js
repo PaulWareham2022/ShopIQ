@@ -26,6 +26,8 @@ export default [
         process: 'readonly',
         window: 'readonly',
         require: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
       },
     },
     plugins: {

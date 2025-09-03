@@ -269,6 +269,9 @@ export const initializeDatabase = async (): Promise<void> => {
   } else {
     // Native platforms - use new synchronous API
     try {
+      // Enforce referential integrity
+      db.execSync('PRAGMA foreign_keys = ON;');
+
       // Create suppliers table
       db.execSync(`
         CREATE TABLE IF NOT EXISTS suppliers (
@@ -323,6 +326,17 @@ export const initializeDatabase = async (): Promise<void> => {
         );
       `);
 
+      // Add indexes for offers table performance
+      db.execSync(
+        'CREATE INDEX IF NOT EXISTS idx_offers_inventory ON offers (inventory_item_id);'
+      );
+      db.execSync(
+        'CREATE INDEX IF NOT EXISTS idx_offers_supplier ON offers (supplier_id);'
+      );
+      db.execSync(
+        'CREATE INDEX IF NOT EXISTS idx_offers_date ON offers (date);'
+      );
+
       // Create unit_conversions table
       db.execSync(`
         CREATE TABLE IF NOT EXISTS unit_conversions (
@@ -336,6 +350,11 @@ export const initializeDatabase = async (): Promise<void> => {
           deleted_at TEXT
         );
       `);
+
+      // Add index for unit conversions performance
+      db.execSync(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_unit_conv_pair ON unit_conversions (from_unit, to_unit);'
+      );
 
       // Create bundles table (for future use)
       db.execSync(`
@@ -381,7 +400,7 @@ export const initializeDatabase = async (): Promise<void> => {
         INSERT OR IGNORE INTO database_metadata (key, value, created_at, updated_at)
         VALUES (?, ?, datetime('now'), datetime('now'));
       `,
-        [DB_VERSION.toString()]
+        ['version', DB_VERSION.toString()]
       );
 
       if (__DEV__) {

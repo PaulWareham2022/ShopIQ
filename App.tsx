@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { testStorageIntegration } from './src/storage/test-storage';
+import { initializeDatabase } from './src/storage/sqlite/database';
 import { colors } from './src/constants/colors';
 
 export default function App() {
@@ -12,7 +13,11 @@ export default function App() {
   useEffect(() => {
     const initStorage = async () => {
       try {
-        await testStorageIntegration();
+        if (__DEV__) {
+          await testStorageIntegration();
+        } else {
+          await initializeDatabase();
+        }
         setStorageStatus('success');
       } catch (error) {
         if (__DEV__) {

@@ -28,6 +28,9 @@ export default [
         require: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        Buffer: 'readonly',
       },
     },
     plugins: {
@@ -74,6 +77,21 @@ export default [
   },
   {
     files: ['**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**/*.{js,jsx,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        jest: 'readonly',
+        fail: 'readonly',
+        performance: 'readonly',
+      },
+    },
     rules: {
       'no-console': 'off',
     },

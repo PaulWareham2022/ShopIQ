@@ -1,5 +1,6 @@
 import { initializeDatabase, executeSql } from './sqlite/database';
 import { appStorageWrapper, STORAGE_KEYS } from './mmkv/storage';
+import { testRepositoryPattern } from './test-repository-pattern';
 import { Platform } from 'react-native';
 
 // Test function to verify both storage systems are working
@@ -70,6 +71,12 @@ export const testStorageIntegration = async (): Promise<void> => {
     }
 
     console.log('🎉 Storage integration test completed successfully');
+
+    // Test the new repository pattern
+    console.log('\n🏗️ Testing Repository Pattern Integration...');
+    await testRepositoryPattern();
+    console.log('✅ Repository pattern integration test completed');
+
   } catch (error) {
     console.error('❌ Storage integration test failed:', error);
     throw error;

@@ -3,16 +3,26 @@
  * Validates that the repository abstraction works correctly
  */
 
-import { Platform } from 'react-native';
+// Platform will be imported lazily to avoid breaking non-RN environments
 import { repositories } from './index';
-import type { Supplier, InventoryItem } from './index';
+// Types are used for TypeScript type checking only
 
 export const testRepositoryPattern = async (): Promise<void> => {
   // Early return in production builds
   if (!__DEV__) return;
 
   console.log('🏗️ Testing Repository Pattern...');
-  console.log(`Platform: ${Platform.OS}`);
+  // Lazy import of react-native platform detection
+  let platformOS = 'unknown';
+  try {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      const { Platform } = require('react-native');
+      platformOS = Platform.OS;
+    }
+  } catch {
+    // react-native not available in this environment
+  }
+  console.log(`Platform: ${platformOS}`);
 
   try {
     // Initialize the repository factory
@@ -22,10 +32,10 @@ export const testRepositoryPattern = async (): Promise<void> => {
 
     // Test SQL-based repositories
     await testSQLRepositories();
-    
+
     // Test key-value repositories
     await testKeyValueRepositories();
-    
+
     // Test transaction support
     await testTransactions();
 
@@ -48,7 +58,7 @@ async function testSQLRepositories(): Promise<void> {
 
   // Test Supplier Repository
   const supplierRepo = await repositories.getSupplierRepository();
-  
+
   // Create a test supplier
   const testSupplier = await supplierRepo.create({
     name: 'Test Supplier Co',
@@ -71,7 +81,7 @@ async function testSQLRepositories(): Promise<void> {
     quality_rating: 5,
     notes: 'Updated test supplier',
   });
-  
+
   if (!updatedSupplier || updatedSupplier.quality_rating !== 5) {
     throw new Error('Failed to update supplier');
   }
@@ -79,7 +89,7 @@ async function testSQLRepositories(): Promise<void> {
 
   // Test Inventory Item Repository
   const inventoryRepo = await repositories.getInventoryItemRepository();
-  
+
   const testItem = await inventoryRepo.create({
     name: 'Test Item',
     canonical_unit: 'kg',
@@ -91,7 +101,10 @@ async function testSQLRepositories(): Promise<void> {
 
   // Test finding by name
   const itemsByName = await inventoryRepo.findByName('Test');
-  if (itemsByName.length === 0 || !itemsByName.some(item => item.id === testItem.id)) {
+  if (
+    itemsByName.length === 0 ||
+    !itemsByName.some(item => item.id === testItem.id)
+  ) {
     throw new Error('Failed to find inventory item by name');
   }
   console.log('✅ Found inventory item by name');
@@ -120,15 +133,15 @@ async function testKeyValueRepositories(): Promise<void> {
   // Test different namespaces
   const appKV = repositories.getKeyValueRepository('app');
   const cacheKV = repositories.getKeyValueRepository('cache');
-  const prefKV = repositories.getKeyValueRepository('preferences');
+  // const prefKV = repositories.getKeyValueRepository('preferences'); // For future use
 
   // Test basic operations
   appKV.set('test_string', 'hello world');
   appKV.set('test_number', 42);
   appKV.set('test_boolean', true);
-  appKV.setObject('test_object', { 
-    key: 'value', 
-    nested: { array: [1, 2, 3] } 
+  appKV.setObject('test_object', {
+    key: 'value',
+    nested: { array: [1, 2, 3] },
   });
 
   // Verify retrieval
@@ -151,7 +164,10 @@ async function testKeyValueRepositories(): Promise<void> {
   appKV.set('isolated_key', 'app_value');
   cacheKV.set('isolated_key', 'cache_value');
 
-  if (appKV.get('isolated_key') !== 'app_value' || cacheKV.get('isolated_key') !== 'cache_value') {
+  if (
+    appKV.get('isolated_key') !== 'app_value' ||
+    cacheKV.get('isolated_key') !== 'cache_value'
+  ) {
     throw new Error('Key-value namespace isolation failed');
   }
 
@@ -168,7 +184,13 @@ async function testKeyValueRepositories(): Promise<void> {
   console.log('✅ Key-value utility methods working');
 
   // Clean up
-  const testKeys = ['test_string', 'test_number', 'test_boolean', 'test_object', 'isolated_key'];
+  const testKeys = [
+    'test_string',
+    'test_number',
+    'test_boolean',
+    'test_object',
+    'isolated_key',
+  ];
   appKV.deleteMultiple(testKeys);
   cacheKV.delete('isolated_key');
 
@@ -178,10 +200,11 @@ async function testKeyValueRepositories(): Promise<void> {
 async function testTransactions(): Promise<void> {
   console.log('🔄 Testing transactions...');
 
-  const supplierRepo = await repositories.getSupplierRepository();
-
   // Test successful transaction
-  const result = await repositories.withTransaction(async (_tx) => {
+  const result = await repositories.withTransaction(async _tx => {
+    // Get repository instance bound to the transaction
+    const supplierRepo = await repositories.getSupplierRepository();
+
     const supplier1 = await supplierRepo.create({
       name: 'Transaction Test Supplier 1',
       website: 'https://test1.com',
@@ -194,6 +217,8 @@ async function testTransactions(): Promise<void> {
 
     return [supplier1, supplier2];
   });
+
+  const supplierRepo = await repositories.getSupplierRepository();
 
   console.log('✅ Transaction committed successfully');
 
@@ -208,8 +233,11 @@ async function testTransactions(): Promise<void> {
   // Test failed transaction (should rollback)
   let rollbackWorked = false;
   try {
-    await repositories.withTransaction(async (_tx) => {
-      await supplierRepo.create({
+    await repositories.withTransaction(async _tx => {
+      // Get repository instance bound to this transaction
+      const txSupplierRepo = await repositories.getSupplierRepository();
+
+      await txSupplierRepo.create({
         name: 'Transaction Test Supplier 3',
         website: 'https://test3.com',
       });
@@ -217,7 +245,7 @@ async function testTransactions(): Promise<void> {
       // Simulate an error
       throw new Error('Intentional error for rollback test');
     });
-  } catch (error) {
+  } catch {
     rollbackWorked = true;
   }
 
@@ -226,7 +254,9 @@ async function testTransactions(): Promise<void> {
   }
 
   // Verify supplier 3 was not created (rollback worked)
-  const allSuppliers = await supplierRepo.findWhere({ name: 'Transaction Test Supplier 3' });
+  const allSuppliers = await supplierRepo.findWhere({
+    name: 'Transaction Test Supplier 3',
+  });
   if (allSuppliers.length > 0) {
     throw new Error('Transaction rollback failed - supplier 3 was created');
   }

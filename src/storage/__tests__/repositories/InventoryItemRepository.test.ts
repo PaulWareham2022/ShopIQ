@@ -2,15 +2,36 @@
  * Unit tests for InventoryItemRepository
  */
 
-import { InventoryItemRepository, InventoryItem } from '../../repositories/InventoryItemRepository';
+import {
+  InventoryItemRepository,
+  InventoryItem,
+} from '../../repositories/InventoryItemRepository';
 import { DatabaseError } from '../../types';
 import { mockSQLiteResponse, resetAllMocks } from '../setup';
 
 // Mock the database module
-const mockExecuteSql = jest.fn();
-jest.mock('../../sqlite/database', () => ({
-  executeSql: mockExecuteSql,
-}));
+jest.mock('../../sqlite/database');
+jest.mock('../../utils');
+
+// Get mocked functions
+import { executeSql } from '../../sqlite/database';
+import {
+  generateUUID,
+  getCurrentTimestamp,
+  validateTimestampFields,
+} from '../../utils';
+
+const mockExecuteSql = executeSql as jest.MockedFunction<typeof executeSql>;
+const mockGenerateUUID = generateUUID as jest.MockedFunction<
+  typeof generateUUID
+>;
+const mockGetCurrentTimestamp = getCurrentTimestamp as jest.MockedFunction<
+  typeof getCurrentTimestamp
+>;
+const mockValidateTimestampFields =
+  validateTimestampFields as jest.MockedFunction<
+    typeof validateTimestampFields
+  >;
 
 describe('InventoryItemRepository', () => {
   let repository: InventoryItemRepository;
@@ -41,12 +62,17 @@ describe('InventoryItemRepository', () => {
   beforeEach(() => {
     resetAllMocks();
     repository = new InventoryItemRepository();
+
+    // Setup default mock returns
+    mockGenerateUUID.mockReturnValue('test-uuid');
+    mockGetCurrentTimestamp.mockReturnValue('2024-01-01T00:00:00.000Z');
+    mockValidateTimestampFields.mockReturnValue([]);
   });
 
   describe('mapRowToEntity', () => {
     it('should map database row to InventoryItem entity correctly', () => {
       const result = (repository as any).mapRowToEntity(sampleInventoryItemRow);
-      
+
       expect(result).toEqual(sampleInventoryItem);
     });
 
@@ -58,7 +84,7 @@ describe('InventoryItemRepository', () => {
       };
 
       const result = (repository as any).mapRowToEntity(rowWithNulls);
-      
+
       expect(result).toEqual({
         id: 'item-1',
         name: 'Organic Tomatoes',
@@ -74,13 +100,24 @@ describe('InventoryItemRepository', () => {
     it('should correctly convert shelf_life_sensitive boolean', () => {
       const trueRow = { ...sampleInventoryItemRow, shelf_life_sensitive: 1 };
       const falseRow = { ...sampleInventoryItemRow, shelf_life_sensitive: 0 };
-      const truthyRow = { ...sampleInventoryItemRow, shelf_life_sensitive: 'true' };
+      const truthyRow = {
+        ...sampleInventoryItemRow,
+        shelf_life_sensitive: 'true',
+      };
       const falsyRow = { ...sampleInventoryItemRow, shelf_life_sensitive: '' };
 
-      expect((repository as any).mapRowToEntity(trueRow).shelf_life_sensitive).toBe(true);
-      expect((repository as any).mapRowToEntity(falseRow).shelf_life_sensitive).toBe(false);
-      expect((repository as any).mapRowToEntity(truthyRow).shelf_life_sensitive).toBe(true);
-      expect((repository as any).mapRowToEntity(falsyRow).shelf_life_sensitive).toBe(false);
+      expect(
+        (repository as any).mapRowToEntity(trueRow).shelf_life_sensitive
+      ).toBe(true);
+      expect(
+        (repository as any).mapRowToEntity(falseRow).shelf_life_sensitive
+      ).toBe(false);
+      expect(
+        (repository as any).mapRowToEntity(truthyRow).shelf_life_sensitive
+      ).toBe(true);
+      expect(
+        (repository as any).mapRowToEntity(falsyRow).shelf_life_sensitive
+      ).toBe(false);
     });
 
     it('should handle deleted entities', () => {
@@ -90,7 +127,7 @@ describe('InventoryItemRepository', () => {
       };
 
       const result = (repository as any).mapRowToEntity(deletedRow);
-      
+
       expect(result.deleted_at).toBe(mockTimestamp);
     });
   });
@@ -98,13 +135,16 @@ describe('InventoryItemRepository', () => {
   describe('mapEntityToRow', () => {
     it('should map InventoryItem entity to database row correctly', () => {
       const result = (repository as any).mapEntityToRow(sampleInventoryItem);
-      
+
       expect(result).toEqual(sampleInventoryItemRow);
     });
 
     it('should convert shelf_life_sensitive boolean to integer', () => {
       const trueEntity = { ...sampleInventoryItem, shelf_life_sensitive: true };
-      const falseEntity = { ...sampleInventoryItem, shelf_life_sensitive: false };
+      const falseEntity = {
+        ...sampleInventoryItem,
+        shelf_life_sensitive: false,
+      };
 
       const trueResult = (repository as any).mapEntityToRow(trueEntity);
       const falseResult = (repository as any).mapEntityToRow(falseEntity);
@@ -121,7 +161,7 @@ describe('InventoryItemRepository', () => {
       };
 
       const result = (repository as any).mapEntityToRow(entityWithUndefined);
-      
+
       expect(result).toEqual({
         id: 'item-1',
         name: 'Organic Tomatoes',
@@ -142,7 +182,7 @@ describe('InventoryItemRepository', () => {
       };
 
       const result = (repository as any).mapEntityToRow(partialEntity);
-      
+
       expect(result).toEqual({
         id: 'item-1',
         name: 'Updated Tomatoes',
@@ -158,7 +198,9 @@ describe('InventoryItemRepository', () => {
 
   describe('findByName', () => {
     it('should find inventory items by name with partial match', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       const result = await repository.findByName('tomato');
 
@@ -182,7 +224,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should handle case insensitive search', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findByName('TOMATO');
 
@@ -193,7 +237,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should exclude soft-deleted items', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findByName('tomato');
 
@@ -207,13 +253,13 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findByName('tomato'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findByName('tomato')).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findByName('tomato'))
-        .rejects
-        .toThrow('Failed to find inventory items by name');
+      await expect(repository.findByName('tomato')).rejects.toThrow(
+        'Failed to find inventory items by name'
+      );
     });
 
     it('should handle multiple matching items', async () => {
@@ -223,7 +269,9 @@ describe('InventoryItemRepository', () => {
         name: 'Cherry Tomatoes',
       };
 
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow, secondItem]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow, secondItem])
+      );
 
       const result = await repository.findByName('tomato');
 
@@ -235,7 +283,9 @@ describe('InventoryItemRepository', () => {
 
   describe('findByCanonicalUnit', () => {
     it('should find items by exact canonical unit match', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       const result = await repository.findByCanonicalUnit('kg');
 
@@ -247,7 +297,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should order results by name', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findByCanonicalUnit('kg');
 
@@ -258,7 +310,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should exclude soft-deleted items', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findByCanonicalUnit('kg');
 
@@ -280,32 +334,33 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findByCanonicalUnit('kg'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findByCanonicalUnit('kg')).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findByCanonicalUnit('kg'))
-        .rejects
-        .toThrow('Failed to find inventory items by canonical unit');
+      await expect(repository.findByCanonicalUnit('kg')).rejects.toThrow(
+        'Failed to find inventory items by canonical unit'
+      );
     });
 
     it('should handle different unit types', async () => {
       const units = ['kg', 'lbs', 'pcs', 'liters', 'gallons'];
-      
+
       for (const unit of units) {
         mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([]));
         await repository.findByCanonicalUnit(unit);
-        expect(mockExecuteSql).toHaveBeenLastCalledWith(
-          expect.any(String),
-          [unit]
-        );
+        expect(mockExecuteSql).toHaveBeenLastCalledWith(expect.any(String), [
+          unit,
+        ]);
       }
     });
   });
 
   describe('findShelfLifeSensitive', () => {
     it('should find shelf-life sensitive items', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       const result = await repository.findShelfLifeSensitive();
 
@@ -316,7 +371,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should order results by name', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findShelfLifeSensitive();
 
@@ -326,7 +383,9 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should exclude soft-deleted items', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleInventoryItemRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleInventoryItemRow])
+      );
 
       await repository.findShelfLifeSensitive();
 
@@ -347,13 +406,13 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findShelfLifeSensitive())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findShelfLifeSensitive()).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findShelfLifeSensitive())
-        .rejects
-        .toThrow('Failed to find shelf-life sensitive items');
+      await expect(repository.findShelfLifeSensitive()).rejects.toThrow(
+        'Failed to find shelf-life sensitive items'
+      );
     });
 
     it('should handle multiple shelf-life sensitive items', async () => {
@@ -412,17 +471,22 @@ describe('InventoryItemRepository', () => {
       await repository.getStats();
 
       expect(mockExecuteSql).toHaveBeenCalledTimes(2);
-      
+
       // First call should be count query
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(1,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        1,
         expect.stringContaining('COUNT(*) as total')
       );
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(1,
-        expect.stringContaining('SUM(shelf_life_sensitive) as shelf_life_sensitive_count')
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining(
+          'SUM(shelf_life_sensitive) as shelf_life_sensitive_count'
+        )
       );
-      
+
       // Second call should be unit distribution query
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(2,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        2,
         expect.stringContaining('GROUP BY canonical_unit')
       );
     });
@@ -434,10 +498,12 @@ describe('InventoryItemRepository', () => {
 
       await repository.getStats();
 
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(1,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        1,
         expect.stringContaining('WHERE deleted_at IS NULL')
       );
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(2,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        2,
         expect.stringContaining('WHERE deleted_at IS NULL')
       );
     });
@@ -467,7 +533,8 @@ describe('InventoryItemRepository', () => {
 
       await repository.getStats();
 
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(2,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        2,
         expect.stringContaining('ORDER BY count DESC')
       );
     });
@@ -476,13 +543,11 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('Count query failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.getStats())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.getStats()).rejects.toThrow(DatabaseError);
 
-      await expect(repository.getStats())
-        .rejects
-        .toThrow('Failed to get inventory statistics');
+      await expect(repository.getStats()).rejects.toThrow(
+        'Failed to get inventory statistics'
+      );
     });
 
     it('should throw DatabaseError on unit query failure', async () => {
@@ -490,9 +555,7 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('Unit query failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.getStats())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.getStats()).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -515,10 +578,9 @@ describe('InventoryItemRepository', () => {
     };
 
     it('should return items with their offer counts', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([
-        mockItemWithOffers,
-        mockItemWithoutOffers,
-      ]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([mockItemWithOffers, mockItemWithoutOffers])
+      );
 
       const result = await repository.findWithOfferCounts();
 
@@ -581,7 +643,9 @@ describe('InventoryItemRepository', () => {
         ...sampleInventoryItemRow,
         offer_count: null,
       };
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([itemWithNullCount]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([itemWithNullCount])
+      );
 
       const result = await repository.findWithOfferCounts();
 
@@ -592,26 +656,17 @@ describe('InventoryItemRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findWithOfferCounts())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findWithOfferCounts()).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findWithOfferCounts())
-        .rejects
-        .toThrow('Failed to find inventory items with offer counts');
+      await expect(repository.findWithOfferCounts()).rejects.toThrow(
+        'Failed to find inventory items with offer counts'
+      );
     });
   });
 
   describe('integration with BaseRepository', () => {
-    beforeEach(() => {
-      // Mock the BaseRepository dependencies
-      jest.mock('../../utils', () => ({
-        generateUUID: jest.fn(() => 'test-uuid'),
-        getCurrentTimestamp: jest.fn(() => mockTimestamp),
-        validateTimestampFields: jest.fn(() => []),
-      }));
-    });
-
     it('should inherit CRUD operations from BaseRepository', () => {
       expect(repository.create).toBeDefined();
       expect(repository.findById).toBeDefined();
@@ -655,15 +710,29 @@ describe('InventoryItemRepository', () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        const item = { ...sampleInventoryItem, shelf_life_sensitive: input as boolean };
+        const item = {
+          ...sampleInventoryItem,
+          shelf_life_sensitive: input as boolean,
+        };
         const mapped = (repository as any).mapEntityToRow(item);
         expect(mapped.shelf_life_sensitive).toBe(expected);
       });
     });
 
     it('should handle various canonical units', () => {
-      const units = ['kg', 'lbs', 'oz', 'g', 'pcs', 'each', 'liters', 'ml', 'gallons', 'cups'];
-      
+      const units = [
+        'kg',
+        'lbs',
+        'oz',
+        'g',
+        'pcs',
+        'each',
+        'liters',
+        'ml',
+        'gallons',
+        'cups',
+      ];
+
       units.forEach(unit => {
         const item = { ...sampleInventoryItem, canonical_unit: unit };
         const mapped = (repository as any).mapEntityToRow(item);
@@ -685,7 +754,8 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should handle special characters in fields', () => {
-      const specialText = "Item with 'quotes', \"double quotes\", and émojis 🍅";
+      const specialText =
+        'Item with \'quotes\', "double quotes", and émojis 🍅';
       const item = {
         ...sampleInventoryItem,
         name: specialText,

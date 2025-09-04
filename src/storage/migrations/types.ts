@@ -9,19 +9,19 @@ import { Transaction } from '../types';
 export interface MigrationContext {
   // SQLite transaction for database operations
   transaction?: Transaction;
-  
+
   // Current versions before migration
   currentDatabaseVersion: number;
   currentDataVersion: number;
-  
+
   // Target versions after migration
   targetDatabaseVersion: number;
   targetDataVersion: number;
-  
+
   // Migration metadata
   migrationId: string;
   timestamp: string;
-  
+
   // Rollback data storage
   rollbackData?: any;
 }
@@ -42,16 +42,16 @@ export interface Migration {
   readonly version: number;
   readonly type: MigrationType;
   readonly description: string;
-  
+
   // Dependencies on other migrations
   readonly dependencies?: string[];
-  
+
   // Execute the migration
   up(context: MigrationContext): Promise<MigrationResult>;
-  
+
   // Rollback the migration
   down(context: MigrationContext): Promise<MigrationResult>;
-  
+
   // Validate prerequisites before running
   canRun(context: MigrationContext): Promise<boolean>;
 }
@@ -59,17 +59,17 @@ export interface Migration {
 // Migration types
 export enum MigrationType {
   DATABASE = 'database',
-  DATA = 'data'
+  DATA = 'data',
 }
 
 // Database migration for schema changes
 export interface DatabaseMigration extends Migration {
   type: MigrationType.DATABASE;
-  
+
   // SQL statements for migration
   readonly upSql: string[];
   readonly downSql: string[];
-  
+
   // Platform-specific SQL (optional)
   readonly webSql?: string[];
   readonly nativeSql?: string[];
@@ -80,11 +80,11 @@ export interface DatabaseMigration extends Migration {
 // Data migration for MMKV and data format changes
 export interface DataMigration extends Migration {
   type: MigrationType.DATA;
-  
+
   // Data transformation functions
   transformUp(data: any, context: MigrationContext): Promise<any>;
   transformDown(data: any, context: MigrationContext): Promise<any>;
-  
+
   // Affected storage namespaces
   readonly affectedNamespaces: string[];
 }
@@ -104,7 +104,10 @@ export interface MigrationRegistry {
   unregister(migrationId: string): void;
   getMigration(migrationId: string): Migration | undefined;
   getAllMigrations(): MigrationRegistryEntry[];
-  getPendingMigrations(currentDatabaseVersion: number, currentDataVersion: number): Migration[];
+  getPendingMigrations(
+    currentDatabaseVersion: number,
+    currentDataVersion: number
+  ): Migration[];
   getExecutedMigrations(): MigrationRegistryEntry[];
 }
 
@@ -112,19 +115,22 @@ export interface MigrationRegistry {
 export interface MigrationManager {
   // Execute pending migrations
   runPendingMigrations(): Promise<MigrationResult[]>;
-  
+
   // Execute specific migration
   runMigration(migrationId: string): Promise<MigrationResult>;
-  
+
   // Rollback specific migration
   rollbackMigration(migrationId: string): Promise<MigrationResult>;
-  
+
   // Rollback to specific version
-  rollbackToVersion(databaseVersion: number, dataVersion: number): Promise<MigrationResult[]>;
-  
+  rollbackToVersion(
+    databaseVersion: number,
+    dataVersion: number
+  ): Promise<MigrationResult[]>;
+
   // Get current versions
   getCurrentVersions(): Promise<{ database: number; data: number }>;
-  
+
   // Validate migration chain
   validateMigrationChain(): Promise<{ valid: boolean; errors: string[] }>;
 }
@@ -134,17 +140,23 @@ export interface VersionTracker {
   // Database version methods
   getDatabaseVersion(): Promise<number>;
   setDatabaseVersion(version: number): Promise<void>;
-  
+
   // Data version methods (stored in MMKV)
   getDataVersion(): Promise<number>;
   setDataVersion(version: number): Promise<void>;
-  
+
   // Migration history
-  recordMigrationExecution(migration: Migration, result: MigrationResult): Promise<void>;
+  recordMigrationExecution(
+    migration: Migration,
+    result: MigrationResult
+  ): Promise<void>;
   getMigrationHistory(): Promise<MigrationExecutionRecord[]>;
-  
+
   // Rollback tracking
-  recordRollback(migrationId: string, rollbackResult: MigrationResult): Promise<void>;
+  recordRollback(
+    migrationId: string,
+    rollbackResult: MigrationResult
+  ): Promise<void>;
 }
 
 // Migration execution record for history tracking
@@ -166,18 +178,22 @@ export interface MigrationConfig {
   databaseVersionKey: string;
   dataVersionKey: string;
   migrationHistoryKey: string;
-  
-  // Execution configuration  
+
+  // Execution configuration
   enableAutoMigration: boolean;
   enableRollback: boolean;
   maxConcurrentMigrations: number;
+
+  // Safety guards
+  enableConcurrencyGuards: boolean;
+  maxExecutionTimeMs: number;
   migrationTimeout: number; // ms
-  
+
   // Error handling
   continueOnError: boolean;
   retryFailedMigrations: boolean;
   maxRetryAttempts: number;
-  
+
   // Logging
   enableDetailedLogging: boolean;
   logLevel: 'error' | 'warn' | 'info' | 'debug';
@@ -198,34 +214,58 @@ export class MigrationError extends Error {
 
 export class MigrationValidationError extends MigrationError {
   constructor(migrationId: string, validationMessage: string) {
-    super(`Migration validation failed: ${validationMessage}`, migrationId, 'VALIDATION_ERROR');
+    super(
+      `Migration validation failed: ${validationMessage}`,
+      migrationId,
+      'VALIDATION_ERROR'
+    );
   }
 }
 
 export class MigrationExecutionError extends MigrationError {
-  constructor(migrationId: string, executionMessage: string, originalError?: Error) {
-    super(`Migration execution failed: ${executionMessage}`, migrationId, 'EXECUTION_ERROR', originalError);
+  constructor(
+    migrationId: string,
+    executionMessage: string,
+    originalError?: Error
+  ) {
+    super(
+      `Migration execution failed: ${executionMessage}`,
+      migrationId,
+      'EXECUTION_ERROR',
+      originalError
+    );
   }
 }
 
 export class MigrationRollbackError extends MigrationError {
-  constructor(migrationId: string, rollbackMessage: string, originalError?: Error) {
-    super(`Migration rollback failed: ${rollbackMessage}`, migrationId, 'ROLLBACK_ERROR', originalError);
+  constructor(
+    migrationId: string,
+    rollbackMessage: string,
+    originalError?: Error
+  ) {
+    super(
+      `Migration rollback failed: ${rollbackMessage}`,
+      migrationId,
+      'ROLLBACK_ERROR',
+      originalError
+    );
   }
 }
 
 // Default migration configuration
 export const DEFAULT_MIGRATION_CONFIG: MigrationConfig = {
   databaseVersionKey: 'database_version',
-  dataVersionKey: 'data_version', 
+  dataVersionKey: 'data_version',
   migrationHistoryKey: 'migration_history',
   enableAutoMigration: true,
   enableRollback: true,
   maxConcurrentMigrations: 1, // Sequential execution for safety
+  enableConcurrencyGuards: true,
+  maxExecutionTimeMs: 60000, // 60 seconds maximum
   migrationTimeout: 30000, // 30 seconds
   continueOnError: false,
   retryFailedMigrations: true,
   maxRetryAttempts: 3,
-  enableDetailedLogging: __DEV__,
-  logLevel: __DEV__ ? 'debug' : 'error',
+  enableDetailedLogging: (typeof __DEV__ !== 'undefined' && __DEV__) || false,
+  logLevel: typeof __DEV__ !== 'undefined' && __DEV__ ? 'debug' : 'error',
 };

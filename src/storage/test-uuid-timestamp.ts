@@ -17,7 +17,7 @@ import {
   isFuture,
   isPast,
   getRelativeTime,
-  validateTimestampFields
+  validateTimestampFields,
 } from './utils/index';
 
 // Colors for console output
@@ -67,9 +67,11 @@ function testUUIDFunctionality(): void {
   });
 
   runTest('UUID validation rejects invalid UUIDs', () => {
-    return !isValidUUID('invalid-uuid') &&
-           !isValidUUID('123e4567-e89b-12d3-a456-42661417400') && // too short
-           !isValidUUID('123e4567-e89b-12d3-a456-426614174000x'); // too long
+    return (
+      !isValidUUID('invalid-uuid') &&
+      !isValidUUID('123e4567-e89b-12d3-a456-42661417400') && // too short
+      !isValidUUID('123e4567-e89b-12d3-a456-426614174000x')
+    ); // too long
   });
 
   // Test short UUID generation
@@ -81,7 +83,10 @@ function testUUIDFunctionality(): void {
   // Test that generated UUIDs are v4
   runTest('Generated UUIDs are version 4', () => {
     const uuid = generateUUID();
-    return uuid[14] === '4'; // Version 4 has '4' at position 14
+    // Full UUID v4 format validation: 8-4-4-4-12 hex groups
+    const uuid4Regex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuid4Regex.test(uuid);
   });
 }
 
@@ -103,9 +108,11 @@ function testTimestampFunctionality(): void {
   });
 
   runTest('Timestamp validation rejects invalid timestamps', () => {
-    return !isValidTimestamp('invalid-timestamp') &&
-           !isValidTimestamp('2023-12-01T10:30:45') && // missing Z
-           !isValidTimestamp('2023/12/01T10:30:45.123Z'); // wrong date format
+    return (
+      !isValidTimestamp('invalid-timestamp') &&
+      !isValidTimestamp('2023-12-01T10:30:45') && // missing Z
+      !isValidTimestamp('2023/12/01T10:30:45.123Z')
+    ); // wrong date format
   });
 
   // Test timestamp parsing
@@ -164,10 +171,15 @@ function testTimestampFunctionality(): void {
       created_at: getCurrentTimestamp(),
       updated_at: getCurrentTimestamp(),
       invalid_timestamp: 'not-a-timestamp',
-      deleted_at: undefined
+      deleted_at: undefined,
     };
 
-    const errors = validateTimestampFields(entity, ['created_at', 'updated_at', 'invalid_timestamp', 'deleted_at']);
+    const errors = validateTimestampFields(entity, [
+      'created_at',
+      'updated_at',
+      'invalid_timestamp',
+      'deleted_at',
+    ]);
     return errors.length === 1 && errors[0].field === 'invalid_timestamp';
   });
 }
@@ -182,17 +194,19 @@ function testBaseEntityIntegration(): void {
   runTest('Entity creation generates proper UUID and timestamps', () => {
     const id = generateUUID();
     const now = getCurrentTimestamp();
-    
+
     const entity = {
       id,
       created_at: now,
       updated_at: now,
-      deleted_at: undefined
+      deleted_at: undefined,
     };
 
-    return isValidUUID(entity.id) && 
-           isValidTimestamp(entity.created_at) && 
-           isValidTimestamp(entity.updated_at);
+    return (
+      isValidUUID(entity.id) &&
+      isValidTimestamp(entity.created_at) &&
+      isValidTimestamp(entity.updated_at)
+    );
   });
 
   // Test soft delete timestamp handling
@@ -205,14 +219,16 @@ function testBaseEntityIntegration(): void {
   runTest('Update operations generate new timestamps', () => {
     const originalTimestamp = getTimestampDaysAgo(1);
     const updateTimestamp = getCurrentTimestamp();
-    
+
     // Updates should have newer timestamps
     const originalDate = parseTimestamp(originalTimestamp);
     const updateDate = parseTimestamp(updateTimestamp);
-    
-    return originalDate !== null && 
-           updateDate !== null && 
-           updateDate.getTime() > originalDate.getTime();
+
+    return (
+      originalDate !== null &&
+      updateDate !== null &&
+      updateDate.getTime() > originalDate.getTime()
+    );
   });
 }
 
@@ -228,7 +244,7 @@ function testPerformance(): void {
       generateUUID();
     }
     const end = Date.now();
-    return (end - start) < 100;
+    return end - start < 100;
   });
 
   runTest('Timestamp generation is performant (1000 timestamps < 50ms)', () => {
@@ -237,7 +253,7 @@ function testPerformance(): void {
       getCurrentTimestamp();
     }
     const end = Date.now();
-    return (end - start) < 50;
+    return end - start < 50;
   });
 }
 
@@ -245,7 +261,9 @@ function testPerformance(): void {
  * Main test runner
  */
 export function runUUIDTimestampTests(): void {
-  console.log(`${YELLOW}🧪 Running UUID and Timestamp Implementation Tests${RESET}`);
+  console.log(
+    `${YELLOW}🧪 Running UUID and Timestamp Implementation Tests${RESET}`
+  );
   console.log('='.repeat(60));
 
   testUUIDFunctionality();
@@ -256,14 +274,17 @@ export function runUUIDTimestampTests(): void {
   console.log('\n=== Test Summary ===');
   console.log(`${GREEN}Tests completed!${RESET} Check results above.`);
   console.log('\n📋 Task 2.6 Implementation Status:');
-  console.log(`${GREEN}✅${RESET} UUIDv4 generation with cross-platform support`);
+  console.log(
+    `${GREEN}✅${RESET} UUIDv4 generation with cross-platform support`
+  );
   console.log(`${GREEN}✅${RESET} ISO 8601 timestamp handling`);
   console.log(`${GREEN}✅${RESET} BaseEntity integration`);
   console.log(`${GREEN}✅${RESET} Comprehensive utility functions`);
   console.log(`${GREEN}✅${RESET} Input validation and error handling`);
 }
 
-// Allow running this file directly for testing
-if (require.main === module) {
+// Allow running this file directly for testing (Node.js environments only)
+declare const module: any;
+if (typeof require !== 'undefined' && require.main === module) {
   runUUIDTimestampTests();
 }

@@ -519,3 +519,4 @@ interface MigrationConfig {
 ```
 
 For more detailed information, refer to the type definitions in `types.ts` and the example migrations in the `examples/` directory.
+

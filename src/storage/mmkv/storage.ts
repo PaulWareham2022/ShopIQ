@@ -1,5 +1,43 @@
 import { Platform } from 'react-native';
 
+// Helper function to generate secure encryption key
+async function generateOrRetrieveEncryptionKey(
+  keyId: string
+): Promise<string | undefined> {
+  try {
+    // Try to use react-native-keychain for secure key storage
+    const Keychain = require('react-native-keychain');
+
+    // First, try to retrieve existing key
+    try {
+      const credentials = await Keychain.getInternetCredentials(keyId);
+      if (credentials && credentials.password) {
+        return credentials.password;
+      }
+    } catch {
+      // Key doesn't exist, we'll generate a new one
+    }
+
+    // Generate a new 256-bit key
+    const crypto = require('crypto');
+    const key = crypto.randomBytes(32).toString('hex');
+
+    // Store the key securely
+    await Keychain.setInternetCredentials(keyId, 'mmkv', key);
+
+    return key;
+  } catch (error) {
+    // If secure keychain is not available, log warning and continue without encryption
+    if (__DEV__) {
+      console.warn(
+        'Failed to generate/retrieve encryption key, continuing without encryption:',
+        error
+      );
+    }
+    return undefined;
+  }
+}
+
 // Web fallback storage using localStorage
 class WebStorage {
   private prefix: string;
@@ -9,14 +47,27 @@ class WebStorage {
   }
 
   set(key: string, value: string | number | boolean): void {
-    if (typeof window !== 'undefined' && (window as any).localStorage) {
-      (window as any).localStorage.setItem(this.prefix + key, String(value));
+    if (
+      typeof window !== 'undefined' &&
+      'localStorage' in window &&
+      window.localStorage
+    ) {
+      try {
+        window.localStorage.setItem(this.prefix + key, String(value));
+      } catch (error) {
+        // Handle quota/permission errors silently
+        console.warn('Failed to set localStorage item:', error);
+      }
     }
   }
 
   getString(key: string): string | undefined {
-    if (typeof window !== 'undefined' && (window as any).localStorage) {
-      const value = (window as any).localStorage.getItem(this.prefix + key);
+    if (
+      typeof window !== 'undefined' &&
+      'localStorage' in window &&
+      window.localStorage
+    ) {
+      const value = window.localStorage.getItem(this.prefix + key);
       return value !== null ? value : undefined;
     }
     return undefined;
@@ -24,7 +75,15 @@ class WebStorage {
 
   getNumber(key: string): number | undefined {
     const value = this.getString(key);
-    return value !== undefined ? Number(value) : undefined;
+    if (value !== undefined) {
+      const trimmed = value.trim();
+      if (trimmed === '' || !/^-?\d*\.?\d+([eE][+-]?\d+)?$/.test(trimmed)) {
+        return undefined;
+      }
+      const num = Number(trimmed);
+      return Number.isFinite(num) ? num : undefined;
+    }
+    return undefined;
   }
 
   getBoolean(key: string): boolean | undefined {
@@ -33,8 +92,12 @@ class WebStorage {
   }
 
   delete(key: string): void {
-    if (typeof window !== 'undefined' && (window as any).localStorage) {
-      (window as any).localStorage.removeItem(this.prefix + key);
+    if (
+      typeof window !== 'undefined' &&
+      'localStorage' in window &&
+      window.localStorage
+    ) {
+      window.localStorage.removeItem(this.prefix + key);
     }
   }
 
@@ -150,20 +213,46 @@ if (Platform.OS === 'web') {
 
   const { MMKV } = require('react-native-mmkv');
 
-  appStorage = new MMKV({
-    id: 'app-storage',
-    encryptionKey: undefined, // Can be added later for encryption
-  });
+  // Initialize with encryption keys (async initialization will be handled)
+  Promise.all([
+    generateOrRetrieveEncryptionKey('app-storage-key'),
+    generateOrRetrieveEncryptionKey('cache-storage-key'),
+    generateOrRetrieveEncryptionKey('user-preferences-key'),
+  ])
+    .then(([appKey, cacheKey, userPrefKey]) => {
+      // Reinitialize instances with encryption keys
+      appStorage = new MMKV({
+        id: 'app-storage',
+        encryptionKey: appKey,
+      });
 
-  cacheStorage = new MMKV({
-    id: 'cache-storage',
-    encryptionKey: undefined,
-  });
+      cacheStorage = new MMKV({
+        id: 'cache-storage',
+        encryptionKey: cacheKey,
+      });
 
-  userPreferencesStorage = new MMKV({
-    id: 'user-preferences',
-    encryptionKey: undefined,
-  });
+      userPreferencesStorage = new MMKV({
+        id: 'user-preferences',
+        encryptionKey: userPrefKey,
+      });
+
+      if (__DEV__) {
+        console.log('✅ MMKV storage initialized with encryption');
+      }
+    })
+    .catch(error => {
+      if (__DEV__) {
+        console.warn(
+          'Failed to initialize encrypted MMKV storage, falling back to unencrypted:',
+          error
+        );
+      }
+    });
+
+  // Initial instances (will be replaced with encrypted versions)
+  appStorage = new MMKV({ id: 'app-storage' });
+  cacheStorage = new MMKV({ id: 'cache-storage' });
+  userPreferencesStorage = new MMKV({ id: 'user-preferences' });
 }
 
 // Export wrapped instances

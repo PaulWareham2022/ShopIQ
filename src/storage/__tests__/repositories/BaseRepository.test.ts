@@ -3,25 +3,37 @@
  */
 
 import { BaseRepository } from '../../repositories/base/BaseRepository';
-import { BaseEntity, EntityNotFoundError, DatabaseError, ValidationError } from '../../types';
-import { mockSQLiteResponse, resetAllMocks, createTestSupplier } from '../setup';
+import {
+  BaseEntity,
+  EntityNotFoundError,
+  DatabaseError,
+  ValidationError,
+} from '../../types';
+import { mockSQLiteResponse, resetAllMocks } from '../setup';
 
 // Mock the database module
-const mockExecuteSql = jest.fn();
-jest.mock('../../sqlite/database', () => ({
-  executeSql: mockExecuteSql,
-}));
+jest.mock('../../sqlite/database');
+jest.mock('../../utils');
 
-// Mock the utils module
-const mockGenerateUUID = jest.fn();
-const mockGetCurrentTimestamp = jest.fn();
-const mockValidateTimestampFields = jest.fn();
+// Get the mocked functions after the modules are imported
+import { executeSql } from '../../sqlite/database';
+import {
+  generateUUID,
+  getCurrentTimestamp,
+  validateTimestampFields,
+} from '../../utils';
 
-jest.mock('../../utils', () => ({
-  generateUUID: mockGenerateUUID,
-  getCurrentTimestamp: mockGetCurrentTimestamp,
-  validateTimestampFields: mockValidateTimestampFields,
-}));
+const mockExecuteSql = executeSql as jest.MockedFunction<typeof executeSql>;
+const mockGenerateUUID = generateUUID as jest.MockedFunction<
+  typeof generateUUID
+>;
+const mockGetCurrentTimestamp = getCurrentTimestamp as jest.MockedFunction<
+  typeof getCurrentTimestamp
+>;
+const mockValidateTimestampFields =
+  validateTimestampFields as jest.MockedFunction<
+    typeof validateTimestampFields
+  >;
 
 // Test entity interface
 interface TestEntity extends BaseEntity {
@@ -64,7 +76,7 @@ describe('BaseRepository', () => {
   beforeEach(() => {
     resetAllMocks();
     repository = new TestRepository();
-    
+
     mockGenerateUUID.mockReturnValue(mockUUID);
     mockGetCurrentTimestamp.mockReturnValue(mockTimestamp);
     mockValidateTimestampFields.mockReturnValue([]);
@@ -91,7 +103,14 @@ describe('BaseRepository', () => {
 
       expect(mockExecuteSql).toHaveBeenCalledWith(
         'INSERT INTO test_table (id, name, description, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?)',
-        [mockUUID, 'Test Entity', 'Test description', mockTimestamp, mockTimestamp, null]
+        [
+          mockUUID,
+          'Test Entity',
+          'Test description',
+          mockTimestamp,
+          mockTimestamp,
+          null,
+        ]
       );
     });
 
@@ -113,9 +132,11 @@ describe('BaseRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.create(testEntityData))
-        .rejects
-        .toThrow(DatabaseError);
+      // Verify that the original error is preserved in the DatabaseError
+      await expect(repository.create(testEntityData)).rejects.toMatchObject({
+        message: expect.stringContaining('Failed to create entity'),
+        cause: sqlError,
+      });
     });
 
     it('should generate UUID and timestamps for entity', async () => {
@@ -155,9 +176,9 @@ describe('BaseRepository', () => {
       const sqlError = new Error('Batch insert failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.createMany(testEntitiesData))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.createMany(testEntitiesData)).rejects.toThrow(
+        DatabaseError
+      );
     });
   });
 
@@ -202,9 +223,9 @@ describe('BaseRepository', () => {
       const sqlError = new Error('Query failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findById('test-id'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findById('test-id')).rejects.toThrow(
+        DatabaseError
+      );
     });
   });
 
@@ -241,7 +262,9 @@ describe('BaseRepository', () => {
     });
 
     it('should find all entities with pagination', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([testEntities[0]]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([testEntities[0]])
+      );
 
       const result = await repository.findAll({ limit: 1, offset: 0 });
 
@@ -278,9 +301,7 @@ describe('BaseRepository', () => {
       const sqlError = new Error('Query failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findAll())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findAll()).rejects.toThrow(DatabaseError);
     });
   });
 
@@ -322,9 +343,9 @@ describe('BaseRepository', () => {
     it('should support query options', async () => {
       mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([testEntity]));
 
-      await repository.findWhere(conditions, { 
-        orderBy: 'created_at', 
-        limit: 10 
+      await repository.findWhere(conditions, {
+        orderBy: 'created_at',
+        limit: 10,
       });
 
       expect(mockExecuteSql).toHaveBeenCalledWith(
@@ -394,9 +415,17 @@ describe('BaseRepository', () => {
       });
 
       expect(mockExecuteSql).toHaveBeenCalledTimes(2);
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(2,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        2,
         'UPDATE test_table SET name = ?, description = ?, created_at = ?, updated_at = ?, deleted_at = ? WHERE id = ?',
-        ['Updated Name', 'Updated description', mockTimestamp, mockTimestamp, null, 'test-id']
+        [
+          'Updated Name',
+          'Updated description',
+          mockTimestamp,
+          mockTimestamp,
+          null,
+          'test-id',
+        ]
       );
     });
 
@@ -404,9 +433,9 @@ describe('BaseRepository', () => {
       mockExecuteSql.mockReset();
       mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([])); // findById returns nothing
 
-      await expect(repository.update('non-existent-id', updates))
-        .rejects
-        .toThrow(EntityNotFoundError);
+      await expect(
+        repository.update('non-existent-id', updates)
+      ).rejects.toThrow(EntityNotFoundError);
     });
 
     it('should throw EntityNotFoundError when update affects no rows', async () => {
@@ -415,9 +444,9 @@ describe('BaseRepository', () => {
         .mockResolvedValueOnce(mockSQLiteResponse([testEntity])) // findById succeeds
         .mockResolvedValueOnce(mockSQLiteResponse([], 0)); // update affects 0 rows
 
-      await expect(repository.update('test-id', updates))
-        .rejects
-        .toThrow(EntityNotFoundError);
+      await expect(repository.update('test-id', updates)).rejects.toThrow(
+        EntityNotFoundError
+      );
     });
   });
 
@@ -521,7 +550,9 @@ describe('BaseRepository', () => {
 
   describe('exists', () => {
     it('should return true when entity exists', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([{ id: 'test-id' }]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([{ id: 'test-id' }])
+      );
 
       const result = await repository.exists('test-id');
 
@@ -553,13 +584,16 @@ describe('BaseRepository', () => {
     it('should restore soft-deleted entity successfully', async () => {
       mockExecuteSql
         .mockResolvedValueOnce(mockSQLiteResponse([], 1)) // restore operation
-        .mockResolvedValueOnce(mockSQLiteResponse([{ ...deletedEntity, deleted_at: null }])); // findById call
+        .mockResolvedValueOnce(
+          mockSQLiteResponse([{ ...deletedEntity, deleted_at: null }])
+        ); // findById call
 
       const result = await repository.restore('test-id');
 
       expect(result).toBeDefined();
       expect(result?.id).toBe('test-id');
-      expect(mockExecuteSql).toHaveBeenNthCalledWith(1,
+      expect(mockExecuteSql).toHaveBeenNthCalledWith(
+        1,
         'UPDATE test_table SET deleted_at = NULL, updated_at = ? WHERE id = ? AND deleted_at IS NOT NULL',
         [mockTimestamp, 'test-id']
       );
@@ -586,13 +620,13 @@ describe('BaseRepository', () => {
 
     it('should throw ValidationError for invalid timestamps', async () => {
       const validationErrors = [
-        { field: 'created_at', value: 'invalid', error: 'Invalid timestamp' }
+        { field: 'created_at', value: 'invalid', error: 'Invalid timestamp' },
       ];
       mockValidateTimestampFields.mockReturnValueOnce(validationErrors);
 
-      await expect(repository.create({ name: 'Test' }))
-        .rejects
-        .toThrow(ValidationError);
+      await expect(repository.create({ name: 'Test' })).rejects.toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -601,9 +635,7 @@ describe('BaseRepository', () => {
       const connectionError = new Error('Database connection failed');
       mockExecuteSql.mockRejectedValueOnce(connectionError);
 
-      await expect(repository.findAll())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findAll()).rejects.toThrow(DatabaseError);
     });
 
     it('should preserve original error information', async () => {

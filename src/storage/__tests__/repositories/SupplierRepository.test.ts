@@ -2,15 +2,36 @@
  * Unit tests for SupplierRepository
  */
 
-import { SupplierRepository, Supplier } from '../../repositories/SupplierRepository';
+import {
+  SupplierRepository,
+  Supplier,
+} from '../../repositories/SupplierRepository';
 import { DatabaseError } from '../../types';
 import { mockSQLiteResponse, resetAllMocks } from '../setup';
 
 // Mock the database module
-const mockExecuteSql = jest.fn();
-jest.mock('../../sqlite/database', () => ({
-  executeSql: mockExecuteSql,
-}));
+jest.mock('../../sqlite/database');
+jest.mock('../../utils');
+
+// Get mocked functions
+import { executeSql } from '../../sqlite/database';
+import {
+  generateUUID,
+  getCurrentTimestamp,
+  validateTimestampFields,
+} from '../../utils';
+
+const mockExecuteSql = executeSql as jest.MockedFunction<typeof executeSql>;
+const mockGenerateUUID = generateUUID as jest.MockedFunction<
+  typeof generateUUID
+>;
+const mockGetCurrentTimestamp = getCurrentTimestamp as jest.MockedFunction<
+  typeof getCurrentTimestamp
+>;
+const mockValidateTimestampFields =
+  validateTimestampFields as jest.MockedFunction<
+    typeof validateTimestampFields
+  >;
 
 describe('SupplierRepository', () => {
   let repository: SupplierRepository;
@@ -43,12 +64,17 @@ describe('SupplierRepository', () => {
   beforeEach(() => {
     resetAllMocks();
     repository = new SupplierRepository();
+
+    // Setup default mock returns
+    mockGenerateUUID.mockReturnValue('test-uuid');
+    mockGetCurrentTimestamp.mockReturnValue('2024-01-01T00:00:00.000Z');
+    mockValidateTimestampFields.mockReturnValue([]);
   });
 
   describe('mapRowToEntity', () => {
     it('should map database row to Supplier entity correctly', () => {
       const result = (repository as any).mapRowToEntity(sampleSupplierRow);
-      
+
       expect(result).toEqual(sampleSupplier);
     });
 
@@ -63,7 +89,7 @@ describe('SupplierRepository', () => {
       };
 
       const result = (repository as any).mapRowToEntity(rowWithNulls);
-      
+
       expect(result).toEqual({
         id: 'supplier-1',
         name: 'Acme Corp',
@@ -84,7 +110,7 @@ describe('SupplierRepository', () => {
       };
 
       const result = (repository as any).mapRowToEntity(deletedRow);
-      
+
       expect(result.deleted_at).toBe(mockTimestamp);
     });
   });
@@ -92,7 +118,7 @@ describe('SupplierRepository', () => {
   describe('mapEntityToRow', () => {
     it('should map Supplier entity to database row correctly', () => {
       const result = (repository as any).mapEntityToRow(sampleSupplier);
-      
+
       expect(result).toEqual(sampleSupplierRow);
     });
 
@@ -107,7 +133,7 @@ describe('SupplierRepository', () => {
       };
 
       const result = (repository as any).mapEntityToRow(entityWithUndefined);
-      
+
       expect(result).toEqual({
         id: 'supplier-1',
         name: 'Acme Corp',
@@ -129,7 +155,7 @@ describe('SupplierRepository', () => {
       };
 
       const result = (repository as any).mapEntityToRow(partialEntity);
-      
+
       expect(result).toEqual({
         id: 'supplier-1',
         name: 'Updated Name',
@@ -146,7 +172,9 @@ describe('SupplierRepository', () => {
 
   describe('findByName', () => {
     it('should find suppliers by name with partial match', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       const result = await repository.findByName('acme');
 
@@ -170,7 +198,9 @@ describe('SupplierRepository', () => {
     });
 
     it('should handle case insensitive search', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       await repository.findByName('ACME');
 
@@ -181,7 +211,9 @@ describe('SupplierRepository', () => {
     });
 
     it('should exclude soft-deleted suppliers', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       await repository.findByName('acme');
 
@@ -195,13 +227,13 @@ describe('SupplierRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findByName('acme'))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findByName('acme')).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findByName('acme'))
-        .rejects
-        .toThrow('Failed to find suppliers by name');
+      await expect(repository.findByName('acme')).rejects.toThrow(
+        'Failed to find suppliers by name'
+      );
     });
 
     it('should handle multiple matching suppliers', async () => {
@@ -211,7 +243,9 @@ describe('SupplierRepository', () => {
         name: 'Acme Industries',
       };
 
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow, secondSupplier]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow, secondSupplier])
+      );
 
       const result = await repository.findByName('acme');
 
@@ -223,7 +257,9 @@ describe('SupplierRepository', () => {
 
   describe('findByMinQualityRating', () => {
     it('should find suppliers with quality rating above threshold', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       const result = await repository.findByMinQualityRating(3);
 
@@ -235,7 +271,9 @@ describe('SupplierRepository', () => {
     });
 
     it('should order by quality rating descending, then name ascending', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       await repository.findByMinQualityRating(4);
 
@@ -246,7 +284,9 @@ describe('SupplierRepository', () => {
     });
 
     it('should exclude soft-deleted suppliers', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       await repository.findByMinQualityRating(3);
 
@@ -268,17 +308,19 @@ describe('SupplierRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.findByMinQualityRating(3))
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.findByMinQualityRating(3)).rejects.toThrow(
+        DatabaseError
+      );
 
-      await expect(repository.findByMinQualityRating(3))
-        .rejects
-        .toThrow('Failed to find suppliers by quality rating');
+      await expect(repository.findByMinQualityRating(3)).rejects.toThrow(
+        'Failed to find suppliers by quality rating'
+      );
     });
 
     it('should handle edge case ratings', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       await repository.findByMinQualityRating(1);
       expect(mockExecuteSql).toHaveBeenCalledWith(expect.any(String), [1]);
@@ -355,13 +397,11 @@ describe('SupplierRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
-      await expect(repository.getStats())
-        .rejects
-        .toThrow(DatabaseError);
+      await expect(repository.getStats()).rejects.toThrow(DatabaseError);
 
-      await expect(repository.getStats())
-        .rejects
-        .toThrow('Failed to get supplier statistics');
+      await expect(repository.getStats()).rejects.toThrow(
+        'Failed to get supplier statistics'
+      );
     });
 
     it('should exclude soft-deleted suppliers from statistics', async () => {
@@ -377,12 +417,18 @@ describe('SupplierRepository', () => {
 
   describe('integration with BaseRepository', () => {
     beforeEach(() => {
-      // Mock the BaseRepository dependencies
-      jest.mock('../../utils', () => ({
-        generateUUID: jest.fn(() => 'test-uuid'),
-        getCurrentTimestamp: jest.fn(() => mockTimestamp),
-        validateTimestampFields: jest.fn(() => []),
-      }));
+      // Reset all mocks
+      jest.clearAllMocks();
+
+      // Set up mock return values for utils functions if needed
+      const {
+        generateUUID,
+        getCurrentTimestamp,
+        validateTimestampFields,
+      } = require('../../utils');
+      generateUUID.mockReturnValue('test-uuid');
+      getCurrentTimestamp.mockReturnValue(mockTimestamp);
+      validateTimestampFields.mockReturnValue([]);
     });
 
     it('should inherit CRUD operations from BaseRepository', () => {
@@ -416,7 +462,7 @@ describe('SupplierRepository', () => {
   describe('data validation', () => {
     it('should handle valid quality ratings (1-5)', () => {
       const validRatings = [1, 2, 3, 4, 5];
-      
+
       validRatings.forEach(rating => {
         const supplier = { ...sampleSupplier, quality_rating: rating };
         const mapped = (repository as any).mapEntityToRow(supplier);
@@ -426,7 +472,7 @@ describe('SupplierRepository', () => {
 
     it('should handle edge case quality ratings', () => {
       const edgeCases = [0, 6, -1, 10];
-      
+
       edgeCases.forEach(rating => {
         const supplier = { ...sampleSupplier, quality_rating: rating };
         const mapped = (repository as any).mapEntityToRow(supplier);
@@ -448,7 +494,8 @@ describe('SupplierRepository', () => {
     });
 
     it('should handle special characters in fields', () => {
-      const specialText = "Test with 'quotes', \"double quotes\", and émojis 🚀";
+      const specialText =
+        'Test with \'quotes\', "double quotes", and émojis 🚀';
       const supplier = {
         ...sampleSupplier,
         name: specialText,
@@ -463,7 +510,9 @@ describe('SupplierRepository', () => {
 
   describe('error handling and edge cases', () => {
     it('should handle empty search strings', async () => {
-      mockExecuteSql.mockResolvedValueOnce(mockSQLiteResponse([sampleSupplierRow]));
+      mockExecuteSql.mockResolvedValueOnce(
+        mockSQLiteResponse([sampleSupplierRow])
+      );
 
       const result = await repository.findByName('');
 

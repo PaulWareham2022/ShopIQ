@@ -4,12 +4,27 @@ echo "🔍 iOS Simulator Download Monitor - $(date)"
 echo "=================================================="
 
 # Check if download process is running
-if ps aux | grep "xcodebuild -downloadAllPlatforms" | grep -v grep > /dev/null; then
+PIDS=$(pgrep -f "xcodebuild -downloadAllPlatforms")
+if [ -n "$PIDS" ]; then
     echo "✅ Download process is running"
     
-    # Try to get process info
-    PROCESS_INFO=$(ps aux | grep "xcodebuild -downloadAllPlatforms" | grep -v grep | awk '{print "PID: " $2 ", CPU: " $3 "%, MEM: " $4 "%"}')
-    echo "📊 Process: $PROCESS_INFO"
+    # Build process info for each PID
+    PROCESS_INFO=""
+    for PID in $PIDS; do
+        if [ -n "$PROCESS_INFO" ]; then
+            PROCESS_INFO="$PROCESS_INFO; "
+        fi
+        PID_INFO=$(ps -p "$PID" -o pid,pcpu,pmem,comm 2>/dev/null | tail -1)
+        if [ $? -eq 0 ] && [ -n "$PID_INFO" ]; then
+            PROCESS_INFO="$PROCESS_INFO$PID_INFO"
+        fi
+    done
+    
+    if [ -n "$PROCESS_INFO" ]; then
+        echo "📊 Process: $PROCESS_INFO"
+    else
+        echo "📊 Process info unavailable"
+    fi
 else
     echo "❌ Download process not found - likely completed!"
 fi

@@ -1,4 +1,7 @@
 import { Platform } from 'react-native';
+import { createAllSchemas, validateSchema } from './schemas';
+import { getBatchUnitConversionSQL } from './seed-data';
+import { ALL_UNIT_CONVERSIONS } from '../utils/conversion-data';
 
 // Database configuration
 const DB_NAME = 'shopiq.db';
@@ -102,9 +105,43 @@ class WebDatabase {
         },
       };
 
-      callback(mockTx);
-      // TODO: track pending async ops and flush when they complete.
-      setTimeout(() => successCallback?.(), 0);
+      // Track pending async operations
+      const pendingOps: Promise<any>[] = [];
+
+      // Create enhanced transaction object that tracks async operations
+      const enhancedTx = {
+        ...mockTx,
+        executeSql: (
+          sql: string,
+          params?: any[],
+          successCb?: any,
+          errorCb?: any
+        ) => {
+          const promise = new Promise((resolve, reject) => {
+            const enhancedSuccessCb = (tx: any, result: any) => {
+              if (successCb) successCb(tx, result);
+              resolve(result);
+            };
+            const enhancedErrorCb = (tx: any, error: any) => {
+              if (errorCb) errorCb(tx, error);
+              reject(error);
+              return false;
+            };
+            mockTx.executeSql(sql, params, enhancedSuccessCb, enhancedErrorCb);
+          });
+          pendingOps.push(promise);
+          return promise;
+        },
+      };
+
+      callback(enhancedTx);
+
+      // Wait for all pending operations to complete before calling successCallback
+      Promise.all(pendingOps)
+        .then(() => successCallback?.())
+        .catch(error => {
+          if (errorCallback) errorCallback(error);
+        });
     } catch (error) {
       if (__DEV__) {
         console.error('[Web DB] Transaction error:', error);
@@ -133,285 +170,93 @@ export const initializeDatabase = async (): Promise<void> => {
     await db.init();
   }
 
-  if (Platform.OS === 'web') {
-    // Use the existing web transaction method
-    return new Promise((resolve, reject) => {
-      db.transaction(
-        tx => {
-          // Create suppliers table
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS suppliers (
-            id TEXT PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL,
-            website TEXT,
-            notes TEXT,
-            shipping_policy TEXT,
-            quality_rating INTEGER CHECK (quality_rating >= 1 AND quality_rating <= 5),
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT
+  try {
+    // Enable foreign keys for referential integrity (native platforms)
+    if (Platform.OS !== 'web' && typeof db.execSync === 'function') {
+      try {
+        db.execSync('PRAGMA foreign_keys = ON;');
+      } catch (pragmaError) {
+        if (__DEV__) {
+          console.error(
+            '[Database] Failed to enable foreign keys:',
+            pragmaError
           );
-        `);
-
-          // Create inventory_items table
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS inventory_items (
-            id TEXT PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL,
-            canonical_unit TEXT NOT NULL,
-            shelf_life_sensitive INTEGER DEFAULT 0,
-            notes TEXT,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT
-          );
-        `);
-
-          // Create offers table
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS offers (
-            id TEXT PRIMARY KEY NOT NULL,
-            inventory_item_id TEXT NOT NULL,
-            supplier_id TEXT NOT NULL,
-            price_raw REAL NOT NULL,
-            price_including_shipping REAL,
-            price_including_tax REAL,
-            quantity_raw REAL NOT NULL,
-            unit_raw TEXT NOT NULL,
-            quantity_canonical REAL NOT NULL,
-            price_per_canonical_unit REAL NOT NULL,
-            date TEXT NOT NULL,
-            quality_rating INTEGER CHECK (quality_rating >= 1 AND quality_rating <= 5),
-            notes TEXT,
-            photo_uri TEXT,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT,
-            FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id),
-            FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
-          );
-        `);
-
-          // Create unit_conversions table
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS unit_conversions (
-            id TEXT PRIMARY KEY NOT NULL,
-            from_unit TEXT NOT NULL,
-            to_unit TEXT NOT NULL,
-            factor REAL NOT NULL,
-            category TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT
-          );
-        `);
-
-          // Create bundles table (for future use)
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS bundles (
-            id TEXT PRIMARY KEY NOT NULL,
-            name TEXT NOT NULL,
-            description TEXT,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT
-          );
-        `);
-
-          // Create bundle_items table (for future use)
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS bundle_items (
-            id TEXT PRIMARY KEY NOT NULL,
-            bundle_id TEXT NOT NULL,
-            inventory_item_id TEXT NOT NULL,
-            quantity REAL NOT NULL,
-            unit TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            deleted_at TEXT,
-            FOREIGN KEY (bundle_id) REFERENCES bundles (id),
-            FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id)
-          );
-        `);
-
-          // Create database_metadata table for migrations
-          tx.executeSql(`
-          CREATE TABLE IF NOT EXISTS database_metadata (
-            key TEXT PRIMARY KEY NOT NULL,
-            value TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-          );
-        `);
-
-          // Insert initial database version
-          tx.executeSql(
-            `
-          INSERT OR IGNORE INTO database_metadata (key, value, created_at, updated_at)
-          VALUES ('version', ?, datetime('now'), datetime('now'));
-        `,
-            [DB_VERSION.toString()]
-          );
-        },
-        error => {
-          if (__DEV__) {
-            console.error('Database initialization error:', error);
-          }
-          reject(error);
-        },
-        () => {
-          if (__DEV__) {
-            console.log('Database initialized successfully');
-          }
-          resolve();
         }
-      );
-    });
-  } else {
-    // Native platforms - use new synchronous API
-    try {
-      // Enforce referential integrity
-      db.execSync('PRAGMA foreign_keys = ON;');
-
-      // Create suppliers table
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS suppliers (
-          id TEXT PRIMARY KEY NOT NULL,
-          name TEXT NOT NULL,
-          website TEXT,
-          notes TEXT,
-          shipping_policy TEXT,
-          quality_rating INTEGER CHECK (quality_rating >= 1 AND quality_rating <= 5),
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT
-        );
-      `);
-
-      // Create inventory_items table
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS inventory_items (
-          id TEXT PRIMARY KEY NOT NULL,
-          name TEXT NOT NULL,
-          canonical_unit TEXT NOT NULL,
-          shelf_life_sensitive INTEGER DEFAULT 0,
-          notes TEXT,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT
-        );
-      `);
-
-      // Create offers table
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS offers (
-          id TEXT PRIMARY KEY NOT NULL,
-          inventory_item_id TEXT NOT NULL,
-          supplier_id TEXT NOT NULL,
-          price_raw REAL NOT NULL,
-          price_including_shipping REAL,
-          price_including_tax REAL,
-          quantity_raw REAL NOT NULL,
-          unit_raw TEXT NOT NULL,
-          quantity_canonical REAL NOT NULL,
-          price_per_canonical_unit REAL NOT NULL,
-          date TEXT NOT NULL,
-          quality_rating INTEGER CHECK (quality_rating >= 1 AND quality_rating <= 5),
-          notes TEXT,
-          photo_uri TEXT,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT,
-          FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id),
-          FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
-        );
-      `);
-
-      // Add indexes for offers table performance
-      db.execSync(
-        'CREATE INDEX IF NOT EXISTS idx_offers_inventory ON offers (inventory_item_id);'
-      );
-      db.execSync(
-        'CREATE INDEX IF NOT EXISTS idx_offers_supplier ON offers (supplier_id);'
-      );
-      db.execSync(
-        'CREATE INDEX IF NOT EXISTS idx_offers_date ON offers (date);'
-      );
-
-      // Create unit_conversions table
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS unit_conversions (
-          id TEXT PRIMARY KEY NOT NULL,
-          from_unit TEXT NOT NULL,
-          to_unit TEXT NOT NULL,
-          factor REAL NOT NULL,
-          category TEXT NOT NULL,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT
-        );
-      `);
-
-      // Add index for unit conversions performance
-      db.execSync(
-        'CREATE UNIQUE INDEX IF NOT EXISTS idx_unit_conv_pair ON unit_conversions (from_unit, to_unit);'
-      );
-
-      // Create bundles table (for future use)
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS bundles (
-          id TEXT PRIMARY KEY NOT NULL,
-          name TEXT NOT NULL,
-          description TEXT,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT
-        );
-      `);
-
-      // Create bundle_items table (for future use)
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS bundle_items (
-          id TEXT PRIMARY KEY NOT NULL,
-          bundle_id TEXT NOT NULL,
-          inventory_item_id TEXT NOT NULL,
-          quantity REAL NOT NULL,
-          unit TEXT NOT NULL,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          deleted_at TEXT,
-          FOREIGN KEY (bundle_id) REFERENCES bundles (id),
-          FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id)
-        );
-      `);
-
-      // Create database_metadata table for migrations
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS database_metadata (
-          key TEXT PRIMARY KEY NOT NULL,
-          value TEXT NOT NULL,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL
-        );
-      `);
-
-      // Insert initial database version
-      db.runSync(
-        `
-        INSERT OR IGNORE INTO database_metadata (key, value, created_at, updated_at)
-        VALUES (?, ?, datetime('now'), datetime('now'));
-      `,
-        ['version', DB_VERSION.toString()]
-      );
-
-      if (__DEV__) {
-        console.log('Database initialized successfully (native)');
+        // Continue initialization - foreign keys are nice to have but not critical
       }
-    } catch (error) {
-      if (__DEV__) {
-        console.error('Database initialization error (native):', error);
+    }
+
+    // Create all schemas using the comprehensive schema definitions
+    await createAllSchemas();
+
+    // Validate that all tables were created successfully
+    const isValid = await validateSchema();
+    if (!isValid) {
+      throw new Error(
+        'Schema validation failed - some tables were not created properly'
+      );
+    }
+
+    // Populate unit conversion data
+    await seedUnitConversions();
+
+    if (__DEV__) {
+      console.log(
+        'Database initialized successfully with comprehensive schemas'
+      );
+    }
+  } catch (error) {
+    if (__DEV__) {
+      console.error('Database initialization error:', error);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Seed the unit_conversions table with default conversion data
+ */
+const seedUnitConversions = async (): Promise<void> => {
+  try {
+    const { sql, params } = getBatchUnitConversionSQL();
+
+    // Split params into groups of 7 (one for each conversion)
+    const conversions = [];
+    for (let i = 0; i < params.length; i += 7) {
+      conversions.push(params.slice(i, i + 7));
+    }
+
+    if (Platform.OS === 'web') {
+      // Web platform - insert each conversion individually
+      for (const conversionParams of conversions) {
+        await new Promise<void>((resolve, reject) => {
+          db.transaction((tx: any) => {
+            tx.executeSql(
+              'INSERT OR REPLACE INTO unit_conversions (id, from_unit, to_unit, factor, dimension, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              conversionParams,
+              resolve,
+              (_: any, error: any) => {
+                reject(error);
+                return false;
+              }
+            );
+          }, reject);
+        });
       }
-      throw error;
+    } else {
+      // Native platform - use batch insert for better performance
+      for (const valueSet of conversions) {
+        db.runSync(sql, valueSet);
+      }
+    }
+
+    if (__DEV__) {
+      console.log(`Seeded ${ALL_UNIT_CONVERSIONS.length} unit conversions`);
+    }
+  } catch (error) {
+    // Don't fail initialization if seeding fails - unit conversions can be added later
+    if (__DEV__) {
+      console.warn('Failed to seed unit conversions:', error);
     }
   }
 };
@@ -424,10 +269,20 @@ export const getDatabaseVersion = async (): Promise<number> => {
       ['version']
     );
     if (result.rows.length > 0) {
-      return parseInt(result.rows.item(0).value, 10);
-    } else {
-      return 0;
+      // Safely access rows across platforms
+      let row;
+      if (typeof result.rows.item === 'function') {
+        row = result.rows.item(0);
+      } else {
+        row = result.rows[0];
+      }
+
+      if (row && row.value) {
+        const version = parseInt(row.value, 10);
+        return isNaN(version) ? 0 : version;
+      }
     }
+    return 0;
   } catch (error) {
     if (__DEV__) {
       console.error('Error getting database version:', error);
@@ -467,11 +322,15 @@ export const executeSql = (
     try {
       if (sql.toLowerCase().includes('select')) {
         const result = db.getAllSync(sql, params);
+        // Normalize result to match web platform's structure
         return Promise.resolve({
           rows: {
             length: result.length,
             item: (index: number) => result[index],
+            _array: result, // Additional property for compatibility
           },
+          rowsAffected: 0,
+          insertId: undefined,
         });
       } else {
         const result = db.runSync(sql, params);

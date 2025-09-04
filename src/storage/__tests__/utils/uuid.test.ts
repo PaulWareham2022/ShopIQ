@@ -3,13 +3,16 @@
  */
 
 import { generateUUID, isValidUUID, generateShortUUID } from '../../utils/uuid';
+import * as uuidModule from '../../utils/uuid';
 
 describe('UUID Utils', () => {
   describe('generateUUID', () => {
     it('should generate a valid UUID v4', () => {
       const uuid = generateUUID();
       expect(typeof uuid).toBe('string');
-      expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+      expect(uuid).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      );
     });
 
     it('should generate unique UUIDs', () => {
@@ -68,7 +71,7 @@ describe('UUID Utils', () => {
     it('should handle case insensitivity correctly', () => {
       const upperCaseUUID = '550E8400-E29B-41D4-A716-446655440000';
       const lowerCaseUUID = '550e8400-e29b-41d4-a716-446655440000';
-      
+
       expect(isValidUUID(upperCaseUUID)).toBe(true);
       expect(isValidUUID(lowerCaseUUID)).toBe(true);
     });
@@ -76,7 +79,7 @@ describe('UUID Utils', () => {
     it('should validate version 4 specifically', () => {
       const validV4UUID = '550e8400-e29b-41d4-a716-446655440000'; // Version 4
       const invalidV1UUID = '550e8400-e29b-11d4-a716-446655440000'; // Version 1
-      
+
       expect(isValidUUID(validV4UUID)).toBe(true);
       expect(isValidUUID(invalidV1UUID)).toBe(false);
     });
@@ -126,13 +129,13 @@ describe('UUID Utils', () => {
     });
 
     it('should be prefix of full UUID', () => {
-      // Mock generateUUID to return a known value
-      const mockUUID = '12345678-abcd-4efg-8hij-klmnopqrstuv';
-      jest.spyOn(require('../../utils/uuid'), 'generateUUID').mockReturnValueOnce(mockUUID);
-      
+      // Mock generateUUID to return a known value (valid hex UUID)
+      const mockUUID = '12345678-abcd-4ef0-8a00-0123456789ab';
+      jest.spyOn(uuidModule, 'generateUUID').mockReturnValueOnce(mockUUID);
+
       const shortUUID = generateShortUUID();
       expect(shortUUID).toBe('12345678');
-      
+
       // Restore the original function
       jest.restoreAllMocks();
     });
@@ -151,10 +154,10 @@ describe('UUID Utils', () => {
       const start = performance.now();
       const uuids = Array.from({ length: 1000 }, () => generateUUID());
       const end = performance.now();
-      
+
       expect(end - start).toBeLessThan(100); // Should complete in under 100ms
       expect(uuids).toHaveLength(1000);
-      
+
       // Verify all are valid
       uuids.forEach(uuid => {
         expect(isValidUUID(uuid)).toBe(true);

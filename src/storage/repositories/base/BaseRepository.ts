@@ -12,12 +12,51 @@ import {
   DatabaseError,
   ValidationError,
 } from '../../types';
-import { generateUUID, getCurrentTimestamp, validateTimestampFields } from '../../utils';
+import {
+  generateUUID,
+  getCurrentTimestamp,
+  validateTimestampFields,
+} from '../../utils';
 
-export abstract class BaseRepository<T extends BaseEntity> implements Repository<T> {
+export abstract class BaseRepository<T extends BaseEntity>
+  implements Repository<T>
+{
   protected abstract tableName: string;
   protected abstract mapRowToEntity(row: any): T;
   protected abstract mapEntityToRow(entity: Partial<T>): Record<string, any>;
+
+  // Override this in subclasses to define allowed ORDER BY columns
+  protected getAllowedOrderByColumns(): string[] {
+    return ['id', 'created_at', 'updated_at'];
+  }
+
+  // Helper method to validate and sanitize ORDER BY column
+  private validateOrderByColumn(column: string): string {
+    const allowedColumns = this.getAllowedOrderByColumns();
+    const normalizedColumn = column.toLowerCase().trim();
+
+    if (!allowedColumns.includes(normalizedColumn)) {
+      throw new ValidationError(
+        `Invalid orderBy column: ${normalizedColumn}. Allowed columns: ${allowedColumns.join(', ')}`
+      );
+    }
+
+    return normalizedColumn;
+  }
+
+  // Helper method to validate ORDER BY direction
+  private validateOrderDirection(direction?: string): string {
+    if (!direction) {
+      return 'ASC';
+    }
+
+    const normalizedDirection = direction.toUpperCase().trim();
+    if (normalizedDirection !== 'ASC' && normalizedDirection !== 'DESC') {
+      return 'ASC'; // Default to ASC for invalid directions
+    }
+
+    return normalizedDirection;
+  }
 
   /**
    * Validate timestamp fields in an entity
@@ -25,22 +64,35 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
    * @param additionalTimestampFields Additional timestamp fields beyond the base ones
    * @throws ValidationError if any timestamp fields are invalid
    */
-  protected validateTimestamps(entity: Partial<T>, additionalTimestampFields: string[] = []): void {
+  protected validateTimestamps(
+    entity: Partial<T>,
+    additionalTimestampFields: string[] = []
+  ): void {
     const baseTimestampFields = ['created_at', 'updated_at', 'deleted_at'];
-    const allTimestampFields = [...baseTimestampFields, ...additionalTimestampFields];
-    
-    const errors = validateTimestampFields(entity as Record<string, any>, allTimestampFields);
-    
+    const allTimestampFields = [
+      ...baseTimestampFields,
+      ...additionalTimestampFields,
+    ];
+
+    const errors = validateTimestampFields(
+      entity as Record<string, any>,
+      allTimestampFields
+    );
+
     if (errors.length > 0) {
-      const errorMessages = errors.map(e => `${e.field}: ${e.error}`).join(', ');
+      const errorMessages = errors
+        .map(e => `${e.field}: ${e.error}`)
+        .join(', ');
       throw new ValidationError(`Invalid timestamp fields: ${errorMessages}`);
     }
   }
 
-  async create(entityData: Omit<T, 'id' | 'created_at' | 'updated_at'>): Promise<T> {
+  async create(
+    entityData: Omit<T, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<T> {
     const now = getCurrentTimestamp();
     const id = generateUUID();
-    
+
     const entity = {
       ...entityData,
       id,
@@ -51,35 +103,47 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
     try {
       const row = this.mapEntityToRow(entity);
       const columns = Object.keys(row).join(', ');
-      const placeholders = Object.keys(row).map(() => '?').join(', ');
+      const placeholders = Object.keys(row)
+        .map(() => '?')
+        .join(', ');
       const values = Object.values(row);
 
       const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
-      
+
       await executeSql(sql, values);
       return entity;
     } catch (error) {
-      throw new DatabaseError(`Failed to create entity in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to create entity in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
-  async createMany(entitiesData: Omit<T, 'id' | 'created_at' | 'updated_at'>[]): Promise<T[]> {
+  async createMany(
+    entitiesData: Omit<T, 'id' | 'created_at' | 'updated_at'>[]
+  ): Promise<T[]> {
     if (entitiesData.length === 0) return [];
 
     const now = getCurrentTimestamp();
-    const entities: T[] = entitiesData.map(data => ({
-      ...data,
-      id: generateUUID(),
-      created_at: now,
-      updated_at: now,
-    } as T));
+    const entities: T[] = entitiesData.map(
+      data =>
+        ({
+          ...data,
+          id: generateUUID(),
+          created_at: now,
+          updated_at: now,
+        }) as T
+    );
 
     try {
       // Build batch insert
       const firstRow = this.mapEntityToRow(entities[0]);
       const columns = Object.keys(firstRow).join(', ');
-      const placeholders = Object.keys(firstRow).map(() => '?').join(', ');
-      
+      const placeholders = Object.keys(firstRow)
+        .map(() => '?')
+        .join(', ');
+
       let sql = `INSERT INTO ${this.tableName} (${columns}) VALUES `;
       const valueGroups: string[] = [];
       const allValues: any[] = [];
@@ -91,11 +155,14 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       });
 
       sql += valueGroups.join(', ');
-      
+
       await executeSql(sql, allValues);
       return entities;
     } catch (error) {
-      throw new DatabaseError(`Failed to create entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to create entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -103,14 +170,17 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
     try {
       const sql = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted_at IS NULL`;
       const result = await executeSql(sql, [id]);
-      
+
       if (result.rows.length === 0) {
         return null;
       }
 
       return this.mapRowToEntity(result.rows.item(0));
     } catch (error) {
-      throw new DatabaseError(`Failed to find entity by id in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to find entity by id in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -124,19 +194,20 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
         sql += ' WHERE deleted_at IS NULL';
       }
 
-      // Add ordering
+      // Add ordering with validation
       if (options.orderBy) {
-        sql += ` ORDER BY ${options.orderBy}`;
-        if (options.orderDirection) {
-          sql += ` ${options.orderDirection}`;
-        }
+        const validOrderBy = this.validateOrderByColumn(options.orderBy);
+        const validDirection = this.validateOrderDirection(
+          options.orderDirection
+        );
+        sql += ` ORDER BY ${validOrderBy} ${validDirection}`;
       }
 
       // Add pagination
       if (options.limit) {
         sql += ' LIMIT ?';
         params.push(options.limit);
-        
+
         if (options.offset) {
           sql += ' OFFSET ?';
           params.push(options.offset);
@@ -152,11 +223,17 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
 
       return entities;
     } catch (error) {
-      throw new DatabaseError(`Failed to find all entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to find all entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
-  async findWhere(conditions: Partial<T>, options: QueryOptions = {}): Promise<T[]> {
+  async findWhere(
+    conditions: Partial<T>,
+    options: QueryOptions = {}
+  ): Promise<T[]> {
     try {
       const whereConditions: string[] = [];
       const params: any[] = [];
@@ -177,19 +254,20 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
         sql += ` WHERE ${whereConditions.join(' AND ')}`;
       }
 
-      // Add ordering
+      // Add ordering with validation
       if (options.orderBy) {
-        sql += ` ORDER BY ${options.orderBy}`;
-        if (options.orderDirection) {
-          sql += ` ${options.orderDirection}`;
-        }
+        const validOrderBy = this.validateOrderByColumn(options.orderBy);
+        const validDirection = this.validateOrderDirection(
+          options.orderDirection
+        );
+        sql += ` ORDER BY ${validOrderBy} ${validDirection}`;
       }
 
       // Add pagination
       if (options.limit) {
         sql += ' LIMIT ?';
         params.push(options.limit);
-        
+
         if (options.offset) {
           sql += ' OFFSET ?';
           params.push(options.offset);
@@ -205,7 +283,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
 
       return entities;
     } catch (error) {
-      throw new DatabaseError(`Failed to find entities with conditions in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to find entities with conditions in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -232,11 +313,17 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, params);
       return result.rows.item(0).count;
     } catch (error) {
-      throw new DatabaseError(`Failed to count entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to count entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
-  async update(id: string, updates: Partial<Omit<T, 'id' | 'created_at'>>): Promise<T | null> {
+  async update(
+    id: string,
+    updates: Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<T | null> {
     try {
       // First check if entity exists
       const existing = await this.findById(id);
@@ -255,16 +342,16 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
         .filter(key => key !== 'id')
         .map(key => `${key} = ?`)
         .join(', ');
-      
-      const values = Object.values(row).filter((_, index) => 
-        Object.keys(row)[index] !== 'id'
+
+      const values = Object.values(row).filter(
+        (_, index) => Object.keys(row)[index] !== 'id'
       );
       values.push(id);
 
       const sql = `UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`;
-      
+
       const result = await executeSql(sql, values);
-      
+
       if (result.rowsAffected === 0) {
         throw new EntityNotFoundError(this.tableName, id);
       }
@@ -272,11 +359,17 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       return updatedEntity;
     } catch (error) {
       if (error instanceof EntityNotFoundError) throw error;
-      throw new DatabaseError(`Failed to update entity in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to update entity in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
-  async updateMany(conditions: Partial<T>, updates: Partial<Omit<T, 'id' | 'created_at'>>): Promise<number> {
+  async updateMany(
+    conditions: Partial<T>,
+    updates: Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<number> {
     try {
       const whereConditions: string[] = [];
       const params: any[] = [];
@@ -291,7 +384,7 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const setClause = Object.keys(row)
         .map(key => `${key} = ?`)
         .join(', ');
-      
+
       Object.values(row).forEach(value => params.push(value));
 
       // Build WHERE conditions
@@ -311,7 +404,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, params);
       return result.rowsAffected || 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to update entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to update entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -320,11 +416,14 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       // Soft delete - set deleted_at timestamp
       const sql = `UPDATE ${this.tableName} SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL`;
       const now = getCurrentTimestamp();
-      
+
       const result = await executeSql(sql, [now, now, id]);
       return (result.rowsAffected || 0) > 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to delete entity in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to delete entity in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -354,7 +453,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, params);
       return result.rowsAffected || 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to delete entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to delete entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -364,7 +466,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, [id]);
       return (result.rowsAffected || 0) > 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to hard delete entity in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to hard delete entity in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -387,7 +492,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, params);
       return result.rowsAffected || 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to hard delete entities in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to hard delete entities in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -397,7 +505,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       const result = await executeSql(sql, [id]);
       return result.rows.length > 0;
     } catch (error) {
-      throw new DatabaseError(`Failed to check entity existence in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to check entity existence in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 
@@ -405,9 +516,9 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
     try {
       const sql = `UPDATE ${this.tableName} SET deleted_at = NULL, updated_at = ? WHERE id = ? AND deleted_at IS NOT NULL`;
       const now = getCurrentTimestamp();
-      
+
       const result = await executeSql(sql, [now, id]);
-      
+
       if (result.rowsAffected === 0) {
         return null; // Either doesn't exist or wasn't deleted
       }
@@ -415,7 +526,10 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
       // Return the restored entity
       return this.findById(id);
     } catch (error) {
-      throw new DatabaseError(`Failed to restore entity in ${this.tableName}`, error as Error);
+      throw new DatabaseError(
+        `Failed to restore entity in ${this.tableName}`,
+        error as Error
+      );
     }
   }
 }

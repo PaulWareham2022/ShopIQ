@@ -81,7 +81,9 @@ function testUUIDFunctionality(): void {
   // Test that generated UUIDs are v4
   runTest('Generated UUIDs are version 4', () => {
     const uuid = generateUUID();
-    return uuid[14] === '4'; // Version 4 has '4' at position 14
+    // Full UUID v4 format validation: 8-4-4-4-12 hex groups
+    const uuid4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuid4Regex.test(uuid);
   });
 }
 
@@ -264,6 +266,6 @@ export function runUUIDTimestampTests(): void {
 }
 
 // Allow running this file directly for testing
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   runUUIDTimestampTests();
 }

@@ -171,6 +171,10 @@ export interface MigrationConfig {
   enableAutoMigration: boolean;
   enableRollback: boolean;
   maxConcurrentMigrations: number;
+  
+  // Safety guards
+  enableConcurrencyGuards: boolean;
+  maxExecutionTimeMs: number;
   migrationTimeout: number; // ms
   
   // Error handling
@@ -222,11 +226,13 @@ export const DEFAULT_MIGRATION_CONFIG: MigrationConfig = {
   enableAutoMigration: true,
   enableRollback: true,
   maxConcurrentMigrations: 1, // Sequential execution for safety
+  enableConcurrencyGuards: true,
+  maxExecutionTimeMs: 60000, // 60 seconds maximum
   migrationTimeout: 30000, // 30 seconds
   continueOnError: false,
   retryFailedMigrations: true,
   maxRetryAttempts: 3,
-  enableDetailedLogging: __DEV__,
-  logLevel: __DEV__ ? 'debug' : 'error',
+  enableDetailedLogging: (typeof __DEV__ !== 'undefined' && __DEV__) || false,
+  logLevel: (typeof __DEV__ !== 'undefined' && __DEV__) ? 'debug' : 'error',
 };
 

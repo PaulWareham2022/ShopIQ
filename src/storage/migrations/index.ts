@@ -32,18 +32,32 @@ import { versionTracker } from './VersionTracker';
  */
 export const initializeMigrationSystem = async (): Promise<void> => {
   try {
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log('[Migration System] Initializing...');
     }
 
-    // Import and register all migrations
-    // Note: In a real app, you'd import all your migration files here
-    const { migration001 } = await import('./examples/001_add_supplier_contact_info');
-    const { migration001Data } = await import('./examples/001_migrate_user_preferences_v2');
+    // Only import migrations in development or when explicitly enabled
+    // In production, empty migration system is safer unless explicitly needed
+    const shouldImportMigrations = (typeof __DEV__ !== 'undefined' && __DEV__) || 
+                                   (process.env.ENABLE_MIGRATIONS === 'true');
+                                   
+    if (shouldImportMigrations) {
+      try {
+        // Import and register all migrations
+        // Note: In a real app, you'd import all your migration files here
+        const { migration001 } = await import('./examples/001_add_supplier_contact_info');
+        const { migration001Data } = await import('./examples/001_migrate_user_preferences_v2');
 
-    // Register migrations
-    migrationRegistry.register(migration001);
-    migrationRegistry.register(migration001Data);
+        // Register migrations with error handling
+        migrationRegistry.register(migration001);
+        migrationRegistry.register(migration001Data);
+      } catch (importError) {
+        if (typeof __DEV__ !== 'undefined' && __DEV__) {
+          console.warn('[Migration System] Failed to import example migrations:', importError);
+        }
+        // Don't fail initialization if example migrations can't be imported
+      }
+    }
 
     // Validate the migration chain
     const validation = await migrationManager.validateMigrationChain();
@@ -51,7 +65,7 @@ export const initializeMigrationSystem = async (): Promise<void> => {
       throw new Error(`Migration chain validation failed: ${validation.errors.join('; ')}`);
     }
 
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       const stats = migrationRegistry.getStats();
       console.log('[Migration System] Initialized successfully', {
         totalMigrations: stats.total,
@@ -75,13 +89,13 @@ export const runStartupMigrations = async (): Promise<{
   errors: string[];
 }> => {
   try {
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log('[Migration System] Running startup migrations...');
     }
 
     // Get current versions for logging
     const versions = await migrationManager.getCurrentVersions();
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log('[Migration System] Current versions:', versions);
     }
 
@@ -94,7 +108,7 @@ export const runStartupMigrations = async (): Promise<{
 
     const success = errors.length === 0;
 
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       const finalVersions = await migrationManager.getCurrentVersions();
       console.log('[Migration System] Startup migrations complete', {
         success,
@@ -150,7 +164,7 @@ export const getMigrationSystemStatus = async (): Promise<{
  * ⚠️ WARNING: This will reset all version tracking and migration history
  */
 export const resetMigrationSystem = async (): Promise<void> => {
-  if (__DEV__) {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
     console.warn('[Migration System] Resetting all migrations and history');
   }
 
@@ -163,7 +177,7 @@ export const resetMigrationSystem = async (): Promise<void> => {
     migrationRegistry.markAsNotExecuted(entry.migration.id);
   }
 
-  if (__DEV__) {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
     console.log('[Migration System] Reset complete');
   }
 };

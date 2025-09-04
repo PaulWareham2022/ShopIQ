@@ -3,6 +3,7 @@
  */
 
 import { generateUUID, isValidUUID, generateShortUUID } from '../../utils/uuid';
+import * as uuidModule from '../../utils/uuid';
 
 describe('UUID Utils', () => {
   describe('generateUUID', () => {
@@ -126,9 +127,9 @@ describe('UUID Utils', () => {
     });
 
     it('should be prefix of full UUID', () => {
-      // Mock generateUUID to return a known value
-      const mockUUID = '12345678-abcd-4efg-8hij-klmnopqrstuv';
-      jest.spyOn(require('../../utils/uuid'), 'generateUUID').mockReturnValueOnce(mockUUID);
+      // Mock generateUUID to return a known value (valid hex UUID)
+      const mockUUID = '12345678-abcd-4ef0-8a00-0123456789ab';
+      jest.spyOn(uuidModule, 'generateUUID').mockReturnValueOnce(mockUUID);
       
       const shortUUID = generateShortUUID();
       expect(shortUUID).toBe('12345678');

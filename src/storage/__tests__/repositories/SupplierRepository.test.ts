@@ -12,6 +12,13 @@ jest.mock('../../sqlite/database', () => ({
   executeSql: mockExecuteSql,
 }));
 
+// Mock the utils module
+jest.mock('../../utils', () => ({
+  generateUUID: jest.fn(() => 'test-uuid'),
+  getCurrentTimestamp: jest.fn(() => '2024-01-01T00:00:00.000Z'),
+  validateTimestampFields: jest.fn(() => []),
+}));
+
 describe('SupplierRepository', () => {
   let repository: SupplierRepository;
   const mockTimestamp = '2024-01-01T00:00:00.000Z';
@@ -377,12 +384,14 @@ describe('SupplierRepository', () => {
 
   describe('integration with BaseRepository', () => {
     beforeEach(() => {
-      // Mock the BaseRepository dependencies
-      jest.mock('../../utils', () => ({
-        generateUUID: jest.fn(() => 'test-uuid'),
-        getCurrentTimestamp: jest.fn(() => mockTimestamp),
-        validateTimestampFields: jest.fn(() => []),
-      }));
+      // Reset all mocks
+      jest.clearAllMocks();
+      
+      // Set up mock return values for utils functions if needed
+      const { generateUUID, getCurrentTimestamp, validateTimestampFields } = require('../../utils');
+      generateUUID.mockReturnValue('test-uuid');
+      getCurrentTimestamp.mockReturnValue(mockTimestamp);
+      validateTimestampFields.mockReturnValue([]);
     });
 
     it('should inherit CRUD operations from BaseRepository', () => {

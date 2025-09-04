@@ -3,7 +3,7 @@
  * Validates that the repository abstraction works correctly
  */
 
-import { Platform } from 'react-native';
+// Platform will be imported lazily to avoid breaking non-RN environments
 import { repositories } from './index';
 import type { Supplier, InventoryItem } from './index';
 
@@ -12,7 +12,17 @@ export const testRepositoryPattern = async (): Promise<void> => {
   if (!__DEV__) return;
 
   console.log('🏗️ Testing Repository Pattern...');
-  console.log(`Platform: ${Platform.OS}`);
+  // Lazy import of react-native platform detection
+  let platformOS = 'unknown';
+  try {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      const { Platform } = require('react-native');
+      platformOS = Platform.OS;
+    }
+  } catch (error) {
+    // react-native not available in this environment
+  }
+  console.log(`Platform: ${platformOS}`);
 
   try {
     // Initialize the repository factory
@@ -178,10 +188,11 @@ async function testKeyValueRepositories(): Promise<void> {
 async function testTransactions(): Promise<void> {
   console.log('🔄 Testing transactions...');
 
-  const supplierRepo = await repositories.getSupplierRepository();
-
   // Test successful transaction
   const result = await repositories.withTransaction(async (_tx) => {
+    // Get repository instance bound to the transaction
+    const supplierRepo = await repositories.getSupplierRepository();
+    
     const supplier1 = await supplierRepo.create({
       name: 'Transaction Test Supplier 1',
       website: 'https://test1.com',
@@ -194,6 +205,8 @@ async function testTransactions(): Promise<void> {
 
     return [supplier1, supplier2];
   });
+  
+  const supplierRepo = await repositories.getSupplierRepository();
 
   console.log('✅ Transaction committed successfully');
 
@@ -209,7 +222,10 @@ async function testTransactions(): Promise<void> {
   let rollbackWorked = false;
   try {
     await repositories.withTransaction(async (_tx) => {
-      await supplierRepo.create({
+      // Get repository instance bound to this transaction
+      const txSupplierRepo = await repositories.getSupplierRepository();
+      
+      await txSupplierRepo.create({
         name: 'Transaction Test Supplier 3',
         website: 'https://test3.com',
       });

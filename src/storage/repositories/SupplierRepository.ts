@@ -6,7 +6,7 @@
 import { BaseRepository } from './base/BaseRepository';
 import { BaseEntity } from '../types';
 import { executeSql } from '../sqlite/database';
-import { DatabaseError } from '../types';
+import { DatabaseError, ValidationError } from '../types';
 
 // Supplier entity interface
 export interface Supplier extends BaseEntity {
@@ -76,6 +76,11 @@ export class SupplierRepository extends BaseRepository<Supplier> {
    * Find suppliers with quality rating above threshold
    */
   async findByMinQualityRating(minRating: number): Promise<Supplier[]> {
+    // Validate input parameters
+    if (!Number.isFinite(minRating) || minRating < 1 || minRating > 5) {
+      throw new ValidationError('minRating must be a number between 1 and 5');
+    }
+    
     try {
       const sql = `
         SELECT * FROM ${this.tableName} 

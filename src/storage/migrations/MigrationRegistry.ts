@@ -50,7 +50,7 @@ export class MigrationRegistry implements IMigrationRegistry {
 
     this.migrations.set(migration.id, entry);
 
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log(
         `[MigrationRegistry] Registered ${migration.type} migration: ${migration.id} (v${migration.version})`
       );
@@ -68,7 +68,7 @@ export class MigrationRegistry implements IMigrationRegistry {
 
     this.migrations.delete(migrationId);
 
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log(`[MigrationRegistry] Unregistered migration: ${migrationId}`);
     }
   }
@@ -271,7 +271,7 @@ export class MigrationRegistry implements IMigrationRegistry {
   clear(): void {
     this.migrations.clear();
 
-    if (__DEV__) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.log('[MigrationRegistry] Cleared all migrations');
     }
   }

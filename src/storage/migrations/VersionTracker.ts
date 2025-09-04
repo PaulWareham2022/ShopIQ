@@ -42,12 +42,27 @@ export class VersionTracker implements IVersionTracker {
       // If no version record exists, this is a fresh install
       return 0;
     } catch (error) {
-      if (this.config.logLevel === 'debug' && __DEV__) {
+      if (this.config.logLevel === 'debug' && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.error('[VersionTracker] Error getting database version:', error);
       }
       
-      // On error, assume version 0 (fresh install)
-      return 0;
+      // Only return 0 for missing table errors (fresh install)
+      // For other errors, rethrow to surface the real problem
+      const errorMessage = (error as Error).message.toLowerCase();
+      if (errorMessage.includes('no such table') || 
+          errorMessage.includes('sqlite_master') || 
+          errorMessage.includes('database_metadata')) {
+        // Fresh install - no metadata table exists yet
+        return 0;
+      }
+      
+      // Re-throw other errors as they indicate real problems
+      throw new MigrationError(
+        'Failed to retrieve database version',
+        'version_tracker',
+        'VERSION_RETRIEVAL_ERROR',
+        error as Error
+      );
     }
   }
 
@@ -59,7 +74,7 @@ export class VersionTracker implements IVersionTracker {
         VALUES (?, ?, datetime('now'), datetime('now'))
       `, [this.config.databaseVersionKey, version.toString()]);
 
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log(`[VersionTracker] Database version set to: ${version}`);
       }
     } catch (error) {
@@ -94,7 +109,7 @@ export class VersionTracker implements IVersionTracker {
     try {
       appStorageWrapper.set(this.config.dataVersionKey, version);
       
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log(`[VersionTracker] Data version set to: ${version}`);
       }
     } catch (error) {
@@ -125,7 +140,7 @@ export class VersionTracker implements IVersionTracker {
 
       await this.addToMigrationHistory(record);
 
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log(
           `[VersionTracker] Recorded migration execution: ${migration.id} (${result.success ? 'SUCCESS' : 'FAILED'})`
         );
@@ -169,7 +184,7 @@ export class VersionTracker implements IVersionTracker {
         appStorageWrapper.setObject(this.config.migrationHistoryKey, history);
       }
 
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log(
           `[VersionTracker] Recorded rollback: ${migrationId} (${rollbackResult.success ? 'SUCCESS' : 'FAILED'})`
         );
@@ -258,7 +273,7 @@ export class VersionTracker implements IVersionTracker {
     try {
       appStorageWrapper.delete(this.config.migrationHistoryKey);
       
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log('[VersionTracker] Migration history cleared');
       }
     } catch (error) {
@@ -285,7 +300,7 @@ export class VersionTracker implements IVersionTracker {
       // Clear migration history
       await this.clearMigrationHistory();
       
-      if (this.config.enableDetailedLogging && __DEV__) {
+      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
         console.log('[VersionTracker] All versions and history reset');
       }
     } catch (error) {

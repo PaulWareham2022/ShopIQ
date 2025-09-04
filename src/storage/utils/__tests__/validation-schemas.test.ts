@@ -21,7 +21,7 @@ describe('Unit Conversion Validation Schemas', () => {
         amount: 2.5,
         unit: 'kg',
         dimension: 'mass' as const,
-        id: 'test-123'
+        id: 'test-123',
       };
 
       const result = validateConversionRequest(validRequest);
@@ -32,7 +32,7 @@ describe('Unit Conversion Validation Schemas', () => {
       const validRequest = {
         amount: 1000,
         unit: 'ml',
-        dimension: 'volume' as const
+        dimension: 'volume' as const,
       };
 
       const result = validateConversionRequest(validRequest);
@@ -43,66 +43,68 @@ describe('Unit Conversion Validation Schemas', () => {
       const invalidRequest = {
         amount: -1,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow('Amount must be positive');
+      expect(() => validateConversionRequest(invalidRequest)).toThrow(
+        'Amount must be positive'
+      );
     });
 
     it('should reject zero amount', () => {
       const invalidRequest = {
         amount: 0,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow('Amount must be positive');
+      expect(() => validateConversionRequest(invalidRequest)).toThrow(
+        'Amount must be positive'
+      );
     });
 
     it('should reject infinite amount', () => {
       const invalidRequest = {
         amount: Infinity,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow(); // Zod treats Infinity as invalid number type
+      expect(() => validateConversionRequest(invalidRequest)).toThrow(); // Zod treats Infinity as invalid number type
     });
 
     it('should reject empty unit', () => {
       const invalidRequest = {
         amount: 1,
         unit: '',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow('Unit cannot be empty');
+      expect(() => validateConversionRequest(invalidRequest)).toThrow(
+        'Unit cannot be empty'
+      );
     });
 
     it('should reject too long unit name', () => {
       const invalidRequest = {
         amount: 1,
         unit: 'very-long-unit-name-that-exceeds-limit',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow('Unit name too long');
+      expect(() => validateConversionRequest(invalidRequest)).toThrow(
+        'Unit name too long'
+      );
     });
 
     it('should reject invalid dimension', () => {
       const invalidRequest = {
         amount: 1,
         unit: 'kg',
-        dimension: 'invalid-dimension'
+        dimension: 'invalid-dimension',
       };
 
-      expect(() => validateConversionRequest(invalidRequest))
-        .toThrow();
+      expect(() => validateConversionRequest(invalidRequest)).toThrow();
     });
   });
 
@@ -111,8 +113,8 @@ describe('Unit Conversion Validation Schemas', () => {
       const validBatch = {
         conversions: [
           { amount: 1, unit: 'kg', dimension: 'mass' as const, id: '1' },
-          { amount: 500, unit: 'ml', dimension: 'volume' as const, id: '2' }
-        ]
+          { amount: 500, unit: 'ml', dimension: 'volume' as const, id: '2' },
+        ],
       };
 
       const result = validateBatchConversionRequest(validBatch);
@@ -121,22 +123,22 @@ describe('Unit Conversion Validation Schemas', () => {
 
     it('should reject empty conversions array', () => {
       const invalidBatch = {
-        conversions: []
+        conversions: [],
       };
 
-      expect(() => validateBatchConversionRequest(invalidBatch))
-        .toThrow('At least one conversion required');
+      expect(() => validateBatchConversionRequest(invalidBatch)).toThrow(
+        'At least one conversion required'
+      );
     });
 
     it('should reject batch with invalid conversion', () => {
       const invalidBatch = {
-        conversions: [
-          { amount: -1, unit: 'kg', dimension: 'mass' as const }
-        ]
+        conversions: [{ amount: -1, unit: 'kg', dimension: 'mass' as const }],
       };
 
-      expect(() => validateBatchConversionRequest(invalidBatch))
-        .toThrow('Amount must be positive');
+      expect(() => validateBatchConversionRequest(invalidBatch)).toThrow(
+        'Amount must be positive'
+      );
     });
   });
 
@@ -146,7 +148,7 @@ describe('Unit Conversion Validation Schemas', () => {
         totalPrice: 19.99,
         amount: 2,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
       const result = validatePriceNormalization(validPrice);
@@ -158,7 +160,7 @@ describe('Unit Conversion Validation Schemas', () => {
         totalPrice: 0,
         amount: 1,
         unit: 'unit',
-        dimension: 'count' as const
+        dimension: 'count' as const,
       };
 
       const result = validatePriceNormalization(validPrice);
@@ -170,11 +172,12 @@ describe('Unit Conversion Validation Schemas', () => {
         totalPrice: -10,
         amount: 1,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validatePriceNormalization(invalidPrice))
-        .toThrow('Total price cannot be negative');
+      expect(() => validatePriceNormalization(invalidPrice)).toThrow(
+        'Total price cannot be negative'
+      );
     });
 
     it('should reject zero amount', () => {
@@ -182,11 +185,12 @@ describe('Unit Conversion Validation Schemas', () => {
         totalPrice: 19.99,
         amount: 0,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
-      expect(() => validatePriceNormalization(invalidPrice))
-        .toThrow('Amount must be positive');
+      expect(() => validatePriceNormalization(invalidPrice)).toThrow(
+        'Amount must be positive'
+      );
     });
   });
 
@@ -199,7 +203,7 @@ describe('Unit Conversion Validation Schemas', () => {
       total_price: 19.99,
       currency: 'CAD',
       amount: 2,
-      amount_unit: 'kg'
+      amount_unit: 'kg',
     };
 
     it('should validate valid offer input', () => {
@@ -223,7 +227,7 @@ describe('Unit Conversion Validation Schemas', () => {
         bundle_id: '123e4567-e89b-12d3-a456-426614174002',
         quality_rating: 4,
         notes: 'Test notes',
-        photo_uri: 'file://photo.jpg'
+        photo_uri: 'file://photo.jpg',
       };
 
       const result = validateOfferInput(fullOffer);
@@ -233,91 +237,92 @@ describe('Unit Conversion Validation Schemas', () => {
     it('should reject invalid inventory item UUID', () => {
       const invalidOffer = {
         ...validOffer,
-        inventory_item_id: 'invalid-uuid'
+        inventory_item_id: 'invalid-uuid',
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow('Inventory item ID must be valid UUID');
+      expect(() => validateOfferInput(invalidOffer)).toThrow(
+        'Inventory item ID must be valid UUID'
+      );
     });
 
     it('should reject invalid supplier UUID', () => {
       const invalidOffer = {
         ...validOffer,
-        supplier_id: 'invalid-uuid'
+        supplier_id: 'invalid-uuid',
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow('Supplier ID must be valid UUID');
+      expect(() => validateOfferInput(invalidOffer)).toThrow(
+        'Supplier ID must be valid UUID'
+      );
     });
 
     it('should reject invalid source type', () => {
       const invalidOffer = {
         ...validOffer,
-        source_type: 'invalid-source'
+        source_type: 'invalid-source',
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow();
+      expect(() => validateOfferInput(invalidOffer)).toThrow();
     });
 
     it('should reject invalid datetime', () => {
       const invalidOffer = {
         ...validOffer,
-        observed_at: 'not-a-datetime'
+        observed_at: 'not-a-datetime',
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow('Observed time must be valid ISO 8601 datetime');
+      expect(() => validateOfferInput(invalidOffer)).toThrow(
+        'Observed time must be valid ISO 8601 datetime'
+      );
     });
 
     it('should reject zero or negative price', () => {
       const invalidOffer = {
         ...validOffer,
-        total_price: 0
+        total_price: 0,
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow('Total price must be positive');
+      expect(() => validateOfferInput(invalidOffer)).toThrow(
+        'Total price must be positive'
+      );
     });
 
     it('should reject invalid currency code', () => {
       const invalidOffer = {
         ...validOffer,
-        currency: 'USD1' // Too long
+        currency: 'USD1', // Too long
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow('Currency must be 3-letter ISO code');
+      expect(() => validateOfferInput(invalidOffer)).toThrow(
+        'Currency must be 3-letter ISO code'
+      );
     });
 
     it('should reject invalid quality rating', () => {
       const invalidOffer = {
         ...validOffer,
-        quality_rating: 6 // Out of range
+        quality_rating: 6, // Out of range
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow();
+      expect(() => validateOfferInput(invalidOffer)).toThrow();
     });
 
     it('should reject negative tax rate', () => {
       const invalidOffer = {
         ...validOffer,
-        tax_rate: -0.1
+        tax_rate: -0.1,
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow();
+      expect(() => validateOfferInput(invalidOffer)).toThrow();
     });
 
     it('should reject tax rate above 100%', () => {
       const invalidOffer = {
         ...validOffer,
-        tax_rate: 1.5 // 150%
+        tax_rate: 1.5, // 150%
       };
 
-      expect(() => validateOfferInput(invalidOffer))
-        .toThrow();
+      expect(() => validateOfferInput(invalidOffer)).toThrow();
     });
   });
 
@@ -326,7 +331,7 @@ describe('Unit Conversion Validation Schemas', () => {
       const validData = {
         amount: 1,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
       const result = safeValidate(ConversionRequestSchema, validData);
@@ -341,7 +346,7 @@ describe('Unit Conversion Validation Schemas', () => {
       const invalidData = {
         amount: -1,
         unit: 'kg',
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
       const result = safeValidate(ConversionRequestSchema, invalidData);
@@ -349,7 +354,9 @@ describe('Unit Conversion Validation Schemas', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error).toBeDefined();
-        expect(result.error.issues[0].message).toContain('Amount must be positive');
+        expect(result.error.issues[0].message).toContain(
+          'Amount must be positive'
+        );
       }
     });
   });

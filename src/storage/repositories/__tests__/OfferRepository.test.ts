@@ -16,7 +16,9 @@ jest.mock('../../utils/canonical-units', () => ({
 }));
 
 const mockExecuteSql = require('../../sqlite/database').executeSql;
-const mockValidateAndConvert = validateAndConvert as jest.MockedFunction<typeof validateAndConvert>;
+const mockValidateAndConvert = validateAndConvert as jest.MockedFunction<
+  typeof validateAndConvert
+>;
 
 describe('OfferRepository', () => {
   let repository: OfferRepository;
@@ -29,7 +31,7 @@ describe('OfferRepository', () => {
   describe('createOffer', () => {
     const mockOfferInput: OfferInput = {
       inventory_item_id: 'item-123',
-      supplier_id: 'supplier-456', 
+      supplier_id: 'supplier-456',
       source_type: 'manual',
       observed_at: '2024-01-15T10:00:00.000Z',
       total_price: 19.99,
@@ -43,23 +45,23 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' })
-        }
+          item: (index: number) => ({ canonical_dimension: 'mass' }),
+        },
       });
 
       // Mock unit validation and conversion
       mockValidateAndConvert.mockReturnValue({
         isValid: true,
         canonicalAmount: 2000, // 2 kg = 2000 g
-        canonicalUnit: 'g'
+        canonicalUnit: 'g',
       });
 
       // Mock the actual insert
       mockExecuteSql.mockResolvedValueOnce({
-        rows: { length: 0 }
+        rows: { length: 0 },
       });
 
-      const result = await repository.createOffer(mockOfferInput);
+      await repository.createOffer(mockOfferInput);
 
       // Verify dimension lookup was called
       expect(mockExecuteSql).toHaveBeenCalledWith(
@@ -75,7 +77,7 @@ describe('OfferRepository', () => {
       expect(result).toMatchObject({
         amount_canonical: 2000,
         price_per_canonical_excl_shipping: expectedPricePerCanonical,
-        computed_by_version: 'v1.0.0'
+        computed_by_version: 'v1.0.0',
       });
     });
 
@@ -84,60 +86,63 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' })
-        }
+          item: (index: number) => ({ canonical_dimension: 'mass' }),
+        },
       });
 
       // Mock failed unit validation
       mockValidateAndConvert.mockReturnValue({
         isValid: false,
-        errorMessage: 'Invalid unit: invalid-unit'
+        errorMessage: 'Invalid unit: invalid-unit',
       });
 
-      await expect(repository.createOffer({
-        ...mockOfferInput,
-        amount_unit: 'invalid-unit'
-      })).rejects.toThrow('Invalid unit: invalid-unit');
+      await expect(
+        repository.createOffer({
+          ...mockOfferInput,
+          amount_unit: 'invalid-unit',
+        })
+      ).rejects.toThrow('Invalid unit: invalid-unit');
     });
 
     it('should throw error when inventory item not found', async () => {
       // Mock empty result for inventory item lookup
       mockExecuteSql.mockResolvedValueOnce({
-        rows: { length: 0 }
+        rows: { length: 0 },
       });
 
-      await expect(repository.createOffer(mockOfferInput))
-        .rejects.toThrow('Inventory item with ID item-123 not found');
+      await expect(repository.createOffer(mockOfferInput)).rejects.toThrow(
+        'Inventory item with ID item-123 not found'
+      );
     });
 
     it('should calculate shipping costs correctly', async () => {
       const inputWithShipping: OfferInput = {
         ...mockOfferInput,
         shipping_cost: 5.99,
-        shipping_included: false
+        shipping_included: false,
       };
 
       // Mock inventory item dimension lookup
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' })
-        }
+          item: (index: number) => ({ canonical_dimension: 'mass' }),
+        },
       });
 
       // Mock unit validation and conversion
       mockValidateAndConvert.mockReturnValue({
         isValid: true,
         canonicalAmount: 2000,
-        canonicalUnit: 'g'
+        canonicalUnit: 'g',
       });
 
       // Mock the actual insert
       mockExecuteSql.mockResolvedValueOnce({
-        rows: { length: 0 }
+        rows: { length: 0 },
       });
 
-      const result = await repository.createOffer(inputWithShipping);
+      await repository.createOffer(inputWithShipping);
 
       const expectedPriceExclShipping = 19.99 / 2000;
       const expectedPriceInclShipping = (19.99 + 5.99) / 2000;
@@ -145,7 +150,7 @@ describe('OfferRepository', () => {
       expect(result).toMatchObject({
         price_per_canonical_excl_shipping: expectedPriceExclShipping,
         price_per_canonical_incl_shipping: expectedPriceInclShipping,
-        effective_price_per_canonical: expectedPriceInclShipping
+        effective_price_per_canonical: expectedPriceInclShipping,
       });
     });
   });
@@ -157,23 +162,23 @@ describe('OfferRepository', () => {
         {
           id: 'offer-2', // Cheapest first due to ORDER BY ASC
           effective_price_per_canonical: 0.012,
-          inventory_item_id: 'item-123'
+          inventory_item_id: 'item-123',
         },
         {
           id: 'offer-1',
           effective_price_per_canonical: 0.015,
-          inventory_item_id: 'item-123'
-        }
+          inventory_item_id: 'item-123',
+        },
       ];
 
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 2,
-          item: (index: number) => mockOffers[index]
-        }
+          item: (index: number) => mockOffers[index],
+        },
       });
 
-      const result = await repository.findBestOfferForItem('item-123');
+      await repository.findBestOfferForItem('item-123');
 
       expect(result?.id).toBe('offer-2'); // Cheapest offer (first in ordered result)
       expect(mockExecuteSql).toHaveBeenCalledWith(
@@ -184,10 +189,10 @@ describe('OfferRepository', () => {
 
     it('should return null when no offers found', async () => {
       mockExecuteSql.mockResolvedValueOnce({
-        rows: { length: 0 }
+        rows: { length: 0 },
       });
 
-      const result = await repository.findBestOfferForItem('item-123');
+      await repository.findBestOfferForItem('item-123');
       expect(result).toBeNull();
     });
   });
@@ -212,26 +217,26 @@ describe('OfferRepository', () => {
       effective_price_per_canonical: 0.00999,
       computed_by_version: 'v1.0.0',
       created_at: '2024-01-15T10:00:00.000Z',
-      updated_at: '2024-01-15T10:00:00.000Z'
+      updated_at: '2024-01-15T10:00:00.000Z',
     };
 
     it('should recompute metrics when price changes', async () => {
       // Mock findById to return existing offer
       jest.spyOn(repository, 'findById').mockResolvedValueOnce(existingOffer);
-      
+
       // Mock dimension lookup
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' })
-        }
+          item: (index: number) => ({ canonical_dimension: 'mass' }),
+        },
       });
 
       // Mock unit conversion (same as original)
       mockValidateAndConvert.mockReturnValue({
         isValid: true,
         canonicalAmount: 2000,
-        canonicalUnit: 'g'
+        canonicalUnit: 'g',
       });
 
       // Mock the update call
@@ -243,26 +248,29 @@ describe('OfferRepository', () => {
         effective_price_per_canonical: 0.012495,
       });
 
-      const result = await repository.updateWithRecomputation('offer-123', {
-        total_price: 24.99
+      await repository.updateWithRecomputation('offer-123', {
+        total_price: 24.99,
       });
 
-      expect(repository.update).toHaveBeenCalledWith('offer-123', expect.objectContaining({
-        total_price: 24.99,
-        amount_canonical: 2000,
-        price_per_canonical_excl_shipping: 0.012495, // 24.99 / 2000
-      }));
+      expect(repository.update).toHaveBeenCalledWith(
+        'offer-123',
+        expect.objectContaining({
+          total_price: 24.99,
+          amount_canonical: 2000,
+          price_per_canonical_excl_shipping: 0.012495, // 24.99 / 2000
+        })
+      );
     });
 
     it('should not recompute when non-computation fields change', async () => {
       jest.spyOn(repository, 'findById').mockResolvedValueOnce(existingOffer);
       jest.spyOn(repository, 'update').mockResolvedValueOnce({
         ...existingOffer,
-        notes: 'Updated notes'
+        notes: 'Updated notes',
       });
 
-      const result = await repository.updateWithRecomputation('offer-123', {
-        notes: 'Updated notes'
+      await repository.updateWithRecomputation('offer-123', {
+        notes: 'Updated notes',
       });
 
       // Should not call validateAndConvert or dimension lookup
@@ -270,7 +278,7 @@ describe('OfferRepository', () => {
       expect(mockExecuteSql).not.toHaveBeenCalled();
 
       expect(repository.update).toHaveBeenCalledWith('offer-123', {
-        notes: 'Updated notes'
+        notes: 'Updated notes',
       });
     });
   });

@@ -18,7 +18,19 @@ ALL_UNIT_CONVERSIONS.forEach(conversion => {
   const key = `${conversion.fromUnit}->${conversion.toUnit}`;
   conversionFactors.set(key, conversion.factor);
   unitDimensions.set(conversion.fromUnit, conversion.dimension);
-  canonicalUnits.set(conversion.dimension, conversion.toUnit);
+  
+  // Check for canonical unit conflicts
+  const existingCanonical = canonicalUnits.get(conversion.dimension);
+  if (existingCanonical && existingCanonical !== conversion.toUnit) {
+    // Choose deterministic policy: keep lexicographically smallest unit
+    const chosenUnit = existingCanonical < conversion.toUnit ? existingCanonical : conversion.toUnit;
+    if (chosenUnit !== existingCanonical) {
+      console.warn(`Canonical unit conflict for dimension '${conversion.dimension}': choosing '${chosenUnit}' over '${existingCanonical}' and '${conversion.toUnit}'`);
+      canonicalUnits.set(conversion.dimension, chosenUnit);
+    }
+  } else {
+    canonicalUnits.set(conversion.dimension, conversion.toUnit);
+  }
 });
 
 /**

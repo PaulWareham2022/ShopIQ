@@ -302,8 +302,10 @@ describe('RepositoryFactory', () => {
       factory.getKeyValueRepository('custom');
 
       // Each namespace should create its own repository instance
-      // We can't directly test storage wrapper usage without accessing internals
-      expect(true).toBe(true); // Placeholder - the logic is tested by namespace isolation
+      // Verify that different namespaces create different repository instances
+      const defaultRepo = factory.getKeyValueRepository('default');
+      const customRepo = factory.getKeyValueRepository('custom');
+      expect(defaultRepo).not.toBe(customRepo);
     });
 
     it('should handle cache namespace correctly', () => {
@@ -462,11 +464,7 @@ describe('RepositoryFactory', () => {
     });
 
     it('should include key-value statistics', async () => {
-      // Create some key-value repositories
-      const defaultRepo = factory.getKeyValueRepository();
-      const cacheRepo = factory.getKeyValueRepository('cache');
-      
-      // Mock their counts (this is implementation-dependent)
+      // Mock repository counts (this is implementation-dependent)
       // In a real scenario, we'd need to mock the count() method of KeyValueRepository
       
       mockExecuteSql
@@ -512,15 +510,16 @@ describe('RepositoryFactory', () => {
       expect(migrationSystem?.versionTracker).toBeDefined();
     });
 
-    it('should return null when migration system is not available', async () => {
-      // Test the error handling path by mocking an import error scenario
-      // Since we're already mocking the migrations module successfully at the top level,
-      // this test verifies the general error handling logic
+    it('should return migration system components when available', async () => {
+      // Test that with successful mocks, the migration system is returned
+      // This verifies that the system correctly imports and provides migration components
       const migrationSystem = await factory.getMigrationSystem();
       
-      // With successful mocks, this should return the system, not null
-      // The actual error case would occur in real scenarios where imports fail
+      // With successful mocks, this should return the system components
       expect(migrationSystem).not.toBe(null);
+      expect(migrationSystem?.manager).toBeDefined();
+      expect(migrationSystem?.registry).toBeDefined();
+      expect(migrationSystem?.versionTracker).toBeDefined();
     });
   });
 

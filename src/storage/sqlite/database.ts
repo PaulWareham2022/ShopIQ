@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { createAllSchemas, validateSchema } from './schemas';
 import { getBatchUnitConversionSQL } from './seed-data';
+import { ALL_UNIT_CONVERSIONS } from '../utils/conversion-data';
 
 // Database configuration
 const DB_NAME = 'shopiq.db';
@@ -104,9 +105,37 @@ class WebDatabase {
         },
       };
 
-      callback(mockTx);
-      // TODO: track pending async ops and flush when they complete.
-      setTimeout(() => successCallback?.(), 0);
+      // Track pending async operations
+      const pendingOps: Promise<any>[] = [];
+      
+      // Create enhanced transaction object that tracks async operations
+      const enhancedTx = {
+        ...mockTx,
+        executeSql: (sql: string, params?: any[], successCb?: any, errorCb?: any) => {
+          const promise = new Promise((resolve, reject) => {
+            const enhancedSuccessCb = (tx: any, result: any) => {
+              if (successCb) successCb(tx, result);
+              resolve(result);
+            };
+            const enhancedErrorCb = (tx: any, error: any) => {
+              if (errorCb) errorCb(tx, error);
+              reject(error);
+            };
+            mockTx.executeSql(sql, params, enhancedSuccessCb, enhancedErrorCb);
+          });
+          pendingOps.push(promise);
+          return promise;
+        }
+      };
+      
+      callback(enhancedTx);
+      
+      // Wait for all pending operations to complete before calling successCallback
+      Promise.all(pendingOps)
+        .then(() => successCallback?.())
+        .catch(error => {
+          if (errorCallback) errorCallback(error);
+        });
     } catch (error) {
       if (__DEV__) {
         console.error('[Web DB] Transaction error:', error);
@@ -138,7 +167,14 @@ export const initializeDatabase = async (): Promise<void> => {
   try {
     // Enable foreign keys for referential integrity (native platforms)
     if (Platform.OS !== 'web' && typeof db.execSync === 'function') {
-      db.execSync('PRAGMA foreign_keys = ON;');
+      try {
+        db.execSync('PRAGMA foreign_keys = ON;');
+      } catch (pragmaError) {
+        if (__DEV__) {
+          console.error('[Database] Failed to enable foreign keys:', pragmaError);
+        }
+        // Continue initialization - foreign keys are nice to have but not critical
+      }
     }
 
     // Create all schemas using the comprehensive schema definitions
@@ -147,14 +183,18 @@ export const initializeDatabase = async (): Promise<void> => {
     // Validate that all tables were created successfully
     const isValid = await validateSchema();
     if (!isValid) {
-      throw new Error('Schema validation failed - some tables were not created properly');
+      throw new Error(
+        'Schema validation failed - some tables were not created properly'
+      );
     }
 
     // Populate unit conversion data
     await seedUnitConversions();
 
     if (__DEV__) {
-      console.log('Database initialized successfully with comprehensive schemas');
+      console.log(
+        'Database initialized successfully with comprehensive schemas'
+      );
     }
   } catch (error) {
     if (__DEV__) {
@@ -169,32 +209,40 @@ export const initializeDatabase = async (): Promise<void> => {
  */
 const seedUnitConversions = async (): Promise<void> => {
   try {
-    const { sql, params } = getBatchUnitConversionSQL();
+    const { sql, params } = getBatchUnitConversionSQL(ALL_UNIT_CONVERSIONS);
+
+    // Split params into groups of 7 (one for each conversion)
+    const conversions = [];
+    for (let i = 0; i < params.length; i += 7) {
+      conversions.push(params.slice(i, i + 7));
+    }
 
     if (Platform.OS === 'web') {
       // Web platform - insert each conversion individually
-      for (const valueSet of values) {
+      for (const conversionParams of conversions) {
         await new Promise<void>((resolve, reject) => {
-          db.transaction(
-            (tx: any) => {
-              tx.executeSql(sql, valueSet, resolve, (_: any, error: any) => {
+          db.transaction((tx: any) => {
+            tx.executeSql(
+              'INSERT OR REPLACE INTO unit_conversions (id, from_unit, to_unit, factor, dimension, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              conversionParams,
+              resolve,
+              (_: any, error: any) => {
                 reject(error);
                 return false;
-              });
-            },
-            reject
-          );
+              }
+            );
+          }, reject);
         });
       }
     } else {
       // Native platform - use batch insert for better performance
-      for (const valueSet of values) {
+      for (const valueSet of conversions) {
         db.runSync(sql, valueSet);
       }
     }
 
     if (__DEV__) {
-      console.log(`Seeded ${values.length} unit conversions`);
+      console.log(`Seeded ${ALL_UNIT_CONVERSIONS.length} unit conversions`);
     }
   } catch (error) {
     // Don't fail initialization if seeding fails - unit conversions can be added later
@@ -212,10 +260,20 @@ export const getDatabaseVersion = async (): Promise<number> => {
       ['version']
     );
     if (result.rows.length > 0) {
-      return parseInt(result.rows.item(0).value, 10);
-    } else {
-      return 0;
+      // Safely access rows across platforms
+      let row;
+      if (typeof result.rows.item === 'function') {
+        row = result.rows.item(0);
+      } else {
+        row = result.rows[0];
+      }
+      
+      if (row && row.value) {
+        const version = parseInt(row.value, 10);
+        return isNaN(version) ? 0 : version;
+      }
     }
+    return 0;
   } catch (error) {
     if (__DEV__) {
       console.error('Error getting database version:', error);
@@ -255,11 +313,15 @@ export const executeSql = (
     try {
       if (sql.toLowerCase().includes('select')) {
         const result = db.getAllSync(sql, params);
+        // Normalize result to match web platform's structure
         return Promise.resolve({
           rows: {
             length: result.length,
             item: (index: number) => result[index],
+            _array: result // Additional property for compatibility
           },
+          rowsAffected: 0,
+          insertId: undefined
         });
       } else {
         const result = db.runSync(sql, params);

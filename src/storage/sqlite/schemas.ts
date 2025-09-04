@@ -408,7 +408,7 @@ export const getSchemaVersion = async (): Promise<number> => {
               },
               (_: any, error: any) => {
                 reject(error);
-                return false;
+                return true;
               }
             );
           },
@@ -462,7 +462,7 @@ export const validateSchema = async (): Promise<boolean> => {
               },
               (_: any, error: any) => {
                 reject(error);
-                return false;
+                return true;
               }
             );
           },

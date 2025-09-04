@@ -3,7 +3,16 @@
  * Uses react-native-uuid as primary method with secure fallbacks
  */
 
-import { Platform } from 'react-native';
+// Platform detection without importing react-native
+const isReactNative = (): boolean => {
+  try {
+    return typeof global !== 'undefined' && 
+           typeof global.navigator !== 'undefined' && 
+           global.navigator.product === 'ReactNative';
+  } catch {
+    return false;
+  }
+};
 
 let uuidv4: () => string;
 
@@ -36,20 +45,19 @@ const secureV4 = (): string => {
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const rn = require('react-native-uuid');
-  uuidv4 = () => rn.default.v4();
+  // Handle both CJS and ESM module shapes
+  const factory = rn.default ?? rn;
+  uuidv4 = () => factory.v4();
   console.log('Using react-native-uuid for UUID generation');
 } catch {
   console.warn('react-native-uuid not available; falling back to crypto API');
-  if (Platform.OS === 'web') {
+  // Choose fallback based solely on crypto capability, not platform
+  if (canRandomUUID || canGRV) {
     uuidv4 = secureV4;
+    console.log('Using crypto API for UUID generation');
   } else {
-    // Native: prefer crypto if available; otherwise use insecure fallback
-    if (canRandomUUID || canGRV) {
-      uuidv4 = secureV4;
-    } else {
-      console.warn('Crypto API not available; using insecure UUID fallback');
-      uuidv4 = insecureFallback;
-    }
+    console.warn('Crypto API not available; using insecure UUID fallback');
+    uuidv4 = insecureFallback;
   }
 }
 

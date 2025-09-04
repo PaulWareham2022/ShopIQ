@@ -101,15 +101,21 @@ export default [
     },
   },
   {
-    files: ['*.config.{js,cjs,mjs,ts}', 'scripts/**/*.{js,ts}', 'jest.config.*', 'metro.config.*', 'babel.config.*'],
+    files: [
+      '*.config.{js,cjs,mjs,ts}',
+      'scripts/**/*.{js,ts}',
+      'jest.config.*',
+      'metro.config.*',
+      'babel.config.*',
+    ],
     languageOptions: {
       globals: {
         module: 'readonly',
         exports: 'readonly',
         Buffer: 'readonly',
         __dirname: 'readonly',
-        require: 'readonly'
-      }
-    }
+        require: 'readonly',
+      },
+    },
   },
 ];

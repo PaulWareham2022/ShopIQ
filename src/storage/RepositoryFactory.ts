@@ -115,7 +115,7 @@ class SQLiteTransaction implements Transaction {
       // Auto-rollback on error
       try {
         await this.rollback();
-      } catch (_rollbackError) {
+      } catch {
         // Ignore rollback errors
       }
       throw error;
@@ -334,10 +334,15 @@ export class RepositoryFactory implements IRepositoryFactory {
       try {
         await transaction.rollback();
       } catch (rollbackError) {
-        // Log but don't throw rollback errors
+        // Log rollback failure with context and original error, then rethrow original
         if (__DEV__) {
-          console.warn('Failed to rollback transaction:', rollbackError);
+          console.error('Failed to rollback transaction after operation error:', {
+            originalError: error,
+            rollbackError: rollbackError,
+          });
         }
+        // Ensure proper cleanup - transaction state should be marked as failed
+        // The SQLiteTransaction class handles its own state, so no additional cleanup needed here
       }
       throw error;
     }

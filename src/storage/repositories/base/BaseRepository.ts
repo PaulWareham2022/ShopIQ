@@ -18,6 +18,37 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
   protected abstract tableName: string;
   protected abstract mapRowToEntity(row: any): T;
   protected abstract mapEntityToRow(entity: Partial<T>): Record<string, any>;
+  
+  // Override this in subclasses to define allowed ORDER BY columns
+  protected getAllowedOrderByColumns(): string[] {
+    return ['id', 'created_at', 'updated_at'];
+  }
+  
+  // Helper method to validate and sanitize ORDER BY column
+  private validateOrderByColumn(column: string): string {
+    const allowedColumns = this.getAllowedOrderByColumns();
+    const normalizedColumn = column.toLowerCase().trim();
+    
+    if (!allowedColumns.includes(normalizedColumn)) {
+      throw new ValidationError(`Invalid orderBy column: ${normalizedColumn}. Allowed columns: ${allowedColumns.join(', ')}`);
+    }
+    
+    return normalizedColumn;
+  }
+  
+  // Helper method to validate ORDER BY direction
+  private validateOrderDirection(direction?: string): string {
+    if (!direction) {
+      return 'ASC';
+    }
+    
+    const normalizedDirection = direction.toUpperCase().trim();
+    if (normalizedDirection !== 'ASC' && normalizedDirection !== 'DESC') {
+      return 'ASC'; // Default to ASC for invalid directions
+    }
+    
+    return normalizedDirection;
+  }
 
   /**
    * Validate timestamp fields in an entity
@@ -124,12 +155,11 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
         sql += ' WHERE deleted_at IS NULL';
       }
 
-      // Add ordering
+      // Add ordering with validation
       if (options.orderBy) {
-        sql += ` ORDER BY ${options.orderBy}`;
-        if (options.orderDirection) {
-          sql += ` ${options.orderDirection}`;
-        }
+        const validOrderBy = this.validateOrderByColumn(options.orderBy);
+        const validDirection = this.validateOrderDirection(options.orderDirection);
+        sql += ` ORDER BY ${validOrderBy} ${validDirection}`;
       }
 
       // Add pagination
@@ -177,12 +207,11 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
         sql += ` WHERE ${whereConditions.join(' AND ')}`;
       }
 
-      // Add ordering
+      // Add ordering with validation
       if (options.orderBy) {
-        sql += ` ORDER BY ${options.orderBy}`;
-        if (options.orderDirection) {
-          sql += ` ${options.orderDirection}`;
-        }
+        const validOrderBy = this.validateOrderByColumn(options.orderBy);
+        const validDirection = this.validateOrderDirection(options.orderDirection);
+        sql += ` ORDER BY ${validOrderBy} ${validDirection}`;
       }
 
       // Add pagination

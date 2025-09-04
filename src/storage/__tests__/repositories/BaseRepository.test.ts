@@ -113,9 +113,13 @@ describe('BaseRepository', () => {
       const sqlError = new Error('SQL execution failed');
       mockExecuteSql.mockRejectedValueOnce(sqlError);
 
+      // Verify that the original error is preserved in the DatabaseError
       await expect(repository.create(testEntityData))
         .rejects
-        .toThrow(DatabaseError);
+        .toMatchObject({
+          message: expect.stringContaining('Failed to create entity'),
+          cause: sqlError
+        });
     });
 
     it('should generate UUID and timestamps for entity', async () => {

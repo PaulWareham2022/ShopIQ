@@ -25,15 +25,17 @@ describe('Timestamp Utils', () => {
       expect(isValidTimestamp(timestamp)).toBe(true);
     });
 
-    it('should return different timestamps when called in sequence', () => {
+    it('should return different timestamps when called in sequence', async () => {
       const timestamp1 = getCurrentTimestamp();
       // Small delay to ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 2));
       const timestamp2 = getCurrentTimestamp();
       
-      expect(timestamp1).not.toBe(timestamp2);
       expect(new Date(timestamp2).getTime()).toBeGreaterThanOrEqual(
         new Date(timestamp1).getTime()
       );
+      // With the delay, timestamps should reliably differ
+      expect(timestamp1).not.toBe(timestamp2);
     });
   });
 
@@ -409,11 +411,12 @@ describe('Timestamp Utils', () => {
     it('should perform efficiently with large datasets', () => {
       const timestamps = Array.from({ length: 1000 }, () => getCurrentTimestamp());
       
-      const start = performance.now();
+      const start = Date.now();
       const validationResults = timestamps.map(ts => isValidTimestamp(ts));
-      const end = performance.now();
+      const end = Date.now();
+      const duration = end - start;
       
-      expect(end - start).toBeLessThan(100); // Should complete in under 100ms
+      expect(duration).toBeLessThan(100); // Should complete in under 100ms
       expect(validationResults.every(result => result === true)).toBe(true);
     });
   });

@@ -2,9 +2,18 @@
  * Tests for SQLite schema creation and validation
  */
 
-import { createAllSchemas, validateSchema, getSchemaVersion, SCHEMA_VERSION } from '../schemas';
+import { 
+  createAllSchemas, 
+  validateSchema, 
+  getSchemaVersion, 
+  SCHEMA_VERSION,
+  SUPPLIERS_SCHEMA,
+  INVENTORY_ITEMS_SCHEMA,
+  OFFERS_SCHEMA,
+  UNIT_CONVERSIONS_SCHEMA,
+  BUNDLES_SCHEMA
+} from '../schemas';
 import { getBatchUnitConversionSQL } from '../seed-data';
-import { db } from '../database';
 
 // Mock expo-sqlite
 jest.mock('expo-sqlite', () => ({
@@ -136,8 +145,6 @@ describe('SQLite Schemas', () => {
 
   describe('Schema Structure Validation', () => {
     it('should have all required fields in supplier schema', () => {
-      const { SUPPLIERS_SCHEMA } = require('../schemas');
-      
       // Check that the schema includes all PRD-required fields
       expect(SUPPLIERS_SCHEMA).toContain('id TEXT PRIMARY KEY');
       expect(SUPPLIERS_SCHEMA).toContain('name TEXT NOT NULL');
@@ -152,7 +159,6 @@ describe('SQLite Schemas', () => {
     });
 
     it('should have all required fields in inventory items schema', () => {
-      const { INVENTORY_ITEMS_SCHEMA } = require('../schemas');
       
       expect(INVENTORY_ITEMS_SCHEMA).toContain('id TEXT PRIMARY KEY');
       expect(INVENTORY_ITEMS_SCHEMA).toContain('name TEXT NOT NULL');
@@ -193,7 +199,6 @@ describe('SQLite Schemas', () => {
     });
 
     it('should include proper constraints and checks', () => {
-      const { SUPPLIERS_SCHEMA, INVENTORY_ITEMS_SCHEMA, OFFERS_SCHEMA } = require('../schemas');
       
       // Check constraints (normalize whitespace for multiline checks)
       const normalizeWhitespace = (str: string) => str.replace(/\s+/g, ' ').trim();

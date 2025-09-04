@@ -8,14 +8,9 @@ import {
   BaseEntity,
   EntityNotFoundError,
   DatabaseError,
-  ValidationError,
   QueryOptions,
 } from '../types';
-import {
-  SupplierSchema,
-  InventoryItemSchema,
-  validateEntityStrict,
-} from '../validation/schemas';
+import { SupplierSchema, validateEntityStrict } from '../validation/schemas';
 import { mockSQLiteResponse, resetAllMocks, createTestSupplier } from './setup';
 
 // Mock the database module

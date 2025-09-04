@@ -3,25 +3,29 @@
  * Uses react-native-uuid as primary method with secure fallbacks
  */
 
-// Platform detection without importing react-native
-const isReactNative = (): boolean => {
-  try {
-    return typeof global !== 'undefined' && 
-           typeof global.navigator !== 'undefined' && 
-           global.navigator.product === 'ReactNative';
-  } catch {
-    return false;
-  }
-};
+// Platform detection without importing react-native (for future use)
+// const isReactNative = (): boolean => {
+//   try {
+//     return (
+//       typeof global !== 'undefined' &&
+//       typeof global.navigator !== 'undefined' &&
+//       global.navigator.product === 'ReactNative'
+//     );
+//   } catch {
+//     return false;
+//   }
+// };
 
 let uuidv4: () => string;
 
 const hasCrypto = typeof globalThis.crypto !== 'undefined';
-const canRandomUUID = hasCrypto && typeof globalThis.crypto.randomUUID === 'function';
-const canGRV = hasCrypto && typeof globalThis.crypto.getRandomValues === 'function';
+const canRandomUUID =
+  hasCrypto && typeof globalThis.crypto.randomUUID === 'function';
+const canGRV =
+  hasCrypto && typeof globalThis.crypto.getRandomValues === 'function';
 
 const insecureFallback = (): string =>
-  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -34,8 +38,8 @@ const secureV4 = (): string => {
     globalThis.crypto.getRandomValues(b);
     b[6] = (b[6] & 0x0f) | 0x40; // version 4
     b[8] = (b[8] & 0x3f) | 0x80; // variant 10
-    const hex = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
-    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+    const hex = [...b].map(x => x.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   }
   return insecureFallback();
 };
@@ -43,7 +47,6 @@ const secureV4 = (): string => {
 // Initialize UUID generation function
 // Priority: react-native-uuid > crypto API > insecure fallback
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const rn = require('react-native-uuid');
   // Handle both CJS and ESM module shapes
   const factory = rn.default ?? rn;
@@ -75,7 +78,8 @@ export const generateUUID = (): string => {
  * @returns True if valid UUID v4, false otherwise
  */
 export const isValidUUID = (uuid: string): boolean => {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 };
 

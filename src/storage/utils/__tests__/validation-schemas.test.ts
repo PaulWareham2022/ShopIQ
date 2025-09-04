@@ -9,9 +9,6 @@ import {
   validateOfferInput,
   safeValidate,
   ConversionRequestSchema,
-  BatchConversionRequestSchema,
-  PriceNormalizationSchema,
-  OfferInputSchema,
 } from '../validation-schemas';
 
 describe('Unit Conversion Validation Schemas', () => {

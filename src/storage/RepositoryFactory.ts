@@ -4,26 +4,32 @@
  * Provides unified access to both SQL and key-value storage systems
  */
 
-import { 
-  IRepositoryFactory, 
-  Repository, 
+import {
+  IRepositoryFactory,
+  Repository,
   IKeyValueRepository,
   Transaction,
   StorageConfig,
-  StorageError
+  StorageError,
 } from './types';
 
 // Repository implementations
-import { SupplierRepository, Supplier } from './repositories/SupplierRepository';
-import { InventoryItemRepository, InventoryItem } from './repositories/InventoryItemRepository';
+import {
+  SupplierRepository,
+  Supplier,
+} from './repositories/SupplierRepository';
+import {
+  InventoryItemRepository,
+  InventoryItem,
+} from './repositories/InventoryItemRepository';
 import { KeyValueRepository } from './repositories/base/KeyValueRepository';
 
 // Storage layer imports
 import { initializeDatabase, executeSql } from './sqlite/database';
-import { 
-  appStorageWrapper, 
-  cacheStorageWrapper, 
-  userPreferencesStorageWrapper 
+import {
+  appStorageWrapper,
+  cacheStorageWrapper,
+  userPreferencesStorageWrapper,
 } from './mmkv/storage';
 
 // Entity types that will be implemented later
@@ -74,39 +80,62 @@ class SQLiteTransaction implements Transaction {
 
   async commit(): Promise<void> {
     if (this.rolledBack) {
-      throw new StorageError('Cannot commit a rolled back transaction', 'TRANSACTION_ERROR');
+      throw new StorageError(
+        'Cannot commit a rolled back transaction',
+        'TRANSACTION_ERROR'
+      );
     }
     if (this.committed) {
-      throw new StorageError('Transaction already committed', 'TRANSACTION_ERROR');
+      throw new StorageError(
+        'Transaction already committed',
+        'TRANSACTION_ERROR'
+      );
     }
 
     try {
       await executeSql('COMMIT');
       this.committed = true;
     } catch (error) {
-      throw new StorageError('Failed to commit transaction', 'TRANSACTION_COMMIT_ERROR', error as Error);
+      throw new StorageError(
+        'Failed to commit transaction',
+        'TRANSACTION_COMMIT_ERROR',
+        error as Error
+      );
     }
   }
 
   async rollback(): Promise<void> {
     if (this.committed) {
-      throw new StorageError('Cannot rollback a committed transaction', 'TRANSACTION_ERROR');
+      throw new StorageError(
+        'Cannot rollback a committed transaction',
+        'TRANSACTION_ERROR'
+      );
     }
     if (this.rolledBack) {
-      throw new StorageError('Transaction already rolled back', 'TRANSACTION_ERROR');
+      throw new StorageError(
+        'Transaction already rolled back',
+        'TRANSACTION_ERROR'
+      );
     }
 
     try {
       await executeSql('ROLLBACK');
       this.rolledBack = true;
     } catch (error) {
-      throw new StorageError('Failed to rollback transaction', 'TRANSACTION_ROLLBACK_ERROR', error as Error);
+      throw new StorageError(
+        'Failed to rollback transaction',
+        'TRANSACTION_ROLLBACK_ERROR',
+        error as Error
+      );
     }
   }
 
   async executeSql(sql: string, params?: any[]): Promise<any> {
     if (this.committed || this.rolledBack) {
-      throw new StorageError('Cannot execute SQL on completed transaction', 'TRANSACTION_ERROR');
+      throw new StorageError(
+        'Cannot execute SQL on completed transaction',
+        'TRANSACTION_ERROR'
+      );
     }
 
     try {
@@ -169,17 +198,21 @@ export class RepositoryFactory implements IRepositoryFactory {
     try {
       // Initialize SQLite database
       await initializeDatabase();
-      
+
       // Initialize and run migrations
       await this.initializeMigrations();
 
       this.initialized = true;
-      
+
       if (__DEV__) {
         console.log('🏭 RepositoryFactory initialized successfully');
       }
     } catch (error) {
-      throw new StorageError('Failed to initialize storage systems', 'INITIALIZATION_ERROR', error as Error);
+      throw new StorageError(
+        'Failed to initialize storage systems',
+        'INITIALIZATION_ERROR',
+        error as Error
+      );
     }
   }
 
@@ -203,11 +236,14 @@ export class RepositoryFactory implements IRepositoryFactory {
 
       if (!migrationResult.success) {
         const errorMessage = `Migration failed: ${migrationResult.errors.join('; ')}`;
-        
+
         if (__DEV__) {
-          console.error('[RepositoryFactory] Migration errors:', migrationResult.errors);
+          console.error(
+            '[RepositoryFactory] Migration errors:',
+            migrationResult.errors
+          );
         }
-        
+
         throw new StorageError(errorMessage, 'MIGRATION_ERROR');
       }
 
@@ -225,7 +261,7 @@ export class RepositoryFactory implements IRepositoryFactory {
       if (error instanceof StorageError) {
         throw error;
       }
-      
+
       throw new StorageError(
         'Failed to initialize migration system',
         'MIGRATION_INIT_ERROR',
@@ -244,10 +280,10 @@ export class RepositoryFactory implements IRepositoryFactory {
   }
 
   // Repository getters
-  
+
   async getSupplierRepository(): Promise<Repository<Supplier>> {
     await this.ensureInitialized();
-    
+
     if (!this.supplierRepository) {
       this.supplierRepository = new SupplierRepository();
     }
@@ -256,7 +292,7 @@ export class RepositoryFactory implements IRepositoryFactory {
 
   async getInventoryItemRepository(): Promise<Repository<InventoryItem>> {
     await this.ensureInitialized();
-    
+
     if (!this.inventoryItemRepository) {
       this.inventoryItemRepository = new InventoryItemRepository();
     }
@@ -266,24 +302,33 @@ export class RepositoryFactory implements IRepositoryFactory {
   // Placeholder for future repositories
   async getOfferRepository(): Promise<Repository<Offer>> {
     await this.ensureInitialized();
-    throw new StorageError('OfferRepository not yet implemented', 'NOT_IMPLEMENTED');
+    throw new StorageError(
+      'OfferRepository not yet implemented',
+      'NOT_IMPLEMENTED'
+    );
   }
 
   async getUnitConversionRepository(): Promise<Repository<UnitConversion>> {
     await this.ensureInitialized();
-    throw new StorageError('UnitConversionRepository not yet implemented', 'NOT_IMPLEMENTED');
+    throw new StorageError(
+      'UnitConversionRepository not yet implemented',
+      'NOT_IMPLEMENTED'
+    );
   }
 
   async getBundleRepository(): Promise<Repository<Bundle>> {
     await this.ensureInitialized();
-    throw new StorageError('BundleRepository not yet implemented', 'NOT_IMPLEMENTED');
+    throw new StorageError(
+      'BundleRepository not yet implemented',
+      'NOT_IMPLEMENTED'
+    );
   }
 
   getKeyValueRepository(namespace: string = 'default'): IKeyValueRepository {
     // Key-value repositories don't require async initialization
     if (!this.keyValueRepositories.has(namespace)) {
       let storage;
-      
+
       // Choose storage based on namespace
       switch (namespace) {
         case 'cache':
@@ -298,7 +343,7 @@ export class RepositoryFactory implements IRepositoryFactory {
           storage = appStorageWrapper;
           break;
       }
-      
+
       const repo = new KeyValueRepository(storage, namespace);
       this.keyValueRepositories.set(namespace, repo);
     }
@@ -307,15 +352,19 @@ export class RepositoryFactory implements IRepositoryFactory {
   }
 
   // Transaction support
-  
+
   async beginTransaction(): Promise<Transaction> {
     await this.ensureInitialized();
-    
+
     try {
       await executeSql('BEGIN TRANSACTION');
       return new SQLiteTransaction();
     } catch (error) {
-      throw new StorageError('Failed to begin transaction', 'TRANSACTION_BEGIN_ERROR', error as Error);
+      throw new StorageError(
+        'Failed to begin transaction',
+        'TRANSACTION_BEGIN_ERROR',
+        error as Error
+      );
     }
   }
 
@@ -323,9 +372,11 @@ export class RepositoryFactory implements IRepositoryFactory {
    * Execute multiple operations in a transaction
    * Automatically commits on success or rolls back on error
    */
-  async withTransaction<T>(operation: (transaction: Transaction) => Promise<T>): Promise<T> {
+  async withTransaction<T>(
+    operation: (transaction: Transaction) => Promise<T>
+  ): Promise<T> {
     const transaction = await this.beginTransaction();
-    
+
     try {
       const result = await operation(transaction);
       await transaction.commit();
@@ -336,10 +387,13 @@ export class RepositoryFactory implements IRepositoryFactory {
       } catch (rollbackError) {
         // Log rollback failure with context and original error, then rethrow original
         if (__DEV__) {
-          console.error('Failed to rollback transaction after operation error:', {
-            originalError: error,
-            rollbackError: rollbackError,
-          });
+          console.error(
+            'Failed to rollback transaction after operation error:',
+            {
+              originalError: error,
+              rollbackError: rollbackError,
+            }
+          );
         }
         // Ensure proper cleanup - transaction state should be marked as failed
         // The SQLiteTransaction class handles its own state, so no additional cleanup needed here
@@ -404,7 +458,7 @@ export class RepositoryFactory implements IRepositoryFactory {
       // Get key-value stats
       const namespaces = Array.from(this.keyValueRepositories.keys());
       let totalKeys = 0;
-      
+
       namespaces.forEach(namespace => {
         const repo = this.keyValueRepositories.get(namespace);
         if (repo) {
@@ -414,7 +468,10 @@ export class RepositoryFactory implements IRepositoryFactory {
 
       const stats = {
         database: {
-          version: versionResult.rows.length > 0 ? parseInt(versionResult.rows.item(0).value, 10) : 0,
+          version:
+            versionResult.rows.length > 0
+              ? parseInt(versionResult.rows.item(0).value, 10)
+              : 0,
           tableCount: tablesResult.rows.item(0).count,
         },
         keyValue: {
@@ -431,13 +488,20 @@ export class RepositoryFactory implements IRepositoryFactory {
       } catch (migrationError) {
         // Migration system might not be initialized, skip migration stats
         if (__DEV__) {
-          console.warn('[RepositoryFactory] Could not get migration stats:', migrationError);
+          console.warn(
+            '[RepositoryFactory] Could not get migration stats:',
+            migrationError
+          );
         }
       }
 
       return stats;
     } catch (error) {
-      throw new StorageError('Failed to get storage statistics', 'STATS_ERROR', error as Error);
+      throw new StorageError(
+        'Failed to get storage statistics',
+        'STATS_ERROR',
+        error as Error
+      );
     }
   }
 
@@ -450,9 +514,10 @@ export class RepositoryFactory implements IRepositoryFactory {
     versionTracker: any;
   } | null> {
     await this.ensureInitialized();
-    
+
     try {
-      const { migrationManager, migrationRegistry, versionTracker } = await import('./migrations');
+      const { migrationManager, migrationRegistry, versionTracker } =
+        await import('./migrations');
       return {
         manager: migrationManager,
         registry: migrationRegistry,
@@ -460,7 +525,10 @@ export class RepositoryFactory implements IRepositoryFactory {
       };
     } catch (error) {
       if (__DEV__) {
-        console.warn('[RepositoryFactory] Migration system not available:', error);
+        console.warn(
+          '[RepositoryFactory] Migration system not available:',
+          error
+        );
       }
       return null;
     }
@@ -468,7 +536,9 @@ export class RepositoryFactory implements IRepositoryFactory {
 }
 
 // Export convenience function for getting the factory instance
-export const getRepositoryFactory = (config?: Partial<StorageConfig>): RepositoryFactory => {
+export const getRepositoryFactory = (
+  config?: Partial<StorageConfig>
+): RepositoryFactory => {
   return RepositoryFactory.getInstance(config);
 };
 

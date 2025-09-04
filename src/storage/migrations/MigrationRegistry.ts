@@ -32,7 +32,7 @@ export class MigrationRegistry implements IMigrationRegistry {
       migration.version,
       migration.type
     );
-    
+
     if (existingWithSameVersion) {
       throw new MigrationError(
         `Migration version ${migration.version} for type '${migration.type}' already exists (${existingWithSameVersion.id})`,
@@ -82,9 +82,12 @@ export class MigrationRegistry implements IMigrationRegistry {
     return Array.from(this.migrations.values());
   }
 
-  getPendingMigrations(currentDatabaseVersion: number, currentDataVersion: number): Migration[] {
+  getPendingMigrations(
+    currentDatabaseVersion: number,
+    currentDataVersion: number
+  ): Migration[] {
     const allMigrations = this.getAllMigrations();
-    
+
     const pending = allMigrations
       .filter(entry => {
         // Skip already executed migrations
@@ -122,7 +125,7 @@ export class MigrationRegistry implements IMigrationRegistry {
     const migrations = this.getAllMigrations()
       .map(entry => entry.migration)
       .filter(migration => migration.type === type);
-    
+
     return this.sortMigrations(migrations);
   }
 
@@ -135,9 +138,10 @@ export class MigrationRegistry implements IMigrationRegistry {
     maxVersion: number
   ): Migration[] {
     const migrations = this.getMigrationsByType(type).filter(
-      migration => migration.version >= minVersion && migration.version <= maxVersion
+      migration =>
+        migration.version >= minVersion && migration.version <= maxVersion
     );
-    
+
     return this.sortMigrations(migrations);
   }
 
@@ -146,21 +150,26 @@ export class MigrationRegistry implements IMigrationRegistry {
    */
   getHighestVersion(type: MigrationType): number {
     const migrations = this.getMigrationsByType(type);
-    
+
     if (migrations.length === 0) {
       return 0;
     }
-    
+
     return Math.max(...migrations.map(m => m.version));
   }
 
   /**
    * Find migration by version and type
    */
-  findMigrationByVersionAndType(version: number, type: MigrationType): Migration | undefined {
+  findMigrationByVersionAndType(
+    version: number,
+    type: MigrationType
+  ): Migration | undefined {
     return this.getAllMigrations()
       .map(entry => entry.migration)
-      .find(migration => migration.version === version && migration.type === type);
+      .find(
+        migration => migration.version === version && migration.type === type
+      );
   }
 
   /**
@@ -177,7 +186,7 @@ export class MigrationRegistry implements IMigrationRegistry {
 
       for (const dependencyId of migration.dependencies) {
         const dependency = this.getMigration(dependencyId);
-        
+
         if (!dependency) {
           errors.push(
             `Migration '${migration.id}' depends on '${dependencyId}' which is not registered`
@@ -186,7 +195,10 @@ export class MigrationRegistry implements IMigrationRegistry {
         }
 
         // Check that dependency has a lower or equal version
-        if (dependency.type === migration.type && dependency.version > migration.version) {
+        if (
+          dependency.type === migration.type &&
+          dependency.version > migration.version
+        ) {
           errors.push(
             `Migration '${migration.id}' (v${migration.version}) depends on '${dependencyId}' (v${dependency.version}) which has a higher version`
           );
@@ -203,13 +215,19 @@ export class MigrationRegistry implements IMigrationRegistry {
   /**
    * Get migration execution plan
    */
-  getExecutionPlan(currentDatabaseVersion: number, currentDataVersion: number): {
+  getExecutionPlan(
+    currentDatabaseVersion: number,
+    currentDataVersion: number
+  ): {
     database: Migration[];
     data: Migration[];
     totalCount: number;
   } {
-    const pending = this.getPendingMigrations(currentDatabaseVersion, currentDataVersion);
-    
+    const pending = this.getPendingMigrations(
+      currentDatabaseVersion,
+      currentDataVersion
+    );
+
     const database = pending.filter(m => m.type === MigrationType.DATABASE);
     const data = pending.filter(m => m.type === MigrationType.DATA);
 
@@ -227,9 +245,13 @@ export class MigrationRegistry implements IMigrationRegistry {
   /**
    * Mark a migration as executed
    */
-  markAsExecuted(migrationId: string, success: boolean, executedAt?: string): void {
+  markAsExecuted(
+    migrationId: string,
+    success: boolean,
+    executedAt?: string
+  ): void {
     const entry = this.migrations.get(migrationId);
-    
+
     if (!entry) {
       throw new MigrationError(
         `Migration with ID '${migrationId}' is not registered`,
@@ -247,7 +269,7 @@ export class MigrationRegistry implements IMigrationRegistry {
    */
   markAsNotExecuted(migrationId: string): void {
     const entry = this.migrations.get(migrationId);
-    
+
     if (!entry) {
       throw new MigrationError(
         `Migration with ID '${migrationId}' is not registered`,
@@ -287,10 +309,11 @@ export class MigrationRegistry implements IMigrationRegistry {
     pending: number;
   } {
     const all = this.getAllMigrations();
-    
+
     return {
       total: all.length,
-      database: all.filter(e => e.migration.type === MigrationType.DATABASE).length,
+      database: all.filter(e => e.migration.type === MigrationType.DATABASE)
+        .length,
       data: all.filter(e => e.migration.type === MigrationType.DATA).length,
       executed: all.filter(e => e.executed).length,
       pending: all.filter(e => !e.executed).length,
@@ -306,7 +329,11 @@ export class MigrationRegistry implements IMigrationRegistry {
    */
   private validateMigration(migration: Migration): void {
     if (!migration.id) {
-      throw new MigrationError('Migration ID cannot be empty', '', 'INVALID_MIGRATION');
+      throw new MigrationError(
+        'Migration ID cannot be empty',
+        '',
+        'INVALID_MIGRATION'
+      );
     }
 
     if (!migration.id.match(/^[a-zA-Z0-9_-]+$/)) {
@@ -418,4 +445,3 @@ export class MigrationRegistry implements IMigrationRegistry {
 
 // Export a default instance
 export const migrationRegistry = new MigrationRegistry();
-

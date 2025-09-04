@@ -1,6 +1,6 @@
 /**
  * SQLite Schema Definitions
- * 
+ *
  * This file contains the complete SQLite table schemas for all entities
  * as defined in the PRD. Each schema matches the TypeScript interfaces
  * exactly and includes proper constraints, indexes, and relationships.
@@ -238,13 +238,13 @@ export const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_suppliers_name ON suppliers (name);',
   'CREATE INDEX IF NOT EXISTS idx_suppliers_country ON suppliers (country_code);',
   'CREATE INDEX IF NOT EXISTS idx_suppliers_deleted ON suppliers (deleted_at);',
-  
+
   // Inventory item indexes
   'CREATE INDEX IF NOT EXISTS idx_inventory_name ON inventory_items (name);',
   'CREATE INDEX IF NOT EXISTS idx_inventory_category ON inventory_items (category);',
   'CREATE INDEX IF NOT EXISTS idx_inventory_dimension ON inventory_items (canonical_dimension);',
   'CREATE INDEX IF NOT EXISTS idx_inventory_deleted ON inventory_items (deleted_at);',
-  
+
   // Offer indexes (critical for comparison queries)
   'CREATE INDEX IF NOT EXISTS idx_offers_inventory_item ON offers (inventory_item_id);',
   'CREATE INDEX IF NOT EXISTS idx_offers_supplier ON offers (supplier_id);',
@@ -253,16 +253,16 @@ export const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_offers_effective_price ON offers (effective_price_per_canonical);',
   'CREATE INDEX IF NOT EXISTS idx_offers_item_price ON offers (inventory_item_id, effective_price_per_canonical);',
   'CREATE INDEX IF NOT EXISTS idx_offers_deleted ON offers (deleted_at);',
-  
+
   // Compound index for finding best offers per item
   'CREATE INDEX IF NOT EXISTS idx_offers_best_price ON offers (inventory_item_id, effective_price_per_canonical, observed_at) WHERE deleted_at IS NULL;',
-  
+
   // Unit conversion indexes
   'CREATE INDEX IF NOT EXISTS idx_unit_conv_from ON unit_conversions (from_unit);',
   'CREATE INDEX IF NOT EXISTS idx_unit_conv_to ON unit_conversions (to_unit);',
   'CREATE INDEX IF NOT EXISTS idx_unit_conv_dimension ON unit_conversions (dimension);',
   'CREATE UNIQUE INDEX IF NOT EXISTS idx_unit_conv_unique ON unit_conversions (from_unit, to_unit) WHERE deleted_at IS NULL;',
-  
+
   // Bundle indexes
   'CREATE INDEX IF NOT EXISTS idx_bundles_supplier ON bundles (supplier_id);',
   'CREATE INDEX IF NOT EXISTS idx_bundles_deleted ON bundles (deleted_at);',
@@ -278,28 +278,28 @@ export const TRIGGERS = [
    BEGIN
      UPDATE suppliers SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
-  
+
   // Inventory items update trigger
   `CREATE TRIGGER IF NOT EXISTS trg_inventory_items_updated_at
    AFTER UPDATE ON inventory_items
    BEGIN
      UPDATE inventory_items SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
-  
+
   // Offers update trigger
   `CREATE TRIGGER IF NOT EXISTS trg_offers_updated_at
    AFTER UPDATE ON offers
    BEGIN
      UPDATE offers SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
-  
+
   // Unit conversions update trigger
   `CREATE TRIGGER IF NOT EXISTS trg_unit_conversions_updated_at
    AFTER UPDATE ON unit_conversions
    BEGIN
      UPDATE unit_conversions SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
-  
+
   // Bundles update trigger
   `CREATE TRIGGER IF NOT EXISTS trg_bundles_updated_at
    AFTER UPDATE ON bundles
@@ -326,26 +326,18 @@ export const ALL_SCHEMAS = [
 export const createAllSchemas = async (): Promise<void> => {
   // Dynamically import db to avoid circular dependencies
   const { db } = await import('./database');
-  
-  const schemas = [
-    ...ALL_SCHEMAS,
-    ...INDEXES,
-    ...TRIGGERS,
-  ];
-  
+
+  const schemas = [...ALL_SCHEMAS, ...INDEXES, ...TRIGGERS];
+
   for (const schema of schemas) {
     try {
       if (typeof db.execSync === 'function') {
         // Native platform - use synchronous API
         db.execSync(schema);
       } else {
-        // Web platform - use promise-based API  
+        // Web platform - use promise-based API
         await new Promise<void>((resolve, reject) => {
-          db.transaction(
-            (tx: any) => tx.executeSql(schema),
-            reject,
-            resolve
-          );
+          db.transaction((tx: any) => tx.executeSql(schema), reject, resolve);
         });
       }
     } catch (error) {
@@ -353,13 +345,13 @@ export const createAllSchemas = async (): Promise<void> => {
       throw error;
     }
   }
-  
+
   // Set schema version in metadata
   const versionSql = `
     INSERT OR REPLACE INTO database_metadata (key, value, created_at, updated_at)
     VALUES ('schema_version', ?, datetime('now'), datetime('now'));
   `;
-  
+
   try {
     if (typeof db.runSync === 'function') {
       db.runSync(versionSql, [SCHEMA_VERSION.toString()]);
@@ -385,7 +377,7 @@ export const getSchemaVersion = async (): Promise<number> => {
   const { db } = await import('./database');
   const sql = 'SELECT value FROM database_metadata WHERE key = ?';
   const params = ['schema_version'];
-  
+
   try {
     if (typeof db.getAllSync === 'function') {
       // Native platform
@@ -394,26 +386,23 @@ export const getSchemaVersion = async (): Promise<number> => {
     } else {
       // Web platform
       return new Promise((resolve, reject) => {
-        db.transaction(
-          (tx: any) => {
-            tx.executeSql(
-              sql,
-              params,
-              (_: any, result: any) => {
-                if (result.rows.length > 0) {
-                  resolve(parseInt(result.rows.item(0).value, 10));
-                } else {
-                  resolve(0);
-                }
-              },
-              (_: any, error: any) => {
-                reject(error);
-                return true;
+        db.transaction((tx: any) => {
+          tx.executeSql(
+            sql,
+            params,
+            (_: any, result: any) => {
+              if (result.rows.length > 0) {
+                resolve(parseInt(result.rows.item(0).value, 10));
+              } else {
+                resolve(0);
               }
-            );
-          },
-          reject
-        );
+            },
+            (_: any, error: any) => {
+              reject(error);
+              return true;
+            }
+          );
+        }, reject);
       });
     }
   } catch (error) {
@@ -429,18 +418,19 @@ export const validateSchema = async (): Promise<boolean> => {
   const { db } = await import('./database');
   const requiredTables = [
     'suppliers',
-    'inventory_items', 
+    'inventory_items',
     'offers',
     'unit_conversions',
     'bundles',
-    'database_metadata'
+    'database_metadata',
   ];
-  
-  const sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
-  
+
+  const sql =
+    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
+
   try {
     let existingTables: string[] = [];
-    
+
     if (typeof db.getAllSync === 'function') {
       // Native platform
       const rows = db.getAllSync(sql);
@@ -448,37 +438,36 @@ export const validateSchema = async (): Promise<boolean> => {
     } else {
       // Web platform
       existingTables = await new Promise((resolve, reject) => {
-        db.transaction(
-          (tx: any) => {
-            tx.executeSql(
-              sql,
-              [],
-              (_: any, result: any) => {
-                const tables = [];
-                for (let i = 0; i < result.rows.length; i++) {
-                  tables.push(result.rows.item(i).name);
-                }
-                resolve(tables);
-              },
-              (_: any, error: any) => {
-                reject(error);
-                return true;
+        db.transaction((tx: any) => {
+          tx.executeSql(
+            sql,
+            [],
+            (_: any, result: any) => {
+              const tables = [];
+              for (let i = 0; i < result.rows.length; i++) {
+                tables.push(result.rows.item(i).name);
               }
-            );
-          },
-          reject
-        );
+              resolve(tables);
+            },
+            (_: any, error: any) => {
+              reject(error);
+              return true;
+            }
+          );
+        }, reject);
       });
     }
-    
+
     // Check if all required tables exist
-    const missingTables = requiredTables.filter(table => !existingTables.includes(table));
-    
+    const missingTables = requiredTables.filter(
+      table => !existingTables.includes(table)
+    );
+
     if (missingTables.length > 0) {
       console.warn('Missing database tables:', missingTables);
       return false;
     }
-    
+
     return true;
   } catch (error) {
     console.error('Failed to validate schema:', error);

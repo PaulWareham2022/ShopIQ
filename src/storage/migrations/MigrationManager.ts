@@ -3,6 +3,9 @@
  * Coordinates the execution of database and data migrations
  */
 
+// AbortController is available in React Native and modern browsers
+declare const AbortController: typeof globalThis.AbortController;
+
 import {
   MigrationManager as IMigrationManager,
   MigrationResult,
@@ -49,7 +52,11 @@ export class MigrationManager implements IMigrationManager {
     }
 
     if (!this.config.enableAutoMigration) {
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log('[MigrationManager] Auto-migration is disabled');
       }
       return [];
@@ -60,8 +67,12 @@ export class MigrationManager implements IMigrationManager {
     try {
       // Get current versions
       const versions = await this.versionTracker.getCurrentVersions();
-      
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(
           `[MigrationManager] Current versions - Database: ${versions.database}, Data: ${versions.data}`
         );
@@ -74,13 +85,21 @@ export class MigrationManager implements IMigrationManager {
       );
 
       if (pendingMigrations.length === 0) {
-        if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+        if (
+          this.config.enableDetailedLogging &&
+          typeof __DEV__ !== 'undefined' &&
+          __DEV__
+        ) {
           console.log('[MigrationManager] No pending migrations');
         }
         return [];
       }
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(
           `[MigrationManager] Found ${pendingMigrations.length} pending migrations:`,
           pendingMigrations.map(m => `${m.id} (v${m.version}, ${m.type})`)
@@ -90,7 +109,10 @@ export class MigrationManager implements IMigrationManager {
       // Validate migration chain
       const validation = await this.validateMigrationChain();
       if (!validation.valid) {
-        throw new MigrationValidationError('migration_manager', validation.errors.join('; '));
+        throw new MigrationValidationError(
+          'migration_manager',
+          validation.errors.join('; ')
+        );
       }
 
       // Execute migrations
@@ -103,7 +125,11 @@ export class MigrationManager implements IMigrationManager {
 
           // Stop on failure if configured to do so
           if (!result.success && !this.config.continueOnError) {
-            if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+            if (
+              this.config.enableDetailedLogging &&
+              typeof __DEV__ !== 'undefined' &&
+              __DEV__
+            ) {
               console.error(
                 `[MigrationManager] Stopping migration chain due to failure: ${migration.id}`
               );
@@ -129,7 +155,11 @@ export class MigrationManager implements IMigrationManager {
       const successCount = results.filter(r => r.success).length;
       const failureCount = results.filter(r => !r.success).length;
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(
           `[MigrationManager] Migration batch complete - Success: ${successCount}, Failed: ${failureCount}`
         );
@@ -143,7 +173,7 @@ export class MigrationManager implements IMigrationManager {
 
   async runMigration(migrationId: string): Promise<MigrationResult> {
     const migration = this.registry.getMigration(migrationId);
-    
+
     if (!migration) {
       throw new MigrationError(
         `Migration '${migrationId}' not found`,
@@ -170,8 +200,14 @@ export class MigrationManager implements IMigrationManager {
       context = {
         currentDatabaseVersion: versions.database,
         currentDataVersion: versions.data,
-        targetDatabaseVersion: migration.type === MigrationType.DATABASE ? migration.version : versions.database,
-        targetDataVersion: migration.type === MigrationType.DATA ? migration.version : versions.data,
+        targetDatabaseVersion:
+          migration.type === MigrationType.DATABASE
+            ? migration.version
+            : versions.database,
+        targetDataVersion:
+          migration.type === MigrationType.DATA
+            ? migration.version
+            : versions.data,
         migrationId: migration.id,
         timestamp: new Date().toISOString(),
       };
@@ -220,7 +256,11 @@ export class MigrationManager implements IMigrationManager {
       // Record execution in history
       await this.versionTracker.recordMigrationExecution(migration, result);
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         const duration = Date.now() - startTime;
         console.log(
           `[MigrationManager] Migration ${result.success ? 'completed' : 'failed'}: ${migration.id} (${duration}ms)`
@@ -234,8 +274,15 @@ export class MigrationManager implements IMigrationManager {
         try {
           await transaction.rollback();
         } catch (rollbackError) {
-          if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
-            console.error('[MigrationManager] Transaction rollback failed:', rollbackError);
+          if (
+            this.config.enableDetailedLogging &&
+            typeof __DEV__ !== 'undefined' &&
+            __DEV__
+          ) {
+            console.error(
+              '[MigrationManager] Transaction rollback failed:',
+              rollbackError
+            );
           }
         }
       }
@@ -249,10 +296,20 @@ export class MigrationManager implements IMigrationManager {
       };
 
       // Record failed execution
-      await this.versionTracker.recordMigrationExecution(migration, failureResult);
+      await this.versionTracker.recordMigrationExecution(
+        migration,
+        failureResult
+      );
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
-        console.error(`[MigrationManager] Migration failed: ${migration.id}`, error);
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
+        console.error(
+          `[MigrationManager] Migration failed: ${migration.id}`,
+          error
+        );
       }
 
       return failureResult;
@@ -273,7 +330,7 @@ export class MigrationManager implements IMigrationManager {
     }
 
     const migration = this.registry.getMigration(migrationId);
-    
+
     if (!migration) {
       throw new MigrationError(
         `Migration '${migrationId}' not found`,
@@ -298,8 +355,14 @@ export class MigrationManager implements IMigrationManager {
       context = {
         currentDatabaseVersion: versions.database,
         currentDataVersion: versions.data,
-        targetDatabaseVersion: migration.type === MigrationType.DATABASE ? migration.version - 1 : versions.database,
-        targetDataVersion: migration.type === MigrationType.DATA ? migration.version - 1 : versions.data,
+        targetDatabaseVersion:
+          migration.type === MigrationType.DATABASE
+            ? migration.version - 1
+            : versions.database,
+        targetDataVersion:
+          migration.type === MigrationType.DATA
+            ? migration.version - 1
+            : versions.data,
         migrationId: migration.id,
         timestamp: new Date().toISOString(),
       };
@@ -338,7 +401,11 @@ export class MigrationManager implements IMigrationManager {
       // Record rollback in history
       await this.versionTracker.recordRollback(migration.id, result);
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         const duration = Date.now() - startTime;
         console.log(
           `[MigrationManager] Rollback ${result.success ? 'completed' : 'failed'}: ${migration.id} (${duration}ms)`
@@ -352,8 +419,15 @@ export class MigrationManager implements IMigrationManager {
         try {
           await transaction.rollback();
         } catch (rollbackError) {
-          if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
-            console.error('[MigrationManager] Transaction rollback failed:', rollbackError);
+          if (
+            this.config.enableDetailedLogging &&
+            typeof __DEV__ !== 'undefined' &&
+            __DEV__
+          ) {
+            console.error(
+              '[MigrationManager] Transaction rollback failed:',
+              rollbackError
+            );
           }
         }
       }
@@ -366,15 +440,25 @@ export class MigrationManager implements IMigrationManager {
         error: error as Error,
       };
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
-        console.error(`[MigrationManager] Rollback failed: ${migration.id}`, error);
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
+        console.error(
+          `[MigrationManager] Rollback failed: ${migration.id}`,
+          error
+        );
       }
 
       return failureResult;
     }
   }
 
-  async rollbackToVersion(databaseVersion: number, dataVersion: number): Promise<MigrationResult[]> {
+  async rollbackToVersion(
+    databaseVersion: number,
+    dataVersion: number
+  ): Promise<MigrationResult[]> {
     if (!this.config.enableRollback) {
       throw new MigrationError(
         'Rollback is disabled in configuration',
@@ -384,16 +468,23 @@ export class MigrationManager implements IMigrationManager {
     }
 
     const currentVersions = await this.versionTracker.getCurrentVersions();
-    
-    // Determine which migrations need to be rolled back
-    const databaseMigrations = this.registry.getMigrationsByType(MigrationType.DATABASE)
-      .filter(m => m.version > databaseVersion && m.version <= currentVersions.database);
 
-    const dataMigrations = this.registry.getMigrationsByType(MigrationType.DATA)
-      .filter(m => m.version > dataVersion && m.version <= currentVersions.data);
+    // Determine which migrations need to be rolled back
+    const databaseMigrations = this.registry
+      .getMigrationsByType(MigrationType.DATABASE)
+      .filter(
+        m =>
+          m.version > databaseVersion && m.version <= currentVersions.database
+      );
+
+    const dataMigrations = this.registry
+      .getMigrationsByType(MigrationType.DATA)
+      .filter(
+        m => m.version > dataVersion && m.version <= currentVersions.data
+      );
 
     const candidateMigrations = [...databaseMigrations, ...dataMigrations];
-    
+
     // Build rollback order respecting dependencies (reverse topological sort)
     const migrationsToRollback = this.buildRollbackOrder(candidateMigrations);
 
@@ -433,7 +524,10 @@ export class MigrationManager implements IMigrationManager {
     return await this.versionTracker.getCurrentVersions();
   }
 
-  async validateMigrationChain(): Promise<{ valid: boolean; errors: string[] }> {
+  async validateMigrationChain(): Promise<{
+    valid: boolean;
+    errors: string[];
+  }> {
     return this.registry.validateDependencies();
   }
 
@@ -470,9 +564,19 @@ export class MigrationManager implements IMigrationManager {
   }
 
   async getMigrationStats(): Promise<{
-    registry: { total: number; database: number; data: number; executed: number; pending: number };
+    registry: {
+      total: number;
+      database: number;
+      data: number;
+      executed: number;
+      pending: number;
+    };
     versions: { database: number; data: number };
-    history: { totalExecuted: number; totalFailed: number; totalRolledBack: number };
+    history: {
+      totalExecuted: number;
+      totalFailed: number;
+      totalRolledBack: number;
+    };
   }> {
     const [registryStats, versions, historyStats] = await Promise.all([
       Promise.resolve(this.registry.getStats()),
@@ -503,14 +607,16 @@ export class MigrationManager implements IMigrationManager {
     timeoutMs: number
   ): Promise<T> {
     const controller = new AbortController();
-    
+
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         controller.abort();
-        reject(new MigrationExecutionError(
-          'timeout',
-          `Migration execution timed out after ${timeoutMs}ms`
-        ));
+        reject(
+          new MigrationExecutionError(
+            'timeout',
+            `Migration execution timed out after ${timeoutMs}ms`
+          )
+        );
       }, timeoutMs);
 
       // Wrap operation to handle abort signal
@@ -520,21 +626,21 @@ export class MigrationManager implements IMigrationManager {
             opReject(new Error('Operation aborted'));
             return;
           }
-          
+
           controller.signal.addEventListener('abort', () => {
             opReject(new Error('Operation aborted'));
           });
-          
+
           operation().then(opResolve).catch(opReject);
         });
       };
 
       wrappedOperation()
-        .then((result) => {
+        .then(result => {
           clearTimeout(timeoutId);
           resolve(result);
         })
-        .catch((error) => {
+        .catch(error => {
           clearTimeout(timeoutId);
           reject(error);
         });
@@ -548,43 +654,45 @@ export class MigrationManager implements IMigrationManager {
     // Create adjacency map for dependencies
     const dependencyMap = new Map<string, string[]>();
     const migrationMap = new Map<string, Migration>();
-    
+
     migrations.forEach(migration => {
       migrationMap.set(migration.id, migration);
       dependencyMap.set(migration.id, migration.dependencies || []);
     });
-    
+
     // Perform topological sort
     const visited = new Set<string>();
     const visiting = new Set<string>();
     const result: Migration[] = [];
-    
+
     const visit = (migrationId: string): void => {
       if (visited.has(migrationId)) return;
       if (visiting.has(migrationId)) {
-        throw new Error(`Circular dependency detected involving migration: ${migrationId}`);
+        throw new Error(
+          `Circular dependency detected involving migration: ${migrationId}`
+        );
       }
-      
+
       visiting.add(migrationId);
-      
+
       const dependencies = dependencyMap.get(migrationId) || [];
       dependencies.forEach(depId => {
         if (migrationMap.has(depId)) {
           visit(depId);
         }
       });
-      
+
       visiting.delete(migrationId);
       visited.add(migrationId);
-      
+
       const migration = migrationMap.get(migrationId);
       if (migration) {
         result.push(migration);
       }
     };
-    
+
     migrations.forEach(migration => visit(migration.id));
-    
+
     // Reverse for rollback (dependencies must be rolled back after dependents)
     return result.reverse();
   }
@@ -592,4 +700,3 @@ export class MigrationManager implements IMigrationManager {
 
 // Export a default instance
 export const migrationManager = new MigrationManager();
-

@@ -1,10 +1,10 @@
 /**
  * Example Data Migration: Migrate User Preferences to V2 Format
  * Version: 1 (first data migration)
- * 
+ *
  * This migration demonstrates how to transform stored data structures
  * in MMKV storage while preserving the ability to rollback changes.
- * 
+ *
  * V1 Format: { theme: 'dark', language: 'en' }
  * V2 Format: { ui: { theme: 'dark', language: 'en' }, version: 2 }
  */
@@ -16,8 +16,9 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
   readonly id = '001_migrate_user_preferences_v2';
   readonly version = 1;
   readonly type = MigrationType.DATA;
-  readonly description = 'Migrate user preferences to V2 format with nested structure';
-  
+  readonly description =
+    'Migrate user preferences to V2 format with nested structure';
+
   // This migration affects the preferences namespace
   readonly affectedNamespaces = ['preferences'];
 
@@ -42,22 +43,27 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
         ui: {
           // Migrate existing theme setting
           theme: data.theme || 'light',
-          
-          // Migrate existing language setting  
+
+          // Migrate existing language setting
           language: data.language || 'en',
-          
+
           // Migrate any other UI-related settings
-          ...(data.notifications !== undefined && { notifications: data.notifications }),
+          ...(data.notifications !== undefined && {
+            notifications: data.notifications,
+          }),
           ...(data.fontSize !== undefined && { fontSize: data.fontSize }),
         },
-        
+
         // Add version tracking
         version: 2,
         migratedAt: context.timestamp,
-        
+
         // Preserve any other top-level properties that aren't UI-related
         ...Object.keys(data)
-          .filter(key => !['theme', 'language', 'notifications', 'fontSize'].includes(key))
+          .filter(
+            key =>
+              !['theme', 'language', 'notifications', 'fontSize'].includes(key)
+          )
           .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {}),
       };
 
@@ -73,7 +79,7 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
     };
   }
 
-  async transformDown(data: any, context: MigrationContext): Promise<any> {
+  async transformDown(data: any, _context: MigrationContext): Promise<any> {
     // Handle null/undefined data
     if (!data) {
       return {};
@@ -92,15 +98,15 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
       if (data.ui.theme !== undefined) {
         transformed.theme = data.ui.theme;
       }
-      
+
       if (data.ui.language !== undefined) {
         transformed.language = data.ui.language;
       }
-      
+
       if (data.ui.notifications !== undefined) {
         transformed.notifications = data.ui.notifications;
       }
-      
+
       if (data.ui.fontSize !== undefined) {
         transformed.fontSize = data.ui.fontSize;
       }
@@ -120,21 +126,23 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
   async canRun(context: MigrationContext): Promise<boolean> {
     // Only run if data version is less than our version
     const versionCheck = await super.canRun(context);
-    
+
     if (!versionCheck) {
       return false;
     }
 
     // Additional check: ensure we have the required storage namespaces
     try {
-      const { userPreferencesStorageWrapper } = await import('../../mmkv/storage');
-      
+      const { userPreferencesStorageWrapper } = await import(
+        '../../mmkv/storage'
+      );
+
       // Test that we can access the storage
       const testKey = '_migration_test_' + Date.now();
       userPreferencesStorageWrapper.set(testKey, 'test');
       const retrieved = userPreferencesStorageWrapper.getString(testKey);
       userPreferencesStorageWrapper.delete(testKey);
-      
+
       return retrieved === 'test';
     } catch (error) {
       if (__DEV__) {
@@ -147,4 +155,3 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
 
 // Register the migration
 export const migration001Data = new MigrateUserPreferencesV2Migration();
-

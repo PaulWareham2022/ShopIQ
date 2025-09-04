@@ -247,7 +247,9 @@ describe('Canonical Units Utilities', () => {
     it('should reject dimension mismatches', () => {
       const result = validateAndConvert(1, 'kg', 'volume');
       expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toContain('does not match expected dimension');
+      expect(result.errorMessage).toContain(
+        'does not match expected dimension'
+      );
     });
   });
 
@@ -332,7 +334,9 @@ describe('Canonical Units Utilities', () => {
     });
 
     it('should return undefined for invalid inputs', () => {
-      expect(calculateNormalizedPrice(10, 1, 'invalid', 'mass')).toBeUndefined();
+      expect(
+        calculateNormalizedPrice(10, 1, 'invalid', 'mass')
+      ).toBeUndefined();
       expect(calculateNormalizedPrice(10, 1, 'kg', 'volume')).toBeUndefined();
       expect(calculateNormalizedPrice(10, -1, 'kg', 'mass')).toBeUndefined();
     });
@@ -341,15 +345,30 @@ describe('Canonical Units Utilities', () => {
   describe('batchConvertToCanonical', () => {
     it('should convert multiple valid conversions', () => {
       const conversions = [
-        { amount: 2, unit: 'kg', dimension: 'mass' as CanonicalDimension, id: 'item1' },
-        { amount: 1.5, unit: 'L', dimension: 'volume' as CanonicalDimension, id: 'item2' },
-        { amount: 2, unit: 'dozen', dimension: 'count' as CanonicalDimension, id: 'item3' },
+        {
+          amount: 2,
+          unit: 'kg',
+          dimension: 'mass' as CanonicalDimension,
+          id: 'item1',
+        },
+        {
+          amount: 1.5,
+          unit: 'L',
+          dimension: 'volume' as CanonicalDimension,
+          id: 'item2',
+        },
+        {
+          amount: 2,
+          unit: 'dozen',
+          dimension: 'count' as CanonicalDimension,
+          id: 'item3',
+        },
       ];
 
       const results = batchConvertToCanonical(conversions);
 
       expect(results).toHaveLength(3);
-      
+
       expect(results[0].id).toBe('item1');
       expect(results[0].success).toBe(true);
       expect(results[0].canonicalAmount).toBe(2000);
@@ -368,16 +387,36 @@ describe('Canonical Units Utilities', () => {
 
     it('should handle mixed valid and invalid conversions', () => {
       const conversions = [
-        { amount: 1, unit: 'kg', dimension: 'mass' as CanonicalDimension, id: 'valid' },
-        { amount: -1, unit: 'L', dimension: 'volume' as CanonicalDimension, id: 'negative' },
-        { amount: 1, unit: 'invalid', dimension: 'mass' as CanonicalDimension, id: 'unsupported' },
-        { amount: 1, unit: 'kg', dimension: 'volume' as CanonicalDimension, id: 'mismatch' },
+        {
+          amount: 1,
+          unit: 'kg',
+          dimension: 'mass' as CanonicalDimension,
+          id: 'valid',
+        },
+        {
+          amount: -1,
+          unit: 'L',
+          dimension: 'volume' as CanonicalDimension,
+          id: 'negative',
+        },
+        {
+          amount: 1,
+          unit: 'invalid',
+          dimension: 'mass' as CanonicalDimension,
+          id: 'unsupported',
+        },
+        {
+          amount: 1,
+          unit: 'kg',
+          dimension: 'volume' as CanonicalDimension,
+          id: 'mismatch',
+        },
       ];
 
       const results = batchConvertToCanonical(conversions);
 
       expect(results).toHaveLength(4);
-      
+
       expect(results[0].success).toBe(true);
       expect(results[1].success).toBe(false);
       expect(results[2].success).toBe(false);
@@ -391,9 +430,24 @@ describe('Canonical Units Utilities', () => {
 
     it('should preserve order', () => {
       const conversions = [
-        { amount: 1, unit: 'kg', dimension: 'mass' as CanonicalDimension, id: 'first' },
-        { amount: 2, unit: 'L', dimension: 'volume' as CanonicalDimension, id: 'second' },
-        { amount: 3, unit: 'unit', dimension: 'count' as CanonicalDimension, id: 'third' },
+        {
+          amount: 1,
+          unit: 'kg',
+          dimension: 'mass' as CanonicalDimension,
+          id: 'first',
+        },
+        {
+          amount: 2,
+          unit: 'L',
+          dimension: 'volume' as CanonicalDimension,
+          id: 'second',
+        },
+        {
+          amount: 3,
+          unit: 'unit',
+          dimension: 'count' as CanonicalDimension,
+          id: 'third',
+        },
       ];
 
       const results = batchConvertToCanonical(conversions);

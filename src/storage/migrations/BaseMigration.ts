@@ -11,12 +11,14 @@ import {
   MigrationContext,
   MigrationResult,
   MigrationType,
-  MigrationError,
   MigrationExecutionError,
   MigrationValidationError,
 } from './types';
-import { executeSql } from '../sqlite/database';
-import { appStorageWrapper, cacheStorageWrapper, userPreferencesStorageWrapper } from '../mmkv/storage';
+import {
+  appStorageWrapper,
+  cacheStorageWrapper,
+  userPreferencesStorageWrapper,
+} from '../mmkv/storage';
 
 // ===============================
 // Base Migration Class
@@ -26,7 +28,9 @@ import { appStorageWrapper, cacheStorageWrapper, userPreferencesStorageWrapper }
 function validateSqlIdentifier(identifier: string): void {
   const identifierRegex = /^[A-Za-z_][A-Za-z0-9_]*$/;
   if (!identifierRegex.test(identifier)) {
-    throw new Error(`Invalid SQL identifier: identifier contains invalid characters`);
+    throw new Error(
+      `Invalid SQL identifier: identifier contains invalid characters`
+    );
   }
 }
 
@@ -47,7 +51,7 @@ export abstract class BaseMigration implements Migration {
   abstract readonly version: number;
   abstract readonly type: MigrationType;
   abstract readonly description: string;
-  
+
   readonly dependencies?: string[];
 
   constructor(dependencies?: string[]) {
@@ -99,7 +103,9 @@ export abstract class BaseMigration implements Migration {
   }
 
   // Helper method to measure execution time
-  protected async measureExecutionTime<T>(operation: () => Promise<T>): Promise<{ result: T; timeMs: number }> {
+  protected async measureExecutionTime<T>(
+    operation: () => Promise<T>
+  ): Promise<{ result: T; timeMs: number }> {
     const startTime = Date.now();
     const result = await operation();
     const timeMs = Date.now() - startTime;
@@ -111,13 +117,16 @@ export abstract class BaseMigration implements Migration {
 // Database Migration Base Class
 // ===============================
 
-export abstract class DatabaseMigration extends BaseMigration implements IDatabaseMigration {
+export abstract class DatabaseMigration
+  extends BaseMigration
+  implements IDatabaseMigration
+{
   readonly type = MigrationType.DATABASE;
-  
+
   // SQL statements for migration
   abstract readonly upSql: string[];
   abstract readonly downSql: string[];
-  
+
   // Platform-specific SQL (optional)
   readonly webSql?: string[];
   readonly nativeSql?: string[];
@@ -126,17 +135,23 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
 
   async up(context: MigrationContext): Promise<MigrationResult> {
     if (!context) {
-      throw new MigrationValidationError(this.id, 'Migration context is required');
+      throw new MigrationValidationError(
+        this.id,
+        'Migration context is required'
+      );
     }
     if (!context.transaction) {
-      throw new MigrationValidationError(this.id, 'Database migrations require a transaction');
+      throw new MigrationValidationError(
+        this.id,
+        'Database migrations require a transaction'
+      );
     }
 
     const { result, timeMs } = await this.measureExecutionTime(async () => {
       try {
         // Get the appropriate SQL statements for the current platform
         const sqlStatements = this.getSqlForPlatform('up');
-        
+
         if (sqlStatements.length === 0) {
           throw new Error('No SQL statements provided for migration');
         }
@@ -176,7 +191,7 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
   // Helper method to validate SQL statements for migrations
   private isValidMigrationSql(sql: string): boolean {
     const upperSql = sql.toUpperCase().trim();
-    
+
     // Allow common DDL/DML operations for migrations
     const allowedPatterns = [
       /^CREATE\s+(TABLE|INDEX|UNIQUE\s+INDEX)/,
@@ -185,39 +200,44 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
       /^INSERT\s+INTO/,
       /^UPDATE\s+\w+\s+SET/,
       /^DELETE\s+FROM/,
-      /^PRAGMA/
+      /^PRAGMA/,
     ];
-    
+
     // Check if SQL matches allowed patterns
     const isAllowed = allowedPatterns.some(pattern => pattern.test(upperSql));
     if (!isAllowed) {
       return false;
     }
-    
+
     // Check for potentially dangerous elements
     const dangerousPatterns = [
-      /;.*;/,  // Multiple statements
-      /--/,    // Comments
-      /\/\*/,  // Block comments
+      /;.*;/, // Multiple statements
+      /--/, // Comments
+      /\/\*/, // Block comments
       /\bEXEC\b/,
       /\bEVAL\b/,
-      /\bSYSTEM\b/
+      /\bSYSTEM\b/,
     ];
-    
-    const isDangerous = dangerousPatterns.some(pattern => pattern.test(upperSql));
+
+    const isDangerous = dangerousPatterns.some(pattern =>
+      pattern.test(upperSql)
+    );
     return !isDangerous;
   }
 
   async down(context: MigrationContext): Promise<MigrationResult> {
     if (!context.transaction) {
-      throw new MigrationValidationError(this.id, 'Database migrations require a transaction');
+      throw new MigrationValidationError(
+        this.id,
+        'Database migrations require a transaction'
+      );
     }
 
-    const { result, timeMs } = await this.measureExecutionTime(async () => {
+    const { timeMs } = await this.measureExecutionTime(async () => {
       try {
         // Get the appropriate rollback SQL statements
         const rollbackSql = this.getSqlForPlatform('down');
-        
+
         if (rollbackSql.length === 0) {
           throw new Error('No rollback SQL statements provided');
         }
@@ -245,7 +265,7 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
   // Get the appropriate SQL statements for the current platform and direction
   private getSqlForPlatform(direction: 'up' | 'down'): string[] {
     const isWeb = Platform.OS === 'web';
-    
+
     if (direction === 'up') {
       // For up migrations, prefer platform-specific SQL if available
       if (isWeb && this.webSql) {
@@ -266,14 +286,22 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
   }
 
   // Utility method for creating table creation SQL
-  protected createTable(tableName: string, columns: string[], constraints: string[] = []): string {
+  protected createTable(
+    tableName: string,
+    columns: string[],
+    constraints: string[] = []
+  ): string {
     const quotedTableName = quoteSqlIdentifier(tableName);
     const allDefinitions = [...columns, ...constraints];
     return `CREATE TABLE IF NOT EXISTS ${quotedTableName} (\n  ${allDefinitions.join(',\n  ')}\n);`;
   }
 
   // Utility method for adding columns
-  protected addColumn(tableName: string, columnName: string, columnDefinition: string): string {
+  protected addColumn(
+    tableName: string,
+    columnName: string,
+    columnDefinition: string
+  ): string {
     const quotedTableName = quoteSqlIdentifier(tableName);
     const quotedColumnName = quoteSqlIdentifier(columnName);
     // Note: columnDefinition should come from trusted source or be validated separately
@@ -281,7 +309,12 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
   }
 
   // Utility method for creating indexes
-  protected createIndex(indexName: string, tableName: string, columns: string[], unique = false): string {
+  protected createIndex(
+    indexName: string,
+    tableName: string,
+    columns: string[],
+    unique = false
+  ): string {
     const quotedIndexName = quoteSqlIdentifier(indexName);
     const quotedTableName = quoteSqlIdentifier(tableName);
     const quotedColumns = columns.map(col => quoteSqlIdentifier(col));
@@ -300,15 +333,18 @@ export abstract class DatabaseMigration extends BaseMigration implements IDataba
 // Data Migration Base Class
 // ===============================
 
-export abstract class DataMigration extends BaseMigration implements IDataMigration {
+export abstract class DataMigration
+  extends BaseMigration
+  implements IDataMigration
+{
   readonly type = MigrationType.DATA;
-  
+
   // Affected storage namespaces
   abstract readonly affectedNamespaces: string[];
-  
+
   // Configurable batch size for processing large namespaces
   protected readonly BATCH_SIZE = 100;
-  
+
   // Abstract transformation methods
   abstract transformUp(data: any, context: MigrationContext): Promise<any>;
   abstract transformDown(data: any, context: MigrationContext): Promise<any>;
@@ -322,10 +358,10 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
         // Process each affected namespace
         for (const namespace of this.affectedNamespaces) {
           const storage = this.getStorageForNamespace(namespace);
-          
+
           // Get all keys for this namespace
           const allKeys = storage.getAllKeys();
-          
+
           if (allKeys.length === 0) {
             warnings.push(`No data found in namespace: ${namespace}`);
             continue;
@@ -333,20 +369,27 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
 
           // Process keys in batches to avoid memory issues
           const rollbackDataForNamespace: { [key: string]: any } = {};
-          
-          for (let offset = 0; offset < allKeys.length; offset += this.BATCH_SIZE) {
+
+          for (
+            let offset = 0;
+            offset < allKeys.length;
+            offset += this.BATCH_SIZE
+          ) {
             const batchKeys = allKeys.slice(offset, offset + this.BATCH_SIZE);
-            
+
             for (const key of batchKeys) {
               const originalValue = storage.getObject(key);
               if (originalValue !== undefined) {
                 // Store only minimal rollback info for modified keys
                 rollbackDataForNamespace[key] = originalValue;
-                
+
                 try {
                   // Transform the data
-                  const transformedValue = await this.transformUp(originalValue, context);
-                  
+                  const transformedValue = await this.transformUp(
+                    originalValue,
+                    context
+                  );
+
                   // Store transformed data
                   if (transformedValue !== undefined) {
                     storage.setObject(key, transformedValue);
@@ -357,16 +400,19 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
                 } catch (error) {
                   // Restore original value on transformation error
                   storage.setObject(key, originalValue);
-                  const sanitizedKey = key.length > 50 ? '[LONG_KEY]' : '[KEY_SANITIZED]';
-                  throw new Error(`Failed to transform key '${sanitizedKey}' in namespace '${namespace}': ${sanitizeErrorMessage(error.message)}`);
+                  const sanitizedKey =
+                    key.length > 50 ? '[LONG_KEY]' : '[KEY_SANITIZED]';
+                  throw new Error(
+                    `Failed to transform key '${sanitizedKey}' in namespace '${namespace}': ${sanitizeErrorMessage(error.message)}`
+                  );
                 }
               }
             }
-            
+
             // Allow event loop to process between batches
             await new Promise(resolve => setTimeout(resolve, 0));
           }
-          
+
           rollbackData[namespace] = rollbackDataForNamespace;
         }
 
@@ -380,14 +426,18 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
       }
     });
 
-    return this.createSuccessResult(timeMs, result.rollbackData, result.warnings);
+    return this.createSuccessResult(
+      timeMs,
+      result.rollbackData,
+      result.warnings
+    );
   }
 
   async down(context: MigrationContext): Promise<MigrationResult> {
-    const { result, timeMs } = await this.measureExecutionTime(async () => {
+    const { timeMs } = await this.measureExecutionTime(async () => {
       try {
         const rollbackData = context.rollbackData;
-        
+
         if (!rollbackData) {
           throw new Error('No rollback data available for data migration');
         }
@@ -396,7 +446,7 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
         for (const namespace of this.affectedNamespaces) {
           const storage = this.getStorageForNamespace(namespace);
           const originalData = rollbackData[namespace];
-          
+
           if (!originalData) {
             continue; // No original data for this namespace
           }
@@ -484,7 +534,10 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
 
     // Copy any unmapped fields
     for (const [field, value] of Object.entries(data)) {
-      if (!Object.prototype.hasOwnProperty.call(fieldMappings, field) && !Object.prototype.hasOwnProperty.call(migrated, field)) {
+      if (
+        !Object.prototype.hasOwnProperty.call(fieldMappings, field) &&
+        !Object.prototype.hasOwnProperty.call(migrated, field)
+      ) {
         migrated[field] = value;
       }
     }
@@ -492,4 +545,3 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
     return migrated;
   }
 }
-

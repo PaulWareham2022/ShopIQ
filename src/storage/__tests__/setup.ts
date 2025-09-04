@@ -61,16 +61,12 @@ global.console = {
 // Note: __DEV__ is already declared by React Native types
 
 // Export mocks for use in tests
-export {
-  mockMMKVStorage,
-  mockSQLiteDatabase,
-  mockSQLiteResult,
-};
+export { mockMMKVStorage, mockSQLiteDatabase, mockSQLiteResult };
 
 // Helper to reset all mocks between tests
 export const resetAllMocks = () => {
   jest.clearAllMocks();
-  
+
   // Reset MMKV mocks
   mockMMKVStorage.set.mockReset();
   mockMMKVStorage.getString.mockReset();
@@ -79,7 +75,7 @@ export const resetAllMocks = () => {
   mockMMKVStorage.delete.mockReset();
   mockMMKVStorage.clearAll.mockReset();
   mockMMKVStorage.getAllKeys.mockReturnValue([]);
-  
+
   // Reset SQLite mocks
   mockSQLiteDatabase.execAsync.mockReset();
   mockSQLiteDatabase.getAllAsync.mockReset();
@@ -115,7 +111,7 @@ export const createTestSupplier = (overrides: any = {}) => ({
   shippingPolicy: {
     freeShippingThreshold: 35.0,
     shippingBaseCost: 5.99,
-    pickupAvailable: true
+    pickupAvailable: true,
   },
   urlPatterns: ['https://example.com'],
   notes: 'Test notes',

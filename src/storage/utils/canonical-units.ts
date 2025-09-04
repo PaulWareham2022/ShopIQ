@@ -1,6 +1,6 @@
 /**
  * Canonical Unit Conversion Utilities
- * 
+ *
  * Provides functionality to convert between units and normalize amounts
  * to canonical units as defined in the PRD requirements.
  */
@@ -18,14 +18,19 @@ ALL_UNIT_CONVERSIONS.forEach(conversion => {
   const key = `${conversion.fromUnit}->${conversion.toUnit}`;
   conversionFactors.set(key, conversion.factor);
   unitDimensions.set(conversion.fromUnit, conversion.dimension);
-  
+
   // Check for canonical unit conflicts
   const existingCanonical = canonicalUnits.get(conversion.dimension);
   if (existingCanonical && existingCanonical !== conversion.toUnit) {
     // Choose deterministic policy: keep lexicographically smallest unit
-    const chosenUnit = existingCanonical < conversion.toUnit ? existingCanonical : conversion.toUnit;
+    const chosenUnit =
+      existingCanonical < conversion.toUnit
+        ? existingCanonical
+        : conversion.toUnit;
     if (chosenUnit !== existingCanonical) {
-      console.warn(`Canonical unit conflict for dimension '${conversion.dimension}': choosing '${chosenUnit}' over '${existingCanonical}' and '${conversion.toUnit}'`);
+      console.warn(
+        `Canonical unit conflict for dimension '${conversion.dimension}': choosing '${chosenUnit}' over '${existingCanonical}' and '${conversion.toUnit}'`
+      );
       canonicalUnits.set(conversion.dimension, chosenUnit);
     }
   } else {
@@ -51,7 +56,9 @@ export const getCanonicalUnit = (dimension: CanonicalDimension): string => {
  * @param unit The unit to look up
  * @returns The dimension of the unit, or undefined if not found
  */
-export const getUnitDimension = (unit: string): CanonicalDimension | undefined => {
+export const getUnitDimension = (
+  unit: string
+): CanonicalDimension | undefined => {
   return unitDimensions.get(unit);
 };
 
@@ -70,13 +77,18 @@ export const isSupportedUnit = (unit: string): boolean => {
  * @param toUnit Target unit
  * @returns True if units are in same dimension, false otherwise
  */
-export const areUnitsCompatible = (fromUnit: string, toUnit: string): boolean => {
+export const areUnitsCompatible = (
+  fromUnit: string,
+  toUnit: string
+): boolean => {
   const fromDimension = unitDimensions.get(fromUnit);
   const toDimension = unitDimensions.get(toUnit);
-  
-  return fromDimension !== undefined && 
-         toDimension !== undefined && 
-         fromDimension === toDimension;
+
+  return (
+    fromDimension !== undefined &&
+    toDimension !== undefined &&
+    fromDimension === toDimension
+  );
 };
 
 /**
@@ -85,40 +97,43 @@ export const areUnitsCompatible = (fromUnit: string, toUnit: string): boolean =>
  * @param toUnit Target unit
  * @returns Conversion factor, or undefined if conversion not possible
  */
-export const getConversionFactor = (fromUnit: string, toUnit: string): number | undefined => {
+export const getConversionFactor = (
+  fromUnit: string,
+  toUnit: string
+): number | undefined => {
   // Check if units are the same
   if (fromUnit === toUnit) {
     return 1;
   }
-  
+
   // Direct conversion lookup
   const directKey = `${fromUnit}->${toUnit}`;
   const directFactor = conversionFactors.get(directKey);
   if (directFactor !== undefined) {
     return directFactor;
   }
-  
+
   // Try indirect conversion via canonical unit
   const fromDimension = unitDimensions.get(fromUnit);
   const toDimension = unitDimensions.get(toUnit);
-  
+
   if (fromDimension !== toDimension || !fromDimension) {
     return undefined; // Cannot convert between different dimensions
   }
-  
+
   const canonicalUnit = canonicalUnits.get(fromDimension);
   if (!canonicalUnit) {
     return undefined;
   }
-  
+
   // Get factor to convert from source to canonical
   const toCanonicalKey = `${fromUnit}->${canonicalUnit}`;
   const toCanonicalFactor = conversionFactors.get(toCanonicalKey);
-  
+
   // Get factor to convert from canonical to target
   const fromCanonicalKey = `${canonicalUnit}->${toUnit}`;
   let fromCanonicalFactor = conversionFactors.get(fromCanonicalKey);
-  
+
   // If we don't have canonical->target, try to find target->canonical and invert
   if (fromCanonicalFactor === undefined) {
     const reverseKey = `${toUnit}->${canonicalUnit}`;
@@ -127,11 +142,11 @@ export const getConversionFactor = (fromUnit: string, toUnit: string): number | 
       fromCanonicalFactor = 1 / reverseFactor;
     }
   }
-  
+
   if (toCanonicalFactor !== undefined && fromCanonicalFactor !== undefined) {
     return toCanonicalFactor * fromCanonicalFactor;
   }
-  
+
   return undefined;
 };
 
@@ -143,15 +158,15 @@ export const getConversionFactor = (fromUnit: string, toUnit: string): number | 
  * @returns Converted amount, or undefined if conversion not possible
  */
 export const convertAmount = (
-  amount: number, 
-  fromUnit: string, 
+  amount: number,
+  fromUnit: string,
   toUnit: string
 ): number | undefined => {
   const factor = getConversionFactor(fromUnit, toUnit);
   if (factor === undefined) {
     return undefined;
   }
-  
+
   return amount * factor;
 };
 
@@ -163,8 +178,8 @@ export const convertAmount = (
  * @returns Object with canonical amount and unit, or undefined if conversion failed
  */
 export const convertToCanonical = (
-  amount: number, 
-  unit: string, 
+  amount: number,
+  unit: string,
   dimension: CanonicalDimension
 ): { amount: number; unit: string } | undefined => {
   // Validate that the unit matches the expected dimension
@@ -172,17 +187,17 @@ export const convertToCanonical = (
   if (unitDimension !== dimension) {
     return undefined;
   }
-  
+
   const canonicalUnit = getCanonicalUnit(dimension);
   const canonicalAmount = convertAmount(amount, unit, canonicalUnit);
-  
+
   if (canonicalAmount === undefined) {
     return undefined;
   }
-  
+
   return {
     amount: canonicalAmount,
-    unit: canonicalUnit
+    unit: canonicalUnit,
   };
 };
 
@@ -209,40 +224,40 @@ export const validateAndConvert = (
   if (!Number.isFinite(amount) || amount < 0) {
     return {
       isValid: false,
-      errorMessage: 'Amount must be a positive finite number'
+      errorMessage: 'Amount must be a positive finite number',
     };
   }
-  
+
   // Validate unit is supported
   if (!isSupportedUnit(unit)) {
     return {
       isValid: false,
-      errorMessage: `Unsupported unit: ${unit}`
+      errorMessage: `Unsupported unit: ${unit}`,
     };
   }
-  
+
   // Validate unit dimension matches expected
   const unitDimension = getUnitDimension(unit);
   if (unitDimension !== expectedDimension) {
     return {
       isValid: false,
-      errorMessage: `Unit ${unit} (${unitDimension}) does not match expected dimension ${expectedDimension}`
+      errorMessage: `Unit ${unit} (${unitDimension}) does not match expected dimension ${expectedDimension}`,
     };
   }
-  
+
   // Perform conversion
   const canonical = convertToCanonical(amount, unit, expectedDimension);
   if (!canonical) {
     return {
       isValid: false,
-      errorMessage: `Failed to convert ${amount} ${unit} to canonical unit`
+      errorMessage: `Failed to convert ${amount} ${unit} to canonical unit`,
     };
   }
-  
+
   return {
     isValid: true,
     canonicalAmount: canonical.amount,
-    canonicalUnit: canonical.unit
+    canonicalUnit: canonical.unit,
   };
 };
 
@@ -251,7 +266,9 @@ export const validateAndConvert = (
  * @param dimension The canonical dimension
  * @returns Array of supported units for that dimension
  */
-export const getSupportedUnitsForDimension = (dimension: CanonicalDimension): string[] => {
+export const getSupportedUnitsForDimension = (
+  dimension: CanonicalDimension
+): string[] => {
   const units: string[] = [];
   unitDimensions.forEach((unitDim, unit) => {
     if (unitDim === dimension) {
@@ -276,7 +293,11 @@ export const getSupportedDimensions = (): CanonicalDimension[] => {
  * @param decimals Number of decimal places (default: 2)
  * @returns Formatted string
  */
-export const formatAmount = (amount: number, unit: string, decimals: number = 2): string => {
+export const formatAmount = (
+  amount: number,
+  unit: string,
+  decimals: number = 2
+): string => {
   return `${amount.toFixed(decimals)} ${unit}`;
 };
 
@@ -299,7 +320,7 @@ export const calculateNormalizedPrice = (
   if (!validation.isValid || !validation.canonicalAmount) {
     return undefined;
   }
-  
+
   return totalPrice / validation.canonicalAmount;
 };
 
@@ -329,17 +350,17 @@ export const batchConvertToCanonical = (
 ): ConversionResult[] => {
   return conversions.map(conversion => {
     const validation = validateAndConvert(
-      conversion.amount, 
-      conversion.unit, 
+      conversion.amount,
+      conversion.unit,
       conversion.dimension
     );
-    
+
     return {
       id: conversion.id,
       success: validation.isValid,
       canonicalAmount: validation.canonicalAmount,
       canonicalUnit: validation.canonicalUnit,
-      errorMessage: validation.errorMessage
+      errorMessage: validation.errorMessage,
     };
   });
 };

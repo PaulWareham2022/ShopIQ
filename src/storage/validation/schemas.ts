@@ -14,21 +14,16 @@ import { z } from 'zod';
  */
 export const CanonicalDimensionSchema = z.enum([
   'mass',
-  'volume', 
+  'volume',
   'count',
   'length',
-  'area'
+  'area',
 ]);
 
 /**
  * Source types for offer provenance tracking
  */
-export const SourceTypeSchema = z.enum([
-  'manual',
-  'url',
-  'ocr',
-  'api'
-]);
+export const SourceTypeSchema = z.enum(['manual', 'url', 'ocr', 'api']);
 
 /**
  * Price allocation methods for bundle pricing
@@ -36,7 +31,7 @@ export const SourceTypeSchema = z.enum([
 export const PriceAllocationMethodSchema = z.enum([
   'equal',
   'by-canonical-amount',
-  'manual'
+  'manual',
 ]);
 
 /**
@@ -46,11 +41,19 @@ export const BaseEntitySchema = z.object({
   /** Unique identifier (UUIDv4) */
   id: z.string().uuid('ID must be a valid UUID'),
   /** ISO 8601 timestamp when entity was created */
-  created_at: z.string().datetime('created_at must be a valid ISO 8601 datetime'),
+  created_at: z
+    .string()
+    .datetime('created_at must be a valid ISO 8601 datetime'),
   /** ISO 8601 timestamp when entity was last updated */
-  updated_at: z.string().datetime('updated_at must be a valid ISO 8601 datetime'),
+  updated_at: z
+    .string()
+    .datetime('updated_at must be a valid ISO 8601 datetime'),
   /** ISO 8601 timestamp when entity was soft-deleted (null if not deleted) */
-  deleted_at: z.string().datetime('deleted_at must be a valid ISO 8601 datetime').nullable().optional()
+  deleted_at: z
+    .string()
+    .datetime('deleted_at must be a valid ISO 8601 datetime')
+    .nullable()
+    .optional(),
 });
 
 // =============================================================================
@@ -62,13 +65,22 @@ export const BaseEntitySchema = z.object({
  */
 export const ShippingPolicySchema = z.object({
   /** Minimum order total to waive shipping (e.g., 35.00) */
-  freeShippingThreshold: z.number().min(0, 'Free shipping threshold must be non-negative').optional(),
+  freeShippingThreshold: z
+    .number()
+    .min(0, 'Free shipping threshold must be non-negative')
+    .optional(),
   /** Base shipping when threshold not met (e.g., 5.99) */
-  shippingBaseCost: z.number().min(0, 'Shipping base cost must be non-negative').optional(),
+  shippingBaseCost: z
+    .number()
+    .min(0, 'Shipping base cost must be non-negative')
+    .optional(),
   /** Optional per-item adder where applicable */
-  shippingPerItemCost: z.number().min(0, 'Shipping per-item cost must be non-negative').optional(),
+  shippingPerItemCost: z
+    .number()
+    .min(0, 'Shipping per-item cost must be non-negative')
+    .optional(),
   /** Whether in-store/locker pickup can zero shipping */
-  pickupAvailable: z.boolean().optional()
+  pickupAvailable: z.boolean().optional(),
 });
 
 /**
@@ -80,7 +92,7 @@ export const BundleItemSchema = z.object({
   /** Quantity of the item in the bundle */
   amount: z.number().positive('Amount must be positive'),
   /** Unit for the amount */
-  unit: z.string().min(1, 'Unit cannot be empty')
+  unit: z.string().min(1, 'Unit cannot be empty'),
 });
 
 // =============================================================================
@@ -92,34 +104,49 @@ export const BundleItemSchema = z.object({
  */
 export const SupplierSchema = BaseEntitySchema.extend({
   /** Canonical supplier/store name used for display and dedupe */
-  name: z.string().min(1, 'Supplier name cannot be empty').max(200, 'Supplier name too long'),
-  
+  name: z
+    .string()
+    .min(1, 'Supplier name cannot be empty')
+    .max(200, 'Supplier name too long'),
+
   /** ISO 3166-1 alpha-2 country code */
-  countryCode: z.string().length(2, 'Country code must be 2 characters').regex(/^[A-Z]{2}$/, 'Country code must be uppercase'),
-  
+  countryCode: z
+    .string()
+    .length(2, 'Country code must be 2 characters')
+    .regex(/^[A-Z]{2}$/, 'Country code must be uppercase'),
+
   /** ISO 3166-2 region code */
-  regionCode: z.string().regex(/^[A-Z]{2}-[A-Z0-9]{1,3}$/, 'Region code must follow ISO 3166-2 format').optional(),
-  
+  regionCode: z
+    .string()
+    .regex(
+      /^[A-Z]{2}-[A-Z0-9]{1,3}$/,
+      'Region code must follow ISO 3166-2 format'
+    )
+    .optional(),
+
   /** Internal short code for multiple outlets */
   storeCode: z.string().max(50, 'Store code too long').optional(),
-  
+
   /** ISO 4217 currency code */
-  defaultCurrency: z.string().length(3, 'Currency code must be 3 characters').regex(/^[A-Z]{3}$/, 'Currency code must be uppercase'),
-  
+  defaultCurrency: z
+    .string()
+    .length(3, 'Currency code must be 3 characters')
+    .regex(/^[A-Z]{3}$/, 'Currency code must be uppercase'),
+
   /** Indicates membership affects access/pricing */
   membershipRequired: z.boolean(),
-  
+
   /** Free text membership type */
   membershipType: z.string().max(100, 'Membership type too long').optional(),
-  
+
   /** JSON object for shipping economics */
   shippingPolicy: ShippingPolicySchema.optional(),
-  
+
   /** Array of hostname/path hints */
   urlPatterns: z.array(z.string().url('URL pattern must be valid')).optional(),
-  
+
   /** Free text for operational notes */
-  notes: z.string().max(1000, 'Notes too long').optional()
+  notes: z.string().max(1000, 'Notes too long').optional(),
 });
 
 /**
@@ -127,34 +154,50 @@ export const SupplierSchema = BaseEntitySchema.extend({
  */
 export const InventoryItemSchema = BaseEntitySchema.extend({
   /** Human-friendly item name */
-  name: z.string().min(1, 'Item name cannot be empty').max(200, 'Item name too long'),
-  
+  name: z
+    .string()
+    .min(1, 'Item name cannot be empty')
+    .max(200, 'Item name too long'),
+
   /** Optional grouping category */
   category: z.string().max(100, 'Category too long').optional(),
-  
+
   /** Canonical dimension for unit normalization */
   canonicalDimension: CanonicalDimensionSchema,
-  
+
   /** The canonical unit for normalization */
-  canonicalUnit: z.string().min(1, 'Canonical unit cannot be empty').max(20, 'Canonical unit too long'),
-  
+  canonicalUnit: z
+    .string()
+    .min(1, 'Canonical unit cannot be empty')
+    .max(20, 'Canonical unit too long'),
+
   /** Whether item shows expiry-risk warnings */
   shelfLifeSensitive: z.boolean(),
-  
+
   /** Typical shelf life in days */
-  shelfLifeDays: z.number().int('Shelf life must be an integer').min(1, 'Shelf life must be positive').optional(),
-  
+  shelfLifeDays: z
+    .number()
+    .int('Shelf life must be an integer')
+    .min(1, 'Shelf life must be positive')
+    .optional(),
+
   /** Usage rate in canonical units per day */
-  usageRatePerDay: z.number().min(0, 'Usage rate must be non-negative').optional(),
-  
+  usageRatePerDay: z
+    .number()
+    .min(0, 'Usage rate must be non-negative')
+    .optional(),
+
   /** JSON map for equivalence attributes */
   attributes: z.record(z.string(), z.any()).optional(),
-  
+
   /** Multiplier for adjusted comparability */
-  equivalenceFactor: z.number().min(0, 'Equivalence factor must be non-negative').optional(),
-  
+  equivalenceFactor: z
+    .number()
+    .min(0, 'Equivalence factor must be non-negative')
+    .optional(),
+
   /** Free text notes */
-  notes: z.string().max(1000, 'Notes too long').optional()
+  notes: z.string().max(1000, 'Notes too long').optional(),
 });
 
 /**
@@ -163,87 +206,127 @@ export const InventoryItemSchema = BaseEntitySchema.extend({
 export const OfferSchema = BaseEntitySchema.extend({
   /** Foreign key to inventory item */
   inventoryItemId: z.string().uuid('Inventory item ID must be a valid UUID'),
-  
+
   /** Foreign key to supplier */
   supplierId: z.string().uuid('Supplier ID must be a valid UUID'),
-  
+
   /** Denormalized supplier name at capture time */
-  supplierNameSnapshot: z.string().max(200, 'Supplier name snapshot too long').optional(),
-  
+  supplierNameSnapshot: z
+    .string()
+    .max(200, 'Supplier name snapshot too long')
+    .optional(),
+
   /** Product/offer URL for revisit */
   supplierUrl: z.string().url('Supplier URL must be valid').optional(),
-  
+
   /** Provenance for data trust */
   sourceType: SourceTypeSchema,
-  
+
   /** Source URL if different from supplier URL */
   sourceUrl: z.string().url('Source URL must be valid').optional(),
-  
+
   /** Raw parsed values for audit */
   rawCapture: z.string().optional(),
-  
+
   /** When the price was observed */
-  observedAt: z.string().datetime('observedAt must be a valid ISO 8601 datetime'),
-  
+  observedAt: z
+    .string()
+    .datetime('observedAt must be a valid ISO 8601 datetime'),
+
   /** When the offer was captured */
-  capturedAt: z.string().datetime('capturedAt must be a valid ISO 8601 datetime'),
-  
+  capturedAt: z
+    .string()
+    .datetime('capturedAt must be a valid ISO 8601 datetime'),
+
   /** Total price at point of sale */
   totalPrice: z.number().min(0, 'Total price must be non-negative'),
-  
+
   /** ISO 4217 currency code */
-  currency: z.string().length(3, 'Currency code must be 3 characters').regex(/^[A-Z]{3}$/, 'Currency code must be uppercase'),
-  
+  currency: z
+    .string()
+    .length(3, 'Currency code must be 3 characters')
+    .regex(/^[A-Z]{3}$/, 'Currency code must be uppercase'),
+
   /** Whether price includes sales tax */
   isTaxIncluded: z.boolean(),
-  
+
   /** Applied tax rate if known */
-  taxRate: z.number().min(0, 'Tax rate must be non-negative').max(1, 'Tax rate must be <= 1').optional(),
-  
+  taxRate: z
+    .number()
+    .min(0, 'Tax rate must be non-negative')
+    .max(1, 'Tax rate must be <= 1')
+    .optional(),
+
   /** Shipping cost for this offer */
-  shippingCost: z.number().min(0, 'Shipping cost must be non-negative').optional(),
-  
+  shippingCost: z
+    .number()
+    .min(0, 'Shipping cost must be non-negative')
+    .optional(),
+
   /** Minimum order amount */
-  minOrderAmount: z.number().min(0, 'Minimum order amount must be non-negative').optional(),
-  
+  minOrderAmount: z
+    .number()
+    .min(0, 'Minimum order amount must be non-negative')
+    .optional(),
+
   /** Supplier threshold at capture time */
-  freeShippingThresholdAtCapture: z.number().min(0, 'Free shipping threshold must be non-negative').optional(),
-  
+  freeShippingThresholdAtCapture: z
+    .number()
+    .min(0, 'Free shipping threshold must be non-negative')
+    .optional(),
+
   /** Whether shipping has been waived */
   shippingIncluded: z.boolean().optional(),
-  
+
   /** Quantity purchased */
   amount: z.number().positive('Amount must be positive'),
-  
+
   /** Unit as displayed on label */
-  amountUnit: z.string().min(1, 'Amount unit cannot be empty').max(20, 'Amount unit too long'),
-  
+  amountUnit: z
+    .string()
+    .min(1, 'Amount unit cannot be empty')
+    .max(20, 'Amount unit too long'),
+
   /** Quantity in canonical units */
   amountCanonical: z.number().positive('Canonical amount must be positive'),
-  
+
   /** Computed pre-tax price per canonical unit */
-  pricePerCanonicalExclShipping: z.number().min(0, 'Price per canonical excl shipping must be non-negative'),
-  
+  pricePerCanonicalExclShipping: z
+    .number()
+    .min(0, 'Price per canonical excl shipping must be non-negative'),
+
   /** Computed price per canonical unit including shipping */
-  pricePerCanonicalInclShipping: z.number().min(0, 'Price per canonical incl shipping must be non-negative'),
-  
+  pricePerCanonicalInclShipping: z
+    .number()
+    .min(0, 'Price per canonical incl shipping must be non-negative'),
+
   /** Final normalized comparator price */
-  effectivePricePerCanonical: z.number().min(0, 'Effective price per canonical must be non-negative'),
-  
+  effectivePricePerCanonical: z
+    .number()
+    .min(0, 'Effective price per canonical must be non-negative'),
+
   /** Bundle ID if part of multi-item bundle */
   bundleId: z.string().uuid('Bundle ID must be a valid UUID').optional(),
-  
+
   /** Personal quality rating 1-5 */
-  qualityRating: z.number().int('Quality rating must be an integer').min(1, 'Quality rating must be >= 1').max(5, 'Quality rating must be <= 5').optional(),
-  
+  qualityRating: z
+    .number()
+    .int('Quality rating must be an integer')
+    .min(1, 'Quality rating must be >= 1')
+    .max(5, 'Quality rating must be <= 5')
+    .optional(),
+
   /** Free text notes */
   notes: z.string().max(1000, 'Notes too long').optional(),
-  
+
   /** Optional image reference */
   photoUri: z.string().url('Photo URI must be valid').optional(),
-  
+
   /** Normalization algorithm version */
-  computedByVersion: z.string().max(50, 'Computed by version too long').optional()
+  computedByVersion: z
+    .string()
+    .max(50, 'Computed by version too long')
+    .optional(),
 });
 
 /**
@@ -251,16 +334,22 @@ export const OfferSchema = BaseEntitySchema.extend({
  */
 export const UnitConversionSchema = BaseEntitySchema.extend({
   /** Unit symbol being converted from */
-  fromUnit: z.string().min(1, 'From unit cannot be empty').max(20, 'From unit too long'),
-  
+  fromUnit: z
+    .string()
+    .min(1, 'From unit cannot be empty')
+    .max(20, 'From unit too long'),
+
   /** Canonical unit symbol being converted to */
-  toUnit: z.string().min(1, 'To unit cannot be empty').max(20, 'To unit too long'),
-  
+  toUnit: z
+    .string()
+    .min(1, 'To unit cannot be empty')
+    .max(20, 'To unit too long'),
+
   /** Conversion factor multiplier */
   factor: z.number().positive('Conversion factor must be positive'),
-  
+
   /** Dimension type for validation */
-  dimension: CanonicalDimensionSchema
+  dimension: CanonicalDimensionSchema,
 });
 
 /**
@@ -269,12 +358,14 @@ export const UnitConversionSchema = BaseEntitySchema.extend({
 export const BundleSchema = BaseEntitySchema.extend({
   /** Foreign key to supplier */
   supplierId: z.string().uuid('Supplier ID must be a valid UUID'),
-  
+
   /** Array of bundle items */
-  items: z.array(BundleItemSchema).min(1, 'Bundle must contain at least one item'),
-  
+  items: z
+    .array(BundleItemSchema)
+    .min(1, 'Bundle must contain at least one item'),
+
   /** How to allocate bundle price */
-  priceAllocationMethod: PriceAllocationMethodSchema
+  priceAllocationMethod: PriceAllocationMethodSchema,
 });
 
 // =============================================================================
@@ -284,15 +375,20 @@ export const BundleSchema = BaseEntitySchema.extend({
 /**
  * Validates an entity against its schema and returns typed result
  */
-export function validateEntity<T>(schema: z.ZodSchema<T>, data: unknown): {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  errors: z.ZodError;
-} {
+export function validateEntity<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+):
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      errors: z.ZodError;
+    } {
   const result = schema.safeParse(data);
-  
+
   if (result.success) {
     return { success: true, data: result.data };
   } else {
@@ -303,7 +399,10 @@ export function validateEntity<T>(schema: z.ZodSchema<T>, data: unknown): {
 /**
  * Validates an entity and throws on validation failure
  */
-export function validateEntityStrict<T>(schema: z.ZodSchema<T>, data: unknown): T {
+export function validateEntityStrict<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): T {
   return schema.parse(data);
 }
 
@@ -311,18 +410,20 @@ export function validateEntityStrict<T>(schema: z.ZodSchema<T>, data: unknown): 
  * Validates partial entity data (for updates)
  */
 export function validatePartialEntity<T>(
-  schema: z.ZodObject<any>, 
+  schema: z.ZodObject<any>,
   data: unknown
-): {
-  success: true;
-  data: Partial<T>;
-} | {
-  success: false;
-  errors: z.ZodError;
-} {
+):
+  | {
+      success: true;
+      data: Partial<T>;
+    }
+  | {
+      success: false;
+      errors: z.ZodError;
+    } {
   const partialSchema = schema.partial();
   const result = partialSchema.safeParse(data);
-  
+
   if (result.success) {
     return { success: true, data: result.data as Partial<T> };
   } else {
@@ -337,7 +438,7 @@ export function validatePartialEntity<T>(
 export type {
   CanonicalDimension,
   SourceType,
-  PriceAllocationMethod
+  PriceAllocationMethod,
 } from '../types/index.js';
 
 export type ValidatedSupplier = z.infer<typeof SupplierSchema>;
@@ -360,5 +461,5 @@ export const ValidationSchemas = {
   BundleItem: BundleItemSchema,
   CanonicalDimension: CanonicalDimensionSchema,
   SourceType: SourceTypeSchema,
-  PriceAllocationMethod: PriceAllocationMethodSchema
+  PriceAllocationMethod: PriceAllocationMethodSchema,
 } as const;

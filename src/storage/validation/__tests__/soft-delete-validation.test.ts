@@ -12,20 +12,19 @@ import {
   BundleSchema,
   validateEntity,
   validateEntityStrict,
-  validatePartialEntity
+  validatePartialEntity,
 } from '../schemas';
 
 describe('Soft-Delete Validation', () => {
-  
   // =============================================================================
   // BASE ENTITY SOFT-DELETE VALIDATION
   // =============================================================================
-  
+
   describe('BaseEntitySchema soft-delete field validation', () => {
     const validBaseEntity = {
       id: '123e4567-e89b-12d3-a456-426614174000',
       created_at: '2023-12-01T10:00:00.000Z',
-      updated_at: '2023-12-01T10:00:00.000Z'
+      updated_at: '2023-12-01T10:00:00.000Z',
     };
 
     describe('deleted_at field acceptance', () => {
@@ -45,7 +44,10 @@ describe('Soft-Delete Validation', () => {
       });
 
       test('accepts valid ISO 8601 deleted_at (soft deleted)', () => {
-        const entity = { ...validBaseEntity, deleted_at: '2023-12-01T12:00:00.000Z' };
+        const entity = {
+          ...validBaseEntity,
+          deleted_at: '2023-12-01T12:00:00.000Z',
+        };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(true);
         if (result.success) {
@@ -54,13 +56,19 @@ describe('Soft-Delete Validation', () => {
       });
 
       test('accepts deleted_at with timezone info', () => {
-        const entity = { ...validBaseEntity, deleted_at: '2023-12-01T12:00:00.000Z' };
+        const entity = {
+          ...validBaseEntity,
+          deleted_at: '2023-12-01T12:00:00.000Z',
+        };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(true);
       });
 
       test('accepts deleted_at with milliseconds', () => {
-        const entity = { ...validBaseEntity, deleted_at: '2023-12-01T12:00:00.123Z' };
+        const entity = {
+          ...validBaseEntity,
+          deleted_at: '2023-12-01T12:00:00.123Z',
+        };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(true);
       });
@@ -72,7 +80,9 @@ describe('Soft-Delete Validation', () => {
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(false);
         if (!result.success) {
-          expect(result.error.issues[0].message).toContain('deleted_at must be a valid ISO 8601 datetime');
+          expect(result.error.issues[0].message).toContain(
+            'deleted_at must be a valid ISO 8601 datetime'
+          );
         }
       });
 
@@ -83,7 +93,10 @@ describe('Soft-Delete Validation', () => {
       });
 
       test('rejects invalid date values', () => {
-        const entity = { ...validBaseEntity, deleted_at: '2023-13-01T12:00:00Z' };
+        const entity = {
+          ...validBaseEntity,
+          deleted_at: '2023-13-01T12:00:00Z',
+        };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(false);
       });
@@ -106,7 +119,7 @@ describe('Soft-Delete Validation', () => {
         const entity = {
           ...validBaseEntity,
           updated_at: '2023-12-01T10:00:00.000Z',
-          deleted_at: '2023-12-01T11:00:00.000Z'
+          deleted_at: '2023-12-01T11:00:00.000Z',
         };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(true);
@@ -116,7 +129,7 @@ describe('Soft-Delete Validation', () => {
         const entity = {
           ...validBaseEntity,
           updated_at: '2023-12-01T10:00:00.000Z',
-          deleted_at: '2023-12-01T10:00:00.000Z'
+          deleted_at: '2023-12-01T10:00:00.000Z',
         };
         const result = BaseEntitySchema.safeParse(entity);
         expect(result.success).toBe(true);
@@ -128,7 +141,7 @@ describe('Soft-Delete Validation', () => {
         const entity = {
           ...validBaseEntity,
           updated_at: '2023-12-01T10:00:00.000Z',
-          deleted_at: '2023-12-01T09:00:00.000Z'
+          deleted_at: '2023-12-01T09:00:00.000Z',
         };
         const result = BaseEntitySchema.safeParse(entity);
         // Schema validation passes - business logic would need to validate temporal consistency
@@ -150,13 +163,13 @@ describe('Soft-Delete Validation', () => {
         name: 'Test Supplier',
         countryCode: 'CA',
         defaultCurrency: 'CAD',
-        membershipRequired: false
+        membershipRequired: false,
       };
 
       test('validates supplier with soft-delete timestamp', () => {
         const deletedSupplier = {
           ...validSupplier,
-          deleted_at: '2023-12-01T15:30:00.000Z'
+          deleted_at: '2023-12-01T15:30:00.000Z',
         };
         const result = SupplierSchema.safeParse(deletedSupplier);
         expect(result.success).toBe(true);
@@ -165,7 +178,7 @@ describe('Soft-Delete Validation', () => {
       test('validates partial supplier update with deleted_at', () => {
         const partialUpdate = {
           name: 'Updated Supplier',
-          deleted_at: '2023-12-01T15:30:00.000Z'
+          deleted_at: '2023-12-01T15:30:00.000Z',
         };
         const result = validatePartialEntity(SupplierSchema, partialUpdate);
         expect(result.success).toBe(true);
@@ -180,13 +193,13 @@ describe('Soft-Delete Validation', () => {
         name: 'Test Item',
         canonicalDimension: 'mass' as const,
         canonicalUnit: 'g',
-        shelfLifeSensitive: false
+        shelfLifeSensitive: false,
       };
 
       test('validates inventory item with soft-delete timestamp', () => {
         const deletedItem = {
           ...validItem,
-          deleted_at: '2023-12-01T16:45:00.000Z'
+          deleted_at: '2023-12-01T16:45:00.000Z',
         };
         const result = InventoryItemSchema.safeParse(deletedItem);
         expect(result.success).toBe(true);
@@ -203,21 +216,21 @@ describe('Soft-Delete Validation', () => {
         sourceType: 'manual' as const,
         observedAt: '2023-12-01T09:30:00.000Z',
         capturedAt: '2023-12-01T10:00:00.000Z',
-        totalPrice: 10.00,
+        totalPrice: 10.0,
         currency: 'CAD',
         isTaxIncluded: false,
         amount: 1,
         amountUnit: 'unit',
         amountCanonical: 1,
-        pricePerCanonicalExclShipping: 10.00,
-        pricePerCanonicalInclShipping: 10.00,
-        effectivePricePerCanonical: 10.00
+        pricePerCanonicalExclShipping: 10.0,
+        pricePerCanonicalInclShipping: 10.0,
+        effectivePricePerCanonical: 10.0,
       };
 
       test('validates offer with soft-delete timestamp', () => {
         const deletedOffer = {
           ...validOffer,
-          deleted_at: '2023-12-01T17:15:00.000Z'
+          deleted_at: '2023-12-01T17:15:00.000Z',
         };
         const result = OfferSchema.safeParse(deletedOffer);
         expect(result.success).toBe(true);
@@ -232,13 +245,13 @@ describe('Soft-Delete Validation', () => {
         fromUnit: 'kg',
         toUnit: 'g',
         factor: 1000,
-        dimension: 'mass' as const
+        dimension: 'mass' as const,
       };
 
       test('validates unit conversion with soft-delete timestamp', () => {
         const deletedConversion = {
           ...validConversion,
-          deleted_at: '2023-12-01T18:00:00.000Z'
+          deleted_at: '2023-12-01T18:00:00.000Z',
         };
         const result = UnitConversionSchema.safeParse(deletedConversion);
         expect(result.success).toBe(true);
@@ -255,16 +268,16 @@ describe('Soft-Delete Validation', () => {
           {
             inventoryItemId: '123e4567-e89b-12d3-a456-426614174002',
             amount: 2,
-            unit: 'kg'
-          }
+            unit: 'kg',
+          },
         ],
-        priceAllocationMethod: 'equal' as const
+        priceAllocationMethod: 'equal' as const,
       };
 
       test('validates bundle with soft-delete timestamp', () => {
         const deletedBundle = {
           ...validBundle,
-          deleted_at: '2023-12-01T19:30:00.000Z'
+          deleted_at: '2023-12-01T19:30:00.000Z',
         };
         const result = BundleSchema.safeParse(deletedBundle);
         expect(result.success).toBe(true);
@@ -285,7 +298,7 @@ describe('Soft-Delete Validation', () => {
       countryCode: 'CA',
       defaultCurrency: 'CAD',
       membershipRequired: false,
-      deleted_at: '2023-12-01T12:00:00.000Z'
+      deleted_at: '2023-12-01T12:00:00.000Z',
     };
 
     describe('validateEntity with soft-delete', () => {
@@ -298,7 +311,10 @@ describe('Soft-Delete Validation', () => {
       });
 
       test('returns error for invalid deleted_at format', () => {
-        const invalidSupplier = { ...validSupplier, deleted_at: 'invalid-date' };
+        const invalidSupplier = {
+          ...validSupplier,
+          deleted_at: 'invalid-date',
+        };
         const result = validateEntity(SupplierSchema, invalidSupplier);
         expect(result.success).toBe(false);
         if (!result.success) {
@@ -328,7 +344,9 @@ describe('Soft-Delete Validation', () => {
         const result = validatePartialEntity(SupplierSchema, partial);
         expect(result.success).toBe(true);
         if (result.success) {
-          expect((result.data as any).deleted_at).toBe('2023-12-01T12:00:00.000Z');
+          expect((result.data as any).deleted_at).toBe(
+            '2023-12-01T12:00:00.000Z'
+          );
         }
       });
 
@@ -357,7 +375,7 @@ describe('Soft-Delete Validation', () => {
     const baseEntity = {
       id: '123e4567-e89b-12d3-a456-426614174000',
       created_at: '2023-12-01T10:00:00.000Z',
-      updated_at: '2023-12-01T10:00:00.000Z'
+      updated_at: '2023-12-01T10:00:00.000Z',
     };
 
     test('handles very old dates in deleted_at', () => {
@@ -373,15 +391,18 @@ describe('Soft-Delete Validation', () => {
     });
 
     test('handles maximum precision timestamps', () => {
-      const entity = { ...baseEntity, deleted_at: '2023-12-01T12:34:56.789123Z' };
+      const entity = {
+        ...baseEntity,
+        deleted_at: '2023-12-01T12:34:56.789123Z',
+      };
       const result = BaseEntitySchema.safeParse(entity);
       expect(result.success).toBe(true);
     });
 
     test('handles different timezone formats', () => {
       const timezoneFormats = [
-        '2023-12-01T12:00:00.000Z',       // UTC with milliseconds
-        '2023-12-01T12:00:00Z',           // UTC
+        '2023-12-01T12:00:00.000Z', // UTC with milliseconds
+        '2023-12-01T12:00:00Z', // UTC
       ];
 
       timezoneFormats.forEach(timestamp => {
@@ -393,16 +414,16 @@ describe('Soft-Delete Validation', () => {
 
     test('rejects common invalid datetime formats', () => {
       const invalidFormats = [
-        '2023/12/01 12:00:00',            // Wrong separators
-        '2023-12-01 12:00:00',            // Missing T separator
-        '2023-12-01T12:00:00',            // Missing timezone
-        '2023-12-01T25:00:00.000Z',       // Invalid hour
-        '2023-12-01T12:60:00.000Z',       // Invalid minute
-        '2023-12-01T12:00:60.000Z',       // Invalid second
-        '2023-00-01T12:00:00.000Z',       // Invalid month
-        '2023-12-00T12:00:00.000Z',       // Invalid day
-        'Dec 1, 2023 12:00 PM',           // Natural language format
-        '1701432000',                     // Unix timestamp (string)
+        '2023/12/01 12:00:00', // Wrong separators
+        '2023-12-01 12:00:00', // Missing T separator
+        '2023-12-01T12:00:00', // Missing timezone
+        '2023-12-01T25:00:00.000Z', // Invalid hour
+        '2023-12-01T12:60:00.000Z', // Invalid minute
+        '2023-12-01T12:00:60.000Z', // Invalid second
+        '2023-00-01T12:00:00.000Z', // Invalid month
+        '2023-12-00T12:00:00.000Z', // Invalid day
+        'Dec 1, 2023 12:00 PM', // Natural language format
+        '1701432000', // Unix timestamp (string)
       ];
 
       invalidFormats.forEach(timestamp => {
@@ -426,7 +447,7 @@ describe('Soft-Delete Validation', () => {
         name: 'Test Supplier',
         countryCode: 'CA',
         defaultCurrency: 'CAD',
-        membershipRequired: false
+        membershipRequired: false,
       };
 
       // 1. Initial creation (no deleted_at)
@@ -437,14 +458,14 @@ describe('Soft-Delete Validation', () => {
       const deleted = SupplierSchema.safeParse({
         ...supplier,
         deleted_at: '2023-12-01T12:00:00.000Z',
-        updated_at: '2023-12-01T12:00:00.000Z'
+        updated_at: '2023-12-01T12:00:00.000Z',
       });
       expect(deleted.success).toBe(true);
 
       // 3. Restore (remove deleted_at)
       const restored = SupplierSchema.safeParse({
         ...supplier,
-        updated_at: '2023-12-01T13:00:00.000Z'
+        updated_at: '2023-12-01T13:00:00.000Z',
         // deleted_at is undefined (not deleted)
       });
       expect(restored.success).toBe(true);
@@ -459,7 +480,7 @@ describe('Soft-Delete Validation', () => {
           name: 'Active Supplier',
           countryCode: 'CA',
           defaultCurrency: 'CAD',
-          membershipRequired: false
+          membershipRequired: false,
           // No deleted_at - active
         },
         {
@@ -470,8 +491,8 @@ describe('Soft-Delete Validation', () => {
           countryCode: 'US',
           defaultCurrency: 'USD',
           membershipRequired: true,
-          deleted_at: '2023-12-01T12:00:00.000Z' // Soft deleted
-        }
+          deleted_at: '2023-12-01T12:00:00.000Z', // Soft deleted
+        },
       ];
 
       suppliers.forEach(supplier => {

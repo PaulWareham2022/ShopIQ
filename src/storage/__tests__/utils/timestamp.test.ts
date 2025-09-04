@@ -30,7 +30,7 @@ describe('Timestamp Utils', () => {
       // Small delay to ensure different timestamps
       await new Promise(resolve => setTimeout(resolve, 2));
       const timestamp2 = getCurrentTimestamp();
-      
+
       expect(new Date(timestamp2).getTime()).toBeGreaterThanOrEqual(
         new Date(timestamp1).getTime()
       );
@@ -96,14 +96,14 @@ describe('Timestamp Utils', () => {
     it('should parse valid timestamps to Date objects', () => {
       const timestamp = '2024-01-01T12:30:45.123Z';
       const date = parseTimestamp(timestamp);
-      
+
       expect(date).toBeInstanceOf(Date);
       expect(date?.toISOString()).toBe(timestamp);
     });
 
     it('should return null for invalid timestamps', () => {
       const invalidTimestamps = ['invalid', '', null, undefined];
-      
+
       invalidTimestamps.forEach(timestamp => {
         expect(parseTimestamp(timestamp as any)).toBe(null);
       });
@@ -127,7 +127,7 @@ describe('Timestamp Utils', () => {
     it('should format Date objects to ISO 8601 strings', () => {
       const date = new Date('2024-01-01T12:30:45.123Z');
       const formatted = formatTimestamp(date);
-      
+
       expect(formatted).toBe('2024-01-01T12:30:45.123Z');
       expect(isValidTimestamp(formatted)).toBe(true);
     });
@@ -152,10 +152,10 @@ describe('Timestamp Utils', () => {
       const timestamp = getTimestampDaysAgo(7);
       const date = parseTimestamp(timestamp);
       const now = new Date();
-      
+
       expect(date).toBeInstanceOf(Date);
       expect(date!.getTime()).toBeLessThan(now.getTime());
-      
+
       // Should be approximately 7 days ago (allow 1 minute tolerance)
       const diffMs = now.getTime() - date!.getTime();
       const diffDays = diffMs / (1000 * 60 * 60 * 24);
@@ -166,7 +166,7 @@ describe('Timestamp Utils', () => {
       const timestamp = getTimestampDaysAgo(0);
       const date = parseTimestamp(timestamp);
       const now = new Date();
-      
+
       expect(date).toBeInstanceOf(Date);
       // Should be very close to current time
       expect(Math.abs(now.getTime() - date!.getTime())).toBeLessThan(1000);
@@ -175,7 +175,7 @@ describe('Timestamp Utils', () => {
     it('should handle large number of days', () => {
       const timestamp = getTimestampDaysAgo(365);
       const date = parseTimestamp(timestamp);
-      
+
       expect(date).toBeInstanceOf(Date);
       expect(isValidTimestamp(timestamp)).toBe(true);
     });
@@ -186,10 +186,10 @@ describe('Timestamp Utils', () => {
       const timestamp = getTimestampHoursAgo(24);
       const date = parseTimestamp(timestamp);
       const now = new Date();
-      
+
       expect(date).toBeInstanceOf(Date);
       expect(date!.getTime()).toBeLessThan(now.getTime());
-      
+
       // Should be approximately 24 hours ago
       const diffMs = now.getTime() - date!.getTime();
       const diffHours = diffMs / (1000 * 60 * 60);
@@ -200,7 +200,7 @@ describe('Timestamp Utils', () => {
       const timestamp = getTimestampHoursAgo(0.5);
       const date = parseTimestamp(timestamp);
       const now = new Date();
-      
+
       const diffMs = now.getTime() - date!.getTime();
       const diffMinutes = diffMs / (1000 * 60);
       expect(diffMinutes).toBeCloseTo(30, 0);
@@ -211,7 +211,7 @@ describe('Timestamp Utils', () => {
     it('should correctly identify timestamps within specified days', () => {
       const threeDaysAgo = getTimestampDaysAgo(3);
       const tenDaysAgo = getTimestampDaysAgo(10);
-      
+
       expect(isWithinDays(threeDaysAgo, 5)).toBe(true);
       expect(isWithinDays(tenDaysAgo, 5)).toBe(false);
     });
@@ -220,7 +220,7 @@ describe('Timestamp Utils', () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const futureTimestamp = tomorrow.toISOString();
-      
+
       expect(isWithinDays(futureTimestamp, 2)).toBe(true);
       expect(isWithinDays(futureTimestamp, 0)).toBe(false);
     });
@@ -234,7 +234,7 @@ describe('Timestamp Utils', () => {
     it('should calculate days between two timestamps', () => {
       const date1 = '2024-01-01T00:00:00.000Z';
       const date2 = '2024-01-08T00:00:00.000Z';
-      
+
       expect(daysBetween(date1, date2)).toBe(7);
       expect(daysBetween(date2, date1)).toBe(7); // Should be symmetric
     });
@@ -246,7 +246,7 @@ describe('Timestamp Utils', () => {
 
     it('should return null for invalid timestamps', () => {
       const validTimestamp = getCurrentTimestamp();
-      
+
       expect(daysBetween('invalid', validTimestamp)).toBe(null);
       expect(daysBetween(validTimestamp, 'invalid')).toBe(null);
       expect(daysBetween('invalid1', 'invalid2')).toBe(null);
@@ -258,7 +258,7 @@ describe('Timestamp Utils', () => {
       const futureDate = new Date();
       futureDate.setHours(futureDate.getHours() + 1);
       const futureTimestamp = futureDate.toISOString();
-      
+
       expect(isFuture(futureTimestamp)).toBe(true);
     });
 
@@ -282,7 +282,7 @@ describe('Timestamp Utils', () => {
       const futureDate = new Date();
       futureDate.setHours(futureDate.getHours() + 1);
       const futureTimestamp = futureDate.toISOString();
-      
+
       expect(isPast(futureTimestamp)).toBe(false);
     });
 
@@ -312,7 +312,7 @@ describe('Timestamp Utils', () => {
       const futureDate = new Date();
       futureDate.setHours(futureDate.getHours() + 2);
       const futureTimestamp = futureDate.toISOString();
-      
+
       const relative = getRelativeTime(futureTimestamp);
       expect(relative).toMatch(/in 2 hours?/);
     });
@@ -324,7 +324,7 @@ describe('Timestamp Utils', () => {
     it('should handle plural vs singular correctly', () => {
       const oneHourAgo = getTimestampHoursAgo(1);
       const twoHoursAgo = getTimestampHoursAgo(2);
-      
+
       expect(getRelativeTime(oneHourAgo)).toContain('1 hour ago');
       expect(getRelativeTime(twoHoursAgo)).toContain('2 hours ago');
     });
@@ -339,7 +339,12 @@ describe('Timestamp Utils', () => {
         custom_timestamp: '2024-01-01T00:00:00.000Z',
       };
 
-      const errors = validateTimestampFields(entity, ['created_at', 'updated_at', 'deleted_at', 'custom_timestamp']);
+      const errors = validateTimestampFields(entity, [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'custom_timestamp',
+      ]);
       expect(errors).toEqual([]);
     });
 
@@ -351,8 +356,13 @@ describe('Timestamp Utils', () => {
         custom_field: 'not-a-timestamp',
       };
 
-      const errors = validateTimestampFields(entity, ['created_at', 'updated_at', 'deleted_at', 'custom_field']);
-      
+      const errors = validateTimestampFields(entity, [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'custom_field',
+      ]);
+
       expect(errors).toHaveLength(3);
       expect(errors[0]).toEqual({
         field: 'created_at',
@@ -378,7 +388,11 @@ describe('Timestamp Utils', () => {
         deleted_at: undefined,
       };
 
-      const errors = validateTimestampFields(entity, ['created_at', 'updated_at', 'deleted_at']);
+      const errors = validateTimestampFields(entity, [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+      ]);
       expect(errors).toEqual([]);
     });
 
@@ -390,7 +404,10 @@ describe('Timestamp Utils', () => {
 
     it('should handle non-existent fields gracefully', () => {
       const entity = { created_at: getCurrentTimestamp() };
-      const errors = validateTimestampFields(entity, ['created_at', 'non_existent_field']);
+      const errors = validateTimestampFields(entity, [
+        'created_at',
+        'non_existent_field',
+      ]);
       expect(errors).toEqual([]);
     });
   });
@@ -399,26 +416,27 @@ describe('Timestamp Utils', () => {
     it('should handle millisecond precision', () => {
       const timestamp1 = getCurrentTimestamp();
       const timestamp2 = getCurrentTimestamp();
-      
+
       // Even if called immediately, timestamps should have millisecond precision
       const date1 = parseTimestamp(timestamp1);
       const date2 = parseTimestamp(timestamp2);
-      
+
       expect(date1).toBeInstanceOf(Date);
       expect(date2).toBeInstanceOf(Date);
     });
 
     it('should perform efficiently with large datasets', () => {
-      const timestamps = Array.from({ length: 1000 }, () => getCurrentTimestamp());
-      
+      const timestamps = Array.from({ length: 1000 }, () =>
+        getCurrentTimestamp()
+      );
+
       const start = Date.now();
       const validationResults = timestamps.map(ts => isValidTimestamp(ts));
       const end = Date.now();
       const duration = end - start;
-      
+
       expect(duration).toBeLessThan(100); // Should complete in under 100ms
       expect(validationResults.every(result => result === true)).toBe(true);
     });
   });
 });
-

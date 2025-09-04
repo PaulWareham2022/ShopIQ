@@ -1,6 +1,6 @@
 /**
  * Static Unit Conversion Data
- * 
+ *
  * This file contains only the conversion factors and is dependency-free
  * to avoid circular imports. Used by canonical-units.ts.
  */
@@ -28,7 +28,7 @@ const MASS_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'μg', toUnit: 'g', factor: 0.000001, dimension: 'mass' },
   { fromUnit: 'mcg', toUnit: 'g', factor: 0.000001, dimension: 'mass' }, // Alternative notation for μg
   { fromUnit: 't', toUnit: 'g', factor: 1000000, dimension: 'mass' }, // Metric ton
-  
+
   // Imperial mass units
   { fromUnit: 'lb', toUnit: 'g', factor: 453.592, dimension: 'mass' },
   { fromUnit: 'lbs', toUnit: 'g', factor: 453.592, dimension: 'mass' },
@@ -49,7 +49,7 @@ const VOLUME_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'cL', toUnit: 'ml', factor: 10, dimension: 'volume' },
   { fromUnit: 'dl', toUnit: 'ml', factor: 100, dimension: 'volume' },
   { fromUnit: 'dL', toUnit: 'ml', factor: 100, dimension: 'volume' },
-  
+
   // Imperial volume units
   { fromUnit: 'gal', toUnit: 'ml', factor: 3785.41, dimension: 'volume' }, // US Gallon
   { fromUnit: 'gallon', toUnit: 'ml', factor: 3785.41, dimension: 'volume' },
@@ -61,13 +61,18 @@ const VOLUME_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'fl oz', toUnit: 'ml', factor: 29.5735, dimension: 'volume' }, // US Fluid Ounce
   { fromUnit: 'floz', toUnit: 'ml', factor: 29.5735, dimension: 'volume' },
   { fromUnit: 'tbsp', toUnit: 'ml', factor: 14.7868, dimension: 'volume' }, // US Tablespoon
-  { fromUnit: 'tablespoon', toUnit: 'ml', factor: 14.7868, dimension: 'volume' },
+  {
+    fromUnit: 'tablespoon',
+    toUnit: 'ml',
+    factor: 14.7868,
+    dimension: 'volume',
+  },
   { fromUnit: 'tsp', toUnit: 'ml', factor: 4.92892, dimension: 'volume' }, // US Teaspoon
   { fromUnit: 'teaspoon', toUnit: 'ml', factor: 4.92892, dimension: 'volume' },
-  
+
   // Imperial UK units (slightly different from US)
   { fromUnit: 'uk gal', toUnit: 'ml', factor: 4546.09, dimension: 'volume' }, // Imperial Gallon
-  { fromUnit: 'uk qt', toUnit: 'ml', factor: 1136.52, dimension: 'volume' }, // Imperial Quart  
+  { fromUnit: 'uk qt', toUnit: 'ml', factor: 1136.52, dimension: 'volume' }, // Imperial Quart
   { fromUnit: 'uk pt', toUnit: 'ml', factor: 568.261, dimension: 'volume' }, // Imperial Pint
   { fromUnit: 'uk fl oz', toUnit: 'ml', factor: 28.4131, dimension: 'volume' }, // Imperial Fluid Ounce
 ];
@@ -87,14 +92,14 @@ const COUNT_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'items', toUnit: 'unit', factor: 1, dimension: 'count' },
   { fromUnit: 'count', toUnit: 'unit', factor: 1, dimension: 'count' },
   { fromUnit: 'ct', toUnit: 'unit', factor: 1, dimension: 'count' },
-  
+
   // Package-based counting
   { fromUnit: 'dozen', toUnit: 'unit', factor: 12, dimension: 'count' },
   { fromUnit: 'dz', toUnit: 'unit', factor: 12, dimension: 'count' },
   { fromUnit: 'pair', toUnit: 'unit', factor: 2, dimension: 'count' },
   { fromUnit: 'pack', toUnit: 'unit', factor: 1, dimension: 'count' }, // 1 pack = 1 unit by default
   { fromUnit: 'box', toUnit: 'unit', factor: 1, dimension: 'count' }, // 1 box = 1 unit by default
-  
+
   // Pharmaceutical/supplement specific
   { fromUnit: 'tablet', toUnit: 'unit', factor: 1, dimension: 'count' },
   { fromUnit: 'tablets', toUnit: 'unit', factor: 1, dimension: 'count' },
@@ -123,8 +128,13 @@ const LENGTH_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'mm', toUnit: 'm', factor: 0.001, dimension: 'length' },
   { fromUnit: 'millimeter', toUnit: 'm', factor: 0.001, dimension: 'length' },
   { fromUnit: 'μm', toUnit: 'm', factor: 0.000001, dimension: 'length' },
-  { fromUnit: 'micrometer', toUnit: 'm', factor: 0.000001, dimension: 'length' },
-  
+  {
+    fromUnit: 'micrometer',
+    toUnit: 'm',
+    factor: 0.000001,
+    dimension: 'length',
+  },
+
   // Imperial length units
   { fromUnit: 'ft', toUnit: 'm', factor: 0.3048, dimension: 'length' },
   { fromUnit: 'foot', toUnit: 'm', factor: 0.3048, dimension: 'length' },
@@ -142,7 +152,7 @@ const LENGTH_CONVERSIONS: UnitConversionData[] = [
 ];
 
 /**
- * AREA CONVERSIONS - All convert to square meters (m2) as canonical unit  
+ * AREA CONVERSIONS - All convert to square meters (m2) as canonical unit
  */
 const AREA_CONVERSIONS: UnitConversionData[] = [
   // Metric area units
@@ -156,7 +166,7 @@ const AREA_CONVERSIONS: UnitConversionData[] = [
   { fromUnit: 'mm2', toUnit: 'm2', factor: 0.000001, dimension: 'area' },
   { fromUnit: 'mm²', toUnit: 'm2', factor: 0.000001, dimension: 'area' },
   { fromUnit: 'ha', toUnit: 'm2', factor: 10000, dimension: 'area' }, // Hectare
-  
+
   // Imperial area units
   { fromUnit: 'sq ft', toUnit: 'm2', factor: 0.092903, dimension: 'area' },
   { fromUnit: 'ft2', toUnit: 'm2', factor: 0.092903, dimension: 'area' },

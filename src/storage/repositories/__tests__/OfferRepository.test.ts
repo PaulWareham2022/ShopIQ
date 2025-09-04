@@ -45,7 +45,7 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' }),
+          item: (_index: number) => ({ canonical_dimension: 'mass' }),
         },
       });
 
@@ -61,7 +61,7 @@ describe('OfferRepository', () => {
         rows: { length: 0 },
       });
 
-      await repository.createOffer(mockOfferInput);
+      const result = await repository.createOffer(mockOfferInput);
 
       // Verify dimension lookup was called
       expect(mockExecuteSql).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' }),
+          item: (_index: number) => ({ canonical_dimension: 'mass' }),
         },
       });
 
@@ -126,7 +126,7 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' }),
+          item: (_index: number) => ({ canonical_dimension: 'mass' }),
         },
       });
 
@@ -142,7 +142,7 @@ describe('OfferRepository', () => {
         rows: { length: 0 },
       });
 
-      await repository.createOffer(inputWithShipping);
+      const result = await repository.createOffer(inputWithShipping);
 
       const expectedPriceExclShipping = 19.99 / 2000;
       const expectedPriceInclShipping = (19.99 + 5.99) / 2000;
@@ -174,11 +174,11 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 2,
-          item: (index: number) => mockOffers[index],
+          item: (_index: number) => mockOffers[_index],
         },
       });
 
-      await repository.findBestOfferForItem('item-123');
+      const result = await repository.findBestOfferForItem('item-123');
 
       expect(result?.id).toBe('offer-2'); // Cheapest offer (first in ordered result)
       expect(mockExecuteSql).toHaveBeenCalledWith(
@@ -192,7 +192,7 @@ describe('OfferRepository', () => {
         rows: { length: 0 },
       });
 
-      await repository.findBestOfferForItem('item-123');
+      const result = await repository.findBestOfferForItem('item-123');
       expect(result).toBeNull();
     });
   });
@@ -228,7 +228,7 @@ describe('OfferRepository', () => {
       mockExecuteSql.mockResolvedValueOnce({
         rows: {
           length: 1,
-          item: (index: number) => ({ canonical_dimension: 'mass' }),
+          item: (_index: number) => ({ canonical_dimension: 'mass' }),
         },
       });
 

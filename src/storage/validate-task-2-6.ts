@@ -25,8 +25,14 @@ const timestamp1 = getCurrentTimestamp();
 const timestamp2 = getCurrentTimestamp();
 console.log('   Generated Timestamp 1:', timestamp1);
 console.log('   Generated Timestamp 2:', timestamp2);
-console.log('   Are valid ISO 8601?', isValidTimestamp(timestamp1) && isValidTimestamp(timestamp2));
-console.log('   Match ISO format?', timestamp1.endsWith('Z') && timestamp2.endsWith('Z'));
+console.log(
+  '   Are valid ISO 8601?',
+  isValidTimestamp(timestamp1) && isValidTimestamp(timestamp2)
+);
+console.log(
+  '   Match ISO format?',
+  timestamp1.endsWith('Z') && timestamp2.endsWith('Z')
+);
 
 // Test 3: BaseEntity Structure Simulation
 console.log('\n3. Testing BaseEntity Structure:');
@@ -34,16 +40,17 @@ const mockEntity = {
   id: generateUUID(),
   created_at: getCurrentTimestamp(),
   updated_at: getCurrentTimestamp(),
-  deleted_at: undefined
+  deleted_at: undefined,
 };
 console.log('   Mock Entity:', mockEntity);
-console.log('   Valid structure?', 
-  typeof mockEntity.id === 'string' && 
-  typeof mockEntity.created_at === 'string' &&
-  typeof mockEntity.updated_at === 'string' &&
-  isValidUUID(mockEntity.id) &&
-  isValidTimestamp(mockEntity.created_at) &&
-  isValidTimestamp(mockEntity.updated_at)
+console.log(
+  '   Valid structure?',
+  typeof mockEntity.id === 'string' &&
+    typeof mockEntity.created_at === 'string' &&
+    typeof mockEntity.updated_at === 'string' &&
+    isValidUUID(mockEntity.id) &&
+    isValidTimestamp(mockEntity.created_at) &&
+    isValidTimestamp(mockEntity.updated_at)
 );
 
 // Summary
@@ -58,4 +65,3 @@ console.log('✅ Entity timestamp field validation');
 console.log('✅ Consistent timestamp handling across all operations');
 
 console.log('\n🎉 Task 2.6 is COMPLETE!');
-

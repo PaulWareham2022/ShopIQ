@@ -107,11 +107,16 @@ class WebDatabase {
 
       // Track pending async operations
       const pendingOps: Promise<any>[] = [];
-      
+
       // Create enhanced transaction object that tracks async operations
       const enhancedTx = {
         ...mockTx,
-        executeSql: (sql: string, params?: any[], successCb?: any, errorCb?: any) => {
+        executeSql: (
+          sql: string,
+          params?: any[],
+          successCb?: any,
+          errorCb?: any
+        ) => {
           const promise = new Promise((resolve, reject) => {
             const enhancedSuccessCb = (tx: any, result: any) => {
               if (successCb) successCb(tx, result);
@@ -120,16 +125,17 @@ class WebDatabase {
             const enhancedErrorCb = (tx: any, error: any) => {
               if (errorCb) errorCb(tx, error);
               reject(error);
+              return false;
             };
             mockTx.executeSql(sql, params, enhancedSuccessCb, enhancedErrorCb);
           });
           pendingOps.push(promise);
           return promise;
-        }
+        },
       };
-      
+
       callback(enhancedTx);
-      
+
       // Wait for all pending operations to complete before calling successCallback
       Promise.all(pendingOps)
         .then(() => successCallback?.())
@@ -171,7 +177,10 @@ export const initializeDatabase = async (): Promise<void> => {
         db.execSync('PRAGMA foreign_keys = ON;');
       } catch (pragmaError) {
         if (__DEV__) {
-          console.error('[Database] Failed to enable foreign keys:', pragmaError);
+          console.error(
+            '[Database] Failed to enable foreign keys:',
+            pragmaError
+          );
         }
         // Continue initialization - foreign keys are nice to have but not critical
       }
@@ -209,7 +218,7 @@ export const initializeDatabase = async (): Promise<void> => {
  */
 const seedUnitConversions = async (): Promise<void> => {
   try {
-    const { sql, params } = getBatchUnitConversionSQL(ALL_UNIT_CONVERSIONS);
+    const { sql, params } = getBatchUnitConversionSQL();
 
     // Split params into groups of 7 (one for each conversion)
     const conversions = [];
@@ -267,7 +276,7 @@ export const getDatabaseVersion = async (): Promise<number> => {
       } else {
         row = result.rows[0];
       }
-      
+
       if (row && row.value) {
         const version = parseInt(row.value, 10);
         return isNaN(version) ? 0 : version;
@@ -318,10 +327,10 @@ export const executeSql = (
           rows: {
             length: result.length,
             item: (index: number) => result[index],
-            _array: result // Additional property for compatibility
+            _array: result, // Additional property for compatibility
           },
           rowsAffected: 0,
-          insertId: undefined
+          insertId: undefined,
         });
       } else {
         const result = db.runSync(sql, params);

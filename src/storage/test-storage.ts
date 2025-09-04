@@ -76,7 +76,6 @@ export const testStorageIntegration = async (): Promise<void> => {
     console.log('\n🏗️ Testing Repository Pattern Integration...');
     await testRepositoryPattern();
     console.log('✅ Repository pattern integration test completed');
-
   } catch (error) {
     console.error('❌ Storage integration test failed:', error);
     throw error;

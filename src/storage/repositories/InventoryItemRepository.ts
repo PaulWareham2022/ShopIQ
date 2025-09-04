@@ -32,7 +32,9 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
     };
   }
 
-  protected mapEntityToRow(entity: Partial<InventoryItem>): Record<string, any> {
+  protected mapEntityToRow(
+    entity: Partial<InventoryItem>
+  ): Record<string, any> {
     return {
       id: entity.id,
       name: entity.name,
@@ -57,15 +59,18 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         ORDER BY name ASC
       `;
       const result = await executeSql(sql, [`%${name}%`]);
-      
+
       const items: InventoryItem[] = [];
       for (let i = 0; i < result.rows.length; i++) {
         items.push(this.mapRowToEntity(result.rows.item(i)));
       }
-      
+
       return items;
     } catch (error) {
-      throw new DatabaseError('Failed to find inventory items by name', error as Error);
+      throw new DatabaseError(
+        'Failed to find inventory items by name',
+        error as Error
+      );
     }
   }
 
@@ -81,15 +86,18 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         ORDER BY name ASC
       `;
       const result = await executeSql(sql, [unit]);
-      
+
       const items: InventoryItem[] = [];
       for (let i = 0; i < result.rows.length; i++) {
         items.push(this.mapRowToEntity(result.rows.item(i)));
       }
-      
+
       return items;
     } catch (error) {
-      throw new DatabaseError('Failed to find inventory items by canonical unit', error as Error);
+      throw new DatabaseError(
+        'Failed to find inventory items by canonical unit',
+        error as Error
+      );
     }
   }
 
@@ -105,15 +113,18 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         ORDER BY name ASC
       `;
       const result = await executeSql(sql);
-      
+
       const items: InventoryItem[] = [];
       for (let i = 0; i < result.rows.length; i++) {
         items.push(this.mapRowToEntity(result.rows.item(i)));
       }
-      
+
       return items;
     } catch (error) {
-      throw new DatabaseError('Failed to find shelf-life sensitive items', error as Error);
+      throw new DatabaseError(
+        'Failed to find shelf-life sensitive items',
+        error as Error
+      );
     }
   }
 
@@ -134,10 +145,10 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         FROM ${this.tableName} 
         WHERE deleted_at IS NULL
       `;
-      
+
       const countResult = await executeSql(countQuery);
       const countRow = countResult.rows.item(0);
-      
+
       // Get unit distribution
       const unitQuery = `
         SELECT canonical_unit, COUNT(*) as count
@@ -146,29 +157,34 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         GROUP BY canonical_unit 
         ORDER BY count DESC
       `;
-      
+
       const unitResult = await executeSql(unitQuery);
       const unitDistribution: Record<string, number> = {};
-      
+
       for (let i = 0; i < unitResult.rows.length; i++) {
         const row = unitResult.rows.item(i);
         unitDistribution[row.canonical_unit] = row.count;
       }
-      
+
       return {
         total: countRow.total || 0,
         shelfLifeSensitive: countRow.shelf_life_sensitive_count || 0,
         unitDistribution,
       };
     } catch (error) {
-      throw new DatabaseError('Failed to get inventory statistics', error as Error);
+      throw new DatabaseError(
+        'Failed to get inventory statistics',
+        error as Error
+      );
     }
   }
 
   /**
    * Get items with their offer counts (for dashboard/overview)
    */
-  async findWithOfferCounts(): Promise<Array<InventoryItem & { offerCount: number }>> {
+  async findWithOfferCounts(): Promise<
+    Array<InventoryItem & { offerCount: number }>
+  > {
     try {
       const sql = `
         SELECT 
@@ -180,10 +196,10 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
         GROUP BY i.id
         ORDER BY i.name ASC
       `;
-      
+
       const result = await executeSql(sql);
       const items: Array<InventoryItem & { offerCount: number }> = [];
-      
+
       for (let i = 0; i < result.rows.length; i++) {
         const row = result.rows.item(i);
         items.push({
@@ -191,10 +207,13 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
           offerCount: row.offer_count || 0,
         });
       }
-      
+
       return items;
     } catch (error) {
-      throw new DatabaseError('Failed to find inventory items with offer counts', error as Error);
+      throw new DatabaseError(
+        'Failed to find inventory items with offer counts',
+        error as Error
+      );
     }
   }
 }

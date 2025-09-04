@@ -17,11 +17,10 @@ import {
   PriceAllocationMethodSchema,
   validateEntity,
   validateEntityStrict,
-  validatePartialEntity
+  validatePartialEntity,
 } from '../schemas';
 
 describe('Zod Validation Schemas', () => {
-  
   // =============================================================================
   // ENUM SCHEMAS
   // =============================================================================
@@ -55,13 +54,21 @@ describe('Zod Validation Schemas', () => {
 
     test('PriceAllocationMethodSchema accepts valid values', () => {
       expect(PriceAllocationMethodSchema.safeParse('equal').success).toBe(true);
-      expect(PriceAllocationMethodSchema.safeParse('by-canonical-amount').success).toBe(true);
-      expect(PriceAllocationMethodSchema.safeParse('manual').success).toBe(true);
+      expect(
+        PriceAllocationMethodSchema.safeParse('by-canonical-amount').success
+      ).toBe(true);
+      expect(PriceAllocationMethodSchema.safeParse('manual').success).toBe(
+        true
+      );
     });
 
     test('PriceAllocationMethodSchema rejects invalid values', () => {
-      expect(PriceAllocationMethodSchema.safeParse('weighted').success).toBe(false);
-      expect(PriceAllocationMethodSchema.safeParse('proportional').success).toBe(false);
+      expect(PriceAllocationMethodSchema.safeParse('weighted').success).toBe(
+        false
+      );
+      expect(
+        PriceAllocationMethodSchema.safeParse('proportional').success
+      ).toBe(false);
     });
   });
 
@@ -73,7 +80,7 @@ describe('Zod Validation Schemas', () => {
     const validBaseEntity = {
       id: '123e4567-e89b-12d3-a456-426614174000',
       created_at: '2023-12-01T10:00:00.000Z',
-      updated_at: '2023-12-01T10:00:00.000Z'
+      updated_at: '2023-12-01T10:00:00.000Z',
     };
 
     test('accepts valid base entity', () => {
@@ -84,7 +91,7 @@ describe('Zod Validation Schemas', () => {
     test('accepts base entity with deleted_at', () => {
       const entity = {
         ...validBaseEntity,
-        deleted_at: '2023-12-01T11:00:00.000Z'
+        deleted_at: '2023-12-01T11:00:00.000Z',
       };
       const result = BaseEntitySchema.safeParse(entity);
       expect(result.success).toBe(true);
@@ -115,10 +122,10 @@ describe('Zod Validation Schemas', () => {
   describe('ShippingPolicySchema', () => {
     test('accepts valid shipping policy', () => {
       const policy = {
-        freeShippingThreshold: 35.00,
+        freeShippingThreshold: 35.0,
         shippingBaseCost: 5.99,
-        shippingPerItemCost: 0.50,
-        pickupAvailable: true
+        shippingPerItemCost: 0.5,
+        pickupAvailable: true,
       };
       const result = ShippingPolicySchema.safeParse(policy);
       expect(result.success).toBe(true);
@@ -141,7 +148,7 @@ describe('Zod Validation Schemas', () => {
       const item = {
         inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
         amount: 2.5,
-        unit: 'kg'
+        unit: 'kg',
       };
       const result = BundleItemSchema.safeParse(item);
       expect(result.success).toBe(true);
@@ -151,7 +158,7 @@ describe('Zod Validation Schemas', () => {
       const item = {
         inventoryItemId: 'not-a-uuid',
         amount: 2.5,
-        unit: 'kg'
+        unit: 'kg',
       };
       const result = BundleItemSchema.safeParse(item);
       expect(result.success).toBe(false);
@@ -161,7 +168,7 @@ describe('Zod Validation Schemas', () => {
       const item = {
         inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
         amount: -1,
-        unit: 'kg'
+        unit: 'kg',
       };
       const result = BundleItemSchema.safeParse(item);
       expect(result.success).toBe(false);
@@ -171,7 +178,7 @@ describe('Zod Validation Schemas', () => {
       const item = {
         inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
         amount: 2.5,
-        unit: ''
+        unit: '',
       };
       const result = BundleItemSchema.safeParse(item);
       expect(result.success).toBe(false);
@@ -195,12 +202,12 @@ describe('Zod Validation Schemas', () => {
       membershipRequired: false,
       membershipType: 'Prime',
       shippingPolicy: {
-        freeShippingThreshold: 35.00,
+        freeShippingThreshold: 35.0,
         shippingBaseCost: 5.99,
-        pickupAvailable: false
+        pickupAvailable: false,
       },
       urlPatterns: ['https://amazon.ca/*'],
-      notes: 'Main Canadian Amazon site'
+      notes: 'Main Canadian Amazon site',
     };
 
     test('accepts valid supplier', () => {
@@ -216,7 +223,7 @@ describe('Zod Validation Schemas', () => {
         name: 'Test Supplier',
         countryCode: 'US',
         defaultCurrency: 'USD',
-        membershipRequired: false
+        membershipRequired: false,
       };
       const result = SupplierSchema.safeParse(minimal);
       expect(result.success).toBe(true);
@@ -265,7 +272,7 @@ describe('Zod Validation Schemas', () => {
       usageRatePerDay: 0.1,
       attributes: { concentration: 10, grade: 'pool' },
       equivalenceFactor: 1.0,
-      notes: 'Store in cool, dry place'
+      notes: 'Store in cool, dry place',
     };
 
     test('accepts valid inventory item', () => {
@@ -281,7 +288,7 @@ describe('Zod Validation Schemas', () => {
         name: 'Test Item',
         canonicalDimension: 'count' as const,
         canonicalUnit: 'unit',
-        shelfLifeSensitive: false
+        shelfLifeSensitive: false,
       };
       const result = InventoryItemSchema.safeParse(minimal);
       expect(result.success).toBe(true);
@@ -313,7 +320,7 @@ describe('Zod Validation Schemas', () => {
   });
 
   // =============================================================================
-  // OFFER SCHEMA TESTS  
+  // OFFER SCHEMA TESTS
   // =============================================================================
 
   describe('OfferSchema', () => {
@@ -335,8 +342,8 @@ describe('Zod Validation Schemas', () => {
       isTaxIncluded: true,
       taxRate: 0.15,
       shippingCost: 0,
-      minOrderAmount: 25.00,
-      freeShippingThresholdAtCapture: 35.00,
+      minOrderAmount: 25.0,
+      freeShippingThresholdAtCapture: 35.0,
       shippingIncluded: true,
       amount: 500,
       amountUnit: 'g',
@@ -348,7 +355,7 @@ describe('Zod Validation Schemas', () => {
       qualityRating: 4,
       notes: 'Good value for money',
       photoUri: 'https://example.com/photo.jpg',
-      computedByVersion: 'v1.0.0'
+      computedByVersion: 'v1.0.0',
     };
 
     test('accepts valid offer', () => {
@@ -366,15 +373,15 @@ describe('Zod Validation Schemas', () => {
         sourceType: 'manual' as const,
         observedAt: '2023-12-01T09:30:00.000Z',
         capturedAt: '2023-12-01T10:00:00.000Z',
-        totalPrice: 10.00,
+        totalPrice: 10.0,
         currency: 'USD',
         isTaxIncluded: false,
         amount: 1,
         amountUnit: 'unit',
         amountCanonical: 1,
-        pricePerCanonicalExclShipping: 10.00,
-        pricePerCanonicalInclShipping: 10.00,
-        effectivePricePerCanonical: 10.00
+        pricePerCanonicalExclShipping: 10.0,
+        pricePerCanonicalInclShipping: 10.0,
+        effectivePricePerCanonical: 10.0,
       };
       const result = OfferSchema.safeParse(minimal);
       expect(result.success).toBe(true);
@@ -441,7 +448,7 @@ describe('Zod Validation Schemas', () => {
       fromUnit: 'kg',
       toUnit: 'g',
       factor: 1000,
-      dimension: 'mass' as const
+      dimension: 'mass' as const,
     };
 
     test('accepts valid unit conversion', () => {
@@ -488,15 +495,15 @@ describe('Zod Validation Schemas', () => {
         {
           inventoryItemId: '123e4567-e89b-12d3-a456-426614174002',
           amount: 2,
-          unit: 'kg'
+          unit: 'kg',
         },
         {
           inventoryItemId: '123e4567-e89b-12d3-a456-426614174003',
           amount: 1,
-          unit: 'unit'
-        }
+          unit: 'unit',
+        },
       ],
-      priceAllocationMethod: 'equal' as const
+      priceAllocationMethod: 'equal' as const,
     };
 
     test('accepts valid bundle', () => {
@@ -529,9 +536,9 @@ describe('Zod Validation Schemas', () => {
           {
             inventoryItemId: 'not-a-uuid',
             amount: 2,
-            unit: 'kg'
-          }
-        ]
+            unit: 'kg',
+          },
+        ],
       };
       const result = BundleSchema.safeParse(bundle);
       expect(result.success).toBe(false);
@@ -550,7 +557,7 @@ describe('Zod Validation Schemas', () => {
       name: 'Test Supplier',
       countryCode: 'CA',
       defaultCurrency: 'CAD',
-      membershipRequired: false
+      membershipRequired: false,
     };
 
     describe('validateEntity', () => {

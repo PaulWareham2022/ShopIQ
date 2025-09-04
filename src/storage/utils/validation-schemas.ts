@@ -11,14 +11,17 @@ import { CanonicalDimensionSchema } from '../validation/schemas';
  */
 export const ConversionRequestSchema = z.object({
   /** Amount to convert (must be positive finite number) */
-  amount: z.number().positive('Amount must be positive').refine(val => isFinite(val), 'Amount must be finite'),
-  
+  amount: z
+    .number()
+    .positive('Amount must be positive')
+    .refine(val => isFinite(val), 'Amount must be finite'),
+
   /** Source unit (non-empty string) */
   unit: z.string().min(1, 'Unit cannot be empty').max(20, 'Unit name too long'),
-  
+
   /** Expected canonical dimension */
   dimension: CanonicalDimensionSchema,
-  
+
   /** Optional identifier for tracking */
   id: z.string().optional(),
 });
@@ -28,7 +31,9 @@ export const ConversionRequestSchema = z.object({
  */
 export const BatchConversionRequestSchema = z.object({
   /** Array of conversion requests */
-  conversions: z.array(ConversionRequestSchema).min(1, 'At least one conversion required'),
+  conversions: z
+    .array(ConversionRequestSchema)
+    .min(1, 'At least one conversion required'),
 });
 
 /**
@@ -36,14 +41,20 @@ export const BatchConversionRequestSchema = z.object({
  */
 export const PriceNormalizationSchema = z.object({
   /** Total price of the offer */
-  totalPrice: z.number().nonnegative('Total price cannot be negative').refine(val => isFinite(val), 'Total price must be finite'),
-  
+  totalPrice: z
+    .number()
+    .nonnegative('Total price cannot be negative')
+    .refine(val => isFinite(val), 'Total price must be finite'),
+
   /** Amount being purchased */
-  amount: z.number().positive('Amount must be positive').refine(val => isFinite(val), 'Amount must be finite'),
-  
+  amount: z
+    .number()
+    .positive('Amount must be positive')
+    .refine(val => isFinite(val), 'Amount must be finite'),
+
   /** Unit of the amount */
   unit: z.string().min(1, 'Unit cannot be empty').max(20, 'Unit name too long'),
-  
+
   /** Expected canonical dimension */
   dimension: CanonicalDimensionSchema,
 });
@@ -54,28 +65,39 @@ export const PriceNormalizationSchema = z.object({
 export const OfferInputSchema = z.object({
   /** Foreign key to inventory item */
   inventory_item_id: z.string().uuid('Inventory item ID must be valid UUID'),
-  
+
   /** Foreign key to supplier */
   supplier_id: z.string().uuid('Supplier ID must be valid UUID'),
-  
+
   /** Source type */
   source_type: z.enum(['manual', 'url', 'ocr', 'api']),
-  
+
   /** When the price was observed */
-  observed_at: z.string().datetime('Observed time must be valid ISO 8601 datetime'),
-  
+  observed_at: z
+    .string()
+    .datetime('Observed time must be valid ISO 8601 datetime'),
+
   /** Total price */
-  total_price: z.number().positive('Total price must be positive').refine(val => isFinite(val), 'Total price must be finite'),
-  
+  total_price: z
+    .number()
+    .positive('Total price must be positive')
+    .refine(val => isFinite(val), 'Total price must be finite'),
+
   /** Currency code */
   currency: z.string().length(3, 'Currency must be 3-letter ISO code'),
-  
+
   /** Amount being purchased */
-  amount: z.number().positive('Amount must be positive').refine(val => isFinite(val), 'Amount must be finite'),
-  
+  amount: z
+    .number()
+    .positive('Amount must be positive')
+    .refine(val => isFinite(val), 'Amount must be finite'),
+
   /** Unit of the amount */
-  amount_unit: z.string().min(1, 'Amount unit cannot be empty').max(20, 'Amount unit name too long'),
-  
+  amount_unit: z
+    .string()
+    .min(1, 'Amount unit cannot be empty')
+    .max(20, 'Amount unit name too long'),
+
   /** Optional fields */
   supplier_name_snapshot: z.string().optional(),
   supplier_url: z.string().url().optional(),
@@ -139,8 +161,10 @@ export function validateOfferInput(data: unknown) {
  * @param data Data to validate
  * @returns Validation result with success flag and data/error
  */
-export function safeValidate<T>(schema: z.ZodSchema<T>, data: unknown): 
-  { success: true; data: T } | { success: false; error: z.ZodError } {
+export function safeValidate<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): { success: true; data: T } | { success: false; error: z.ZodError } {
   const result = schema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };
@@ -151,6 +175,8 @@ export function safeValidate<T>(schema: z.ZodSchema<T>, data: unknown):
 
 // Type exports
 export type ConversionRequest = z.infer<typeof ConversionRequestSchema>;
-export type BatchConversionRequest = z.infer<typeof BatchConversionRequestSchema>;
+export type BatchConversionRequest = z.infer<
+  typeof BatchConversionRequestSchema
+>;
 export type PriceNormalization = z.infer<typeof PriceNormalizationSchema>;
 export type ValidatedOfferInput = z.infer<typeof OfferInputSchema>;

@@ -4,11 +4,7 @@
  */
 
 // UUID utilities
-export {
-  generateUUID,
-  isValidUUID,
-  generateShortUUID
-} from './uuid';
+export { generateUUID, isValidUUID, generateShortUUID } from './uuid';
 
 // Timestamp utilities
 export {
@@ -24,7 +20,7 @@ export {
   isPast,
   getRelativeTime,
   validateTimestampFields,
-  type TimestampValidationError
+  type TimestampValidationError,
 } from './timestamp';
 
 // Canonical unit conversion utilities
@@ -44,7 +40,7 @@ export {
   batchConvertToCanonical,
   type UnitValidationResult,
   type ConversionRequest,
-  type ConversionResult
+  type ConversionResult,
 } from './canonical-units';
 
 // Unit conversion validation schemas
@@ -60,6 +56,5 @@ export {
   OfferInputSchema,
   type BatchConversionRequest,
   type PriceNormalization,
-  type ValidatedOfferInput
+  type ValidatedOfferInput,
 } from './validation-schemas';
-

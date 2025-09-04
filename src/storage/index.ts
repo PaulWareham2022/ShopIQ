@@ -4,7 +4,11 @@
  */
 
 // Main factory and types
-export { RepositoryFactory, getRepositoryFactory, repositories } from './RepositoryFactory';
+export {
+  RepositoryFactory,
+  getRepositoryFactory,
+  repositories,
+} from './RepositoryFactory';
 export * from './types';
 
 // Entity interfaces
@@ -21,10 +25,14 @@ export { KeyValueRepository } from './repositories/base/KeyValueRepository';
 export { generateUUID, isValidUUID, generateShortUUID } from './utils/uuid';
 
 // Legacy direct access (for migration period)
-export { initializeDatabase, executeSql, getDatabaseVersion } from './sqlite/database';
-export { 
-  appStorageWrapper, 
-  cacheStorageWrapper, 
+export {
+  initializeDatabase,
+  executeSql,
+  getDatabaseVersion,
+} from './sqlite/database';
+export {
+  appStorageWrapper,
+  cacheStorageWrapper,
   userPreferencesStorageWrapper,
   STORAGE_KEYS,
   getAppPreference,
@@ -33,7 +41,7 @@ export {
   setUserPreference,
   getCacheData,
   setCacheData,
-  clearAllStorages
+  clearAllStorages,
 } from './mmkv/storage';
 
 // Test utilities
@@ -47,19 +55,19 @@ export * from './validation';
 
 /**
  * Quick Start Guide:
- * 
+ *
  * 1. Initialize the storage system:
  *    ```typescript
  *    import { repositories } from '@/storage';
  *    await repositories.initialize();
  *    ```
- * 
+ *
  * 2. Get a repository:
  *    ```typescript
  *    const supplierRepo = await repositories.getSupplierRepository();
  *    const kvStore = repositories.getKeyValueRepository('settings');
  *    ```
- * 
+ *
  * 3. Use repositories:
  *    ```typescript
  *    // SQL-based entities
@@ -67,12 +75,12 @@ export * from './validation';
  *      name: 'Best Supply Co',
  *      website: 'https://bestsupply.com'
  *    });
- * 
+ *
  *    // Key-value storage
  *    kvStore.set('user_theme', 'dark');
  *    const theme = kvStore.get<string>('user_theme');
  *    ```
- * 
+ *
  * 4. Transactions:
  *    ```typescript
  *    await repositories.withTransaction(async (tx) => {

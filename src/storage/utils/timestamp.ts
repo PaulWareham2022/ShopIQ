@@ -18,12 +18,13 @@ export const getCurrentTimestamp = (): string => {
  */
 export const isValidTimestamp = (timestamp: string): boolean => {
   // ISO 8601 regex pattern for full date-time with timezone
-  const iso8601Regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{3})?Z$/;
-  
+  const iso8601Regex =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{3})?Z$/;
+
   if (!iso8601Regex.test(timestamp)) {
     return false;
   }
-  
+
   // Validate that it's actually a valid date
   const date = new Date(timestamp);
   return !isNaN(date.getTime()) && date.toISOString() === timestamp;
@@ -38,7 +39,7 @@ export const parseTimestamp = (timestamp: string): Date | null => {
   if (!isValidTimestamp(timestamp)) {
     return null;
   }
-  
+
   return new Date(timestamp);
 };
 
@@ -82,11 +83,11 @@ export const getTimestampHoursAgo = (hoursAgo: number): string => {
 export const isWithinDays = (timestamp: string, days: number): boolean => {
   const date = parseTimestamp(timestamp);
   if (!date) return false;
-  
+
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - date.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return diffDays <= days;
 };
 
@@ -96,12 +97,15 @@ export const isWithinDays = (timestamp: string, days: number): boolean => {
  * @param timestamp2 Second ISO 8601 timestamp
  * @returns Number of days between timestamps, or null if invalid timestamps
  */
-export const daysBetween = (timestamp1: string, timestamp2: string): number | null => {
+export const daysBetween = (
+  timestamp1: string,
+  timestamp2: string
+): number | null => {
   const date1 = parseTimestamp(timestamp1);
   const date2 = parseTimestamp(timestamp2);
-  
+
   if (!date1 || !date2) return null;
-  
+
   const diffTime = Math.abs(date2.getTime() - date1.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
@@ -114,7 +118,7 @@ export const daysBetween = (timestamp1: string, timestamp2: string): number | nu
 export const isFuture = (timestamp: string): boolean => {
   const date = parseTimestamp(timestamp);
   if (!date) return false;
-  
+
   return date.getTime() > Date.now();
 };
 
@@ -126,7 +130,7 @@ export const isFuture = (timestamp: string): boolean => {
 export const isPast = (timestamp: string): boolean => {
   const date = parseTimestamp(timestamp);
   if (!date) return false;
-  
+
   return date.getTime() < Date.now();
 };
 
@@ -138,22 +142,22 @@ export const isPast = (timestamp: string): boolean => {
 export const getRelativeTime = (timestamp: string): string => {
   const date = parseTimestamp(timestamp);
   if (!date) return 'Invalid date';
-  
+
   const now = new Date();
   const diffMs = date.getTime() - now.getTime();
   const absDiffMs = Math.abs(diffMs);
-  
+
   const seconds = Math.floor(absDiffMs / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
-  
+
   const future = diffMs > 0;
   const prefix = future ? 'in ' : '';
   const suffix = future ? '' : ' ago';
-  
+
   if (years > 0) {
     return `${prefix}${years} year${years > 1 ? 's' : ''}${suffix}`;
   } else if (months > 0) {
@@ -185,22 +189,21 @@ export interface TimestampValidationError {
  * @returns Array of validation errors (empty if all valid)
  */
 export const validateTimestampFields = (
-  entity: Record<string, any>, 
+  entity: Record<string, any>,
   timestampFields: string[]
 ): TimestampValidationError[] => {
   const errors: TimestampValidationError[] = [];
-  
+
   timestampFields.forEach(field => {
     const value = entity[field];
     if (value !== undefined && value !== null && !isValidTimestamp(value)) {
       errors.push({
         field,
         value: String(value),
-        error: 'Invalid ISO 8601 timestamp format'
+        error: 'Invalid ISO 8601 timestamp format',
       });
     }
   });
-  
+
   return errors;
 };
-

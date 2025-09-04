@@ -1,12 +1,15 @@
 /**
  * Seed Data for SQLite Database
- * 
+ *
  * This file contains default/reference data that should be populated
  * when the database is first created, particularly unit conversions.
  */
 
 import { generateUUID } from '../utils/uuid';
-import { ALL_UNIT_CONVERSIONS, UnitConversionData } from '../utils/conversion-data';
+import {
+  ALL_UNIT_CONVERSIONS,
+  UnitConversionData,
+} from '../utils/conversion-data';
 
 /**
  * Default unit conversions based on PRD requirements
@@ -52,8 +55,8 @@ export const getUnitConversionInsertStatements = () => {
       conversion.factor,
       conversion.dimension,
       conversion.created_at,
-      conversion.updated_at
-    ]
+      conversion.updated_at,
+    ],
   }));
 };
 
@@ -62,17 +65,25 @@ export const getUnitConversionInsertStatements = () => {
  */
 export const getBatchUnitConversionSQL = () => {
   const conversions = getUnitConversionsForInsert();
-  const placeholders = conversions.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ');
+  const placeholders = conversions
+    .map(() => '(?, ?, ?, ?, ?, ?, ?)')
+    .join(', ');
   const values = conversions.flatMap(c => [
-    c.id, c.from_unit, c.to_unit, c.factor, c.dimension, c.created_at, c.updated_at
+    c.id,
+    c.from_unit,
+    c.to_unit,
+    c.factor,
+    c.dimension,
+    c.created_at,
+    c.updated_at,
   ]);
-  
+
   return {
     sql: `
       INSERT OR REPLACE INTO unit_conversions (
         id, from_unit, to_unit, factor, dimension, created_at, updated_at
       ) VALUES ${placeholders}
     `,
-    params: values
+    params: values,
   };
 };

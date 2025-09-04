@@ -60,15 +60,18 @@ export class SupplierRepository extends BaseRepository<Supplier> {
         ORDER BY name ASC
       `;
       const result = await executeSql(sql, [`%${name}%`]);
-      
+
       const suppliers: Supplier[] = [];
       for (let i = 0; i < result.rows.length; i++) {
         suppliers.push(this.mapRowToEntity(result.rows.item(i)));
       }
-      
+
       return suppliers;
     } catch (error) {
-      throw new DatabaseError('Failed to find suppliers by name', error as Error);
+      throw new DatabaseError(
+        'Failed to find suppliers by name',
+        error as Error
+      );
     }
   }
 
@@ -80,7 +83,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
     if (!Number.isFinite(minRating) || minRating < 1 || minRating > 5) {
       throw new ValidationError('minRating must be a number between 1 and 5');
     }
-    
+
     try {
       const sql = `
         SELECT * FROM ${this.tableName} 
@@ -89,15 +92,18 @@ export class SupplierRepository extends BaseRepository<Supplier> {
         ORDER BY quality_rating DESC, name ASC
       `;
       const result = await executeSql(sql, [minRating]);
-      
+
       const suppliers: Supplier[] = [];
       for (let i = 0; i < result.rows.length; i++) {
         suppliers.push(this.mapRowToEntity(result.rows.item(i)));
       }
-      
+
       return suppliers;
     } catch (error) {
-      throw new DatabaseError('Failed to find suppliers by quality rating', error as Error);
+      throw new DatabaseError(
+        'Failed to find suppliers by quality rating',
+        error as Error
+      );
     }
   }
 
@@ -120,10 +126,10 @@ export class SupplierRepository extends BaseRepository<Supplier> {
         FROM ${this.tableName} 
         WHERE deleted_at IS NULL
       `;
-      
+
       const result = await executeSql(statsQuery);
       const row = result.rows.item(0);
-      
+
       return {
         total: row.total || 0,
         withRating: row.with_rating || 0,
@@ -131,7 +137,10 @@ export class SupplierRepository extends BaseRepository<Supplier> {
         withWebsite: row.with_website || 0,
       };
     } catch (error) {
-      throw new DatabaseError('Failed to get supplier statistics', error as Error);
+      throw new DatabaseError(
+        'Failed to get supplier statistics',
+        error as Error
+      );
     }
   }
 }

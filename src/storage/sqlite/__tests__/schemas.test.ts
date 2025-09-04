@@ -2,16 +2,14 @@
  * Tests for SQLite schema creation and validation
  */
 
-import { 
-  createAllSchemas, 
-  validateSchema, 
-  getSchemaVersion, 
+import {
+  createAllSchemas,
+  validateSchema,
+  getSchemaVersion,
   SCHEMA_VERSION,
   SUPPLIERS_SCHEMA,
   INVENTORY_ITEMS_SCHEMA,
   OFFERS_SCHEMA,
-  UNIT_CONVERSIONS_SCHEMA,
-  BUNDLES_SCHEMA
 } from '../schemas';
 import { getBatchUnitConversionSQL } from '../seed-data';
 
@@ -68,7 +66,9 @@ describe('SQLite Schemas', () => {
         throw new Error('Schema creation failed');
       });
 
-      await expect(createAllSchemas()).rejects.toThrow('Schema creation failed');
+      await expect(createAllSchemas()).rejects.toThrow(
+        'Schema creation failed'
+      );
     });
   });
 
@@ -159,19 +159,22 @@ describe('SQLite Schemas', () => {
     });
 
     it('should have all required fields in inventory items schema', () => {
-      
       expect(INVENTORY_ITEMS_SCHEMA).toContain('id TEXT PRIMARY KEY');
       expect(INVENTORY_ITEMS_SCHEMA).toContain('name TEXT NOT NULL');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('canonical_dimension TEXT NOT NULL');
+      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+        'canonical_dimension TEXT NOT NULL'
+      );
       expect(INVENTORY_ITEMS_SCHEMA).toContain('canonical_unit TEXT NOT NULL');
       expect(INVENTORY_ITEMS_SCHEMA).toContain('shelf_life_sensitive INTEGER');
       expect(INVENTORY_ITEMS_SCHEMA).toContain('attributes TEXT');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('equivalence_factor REAL DEFAULT 1.0');
+      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+        'equivalence_factor REAL DEFAULT 1.0'
+      );
     });
 
     it('should have all required fields in offers schema', () => {
       const { OFFERS_SCHEMA } = require('../schemas');
-      
+
       expect(OFFERS_SCHEMA).toContain('id TEXT PRIMARY KEY');
       expect(OFFERS_SCHEMA).toContain('inventory_item_id TEXT NOT NULL');
       expect(OFFERS_SCHEMA).toContain('supplier_id TEXT NOT NULL');
@@ -189,33 +192,47 @@ describe('SQLite Schemas', () => {
 
     it('should have all required fields in unit conversions schema', () => {
       const { UNIT_CONVERSIONS_SCHEMA } = require('../schemas');
-      
+
       expect(UNIT_CONVERSIONS_SCHEMA).toContain('id TEXT PRIMARY KEY');
       expect(UNIT_CONVERSIONS_SCHEMA).toContain('from_unit TEXT NOT NULL');
       expect(UNIT_CONVERSIONS_SCHEMA).toContain('to_unit TEXT NOT NULL');
       expect(UNIT_CONVERSIONS_SCHEMA).toContain('factor REAL NOT NULL');
       expect(UNIT_CONVERSIONS_SCHEMA).toContain('dimension TEXT NOT NULL');
-      expect(UNIT_CONVERSIONS_SCHEMA).toContain('UNIQUE (from_unit, to_unit, dimension)');
+      expect(UNIT_CONVERSIONS_SCHEMA).toContain(
+        'UNIQUE (from_unit, to_unit, dimension)'
+      );
     });
 
     it('should include proper constraints and checks', () => {
-      
       // Check constraints (normalize whitespace for multiline checks)
-      const normalizeWhitespace = (str: string) => str.replace(/\s+/g, ' ').trim();
-      
+      const normalizeWhitespace = (str: string) =>
+        str.replace(/\s+/g, ' ').trim();
+
       expect(SUPPLIERS_SCHEMA).toContain('CHECK (length(country_code) = 2)');
-      expect(SUPPLIERS_SCHEMA).toContain('CHECK (length(default_currency) = 3)');
-      expect(SUPPLIERS_SCHEMA).toContain('CHECK (membership_required IN (0, 1))');
-      
+      expect(SUPPLIERS_SCHEMA).toContain(
+        'CHECK (length(default_currency) = 3)'
+      );
+      expect(SUPPLIERS_SCHEMA).toContain(
+        'CHECK (membership_required IN (0, 1))'
+      );
+
       // For multiline constraints, check that all components are present
-      const normalizedInventorySchema = normalizeWhitespace(INVENTORY_ITEMS_SCHEMA);
-      expect(normalizedInventorySchema).toContain("canonical_dimension IN ('mass', 'volume', 'count', 'length', 'area')");
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('CHECK (equivalence_factor > 0)');
-      
+      const normalizedInventorySchema = normalizeWhitespace(
+        INVENTORY_ITEMS_SCHEMA
+      );
+      expect(normalizedInventorySchema).toContain(
+        "canonical_dimension IN ('mass', 'volume', 'count', 'length', 'area')"
+      );
+      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+        'CHECK (equivalence_factor > 0)'
+      );
+
       expect(OFFERS_SCHEMA).toContain('CHECK (total_price >= 0)');
       expect(OFFERS_SCHEMA).toContain('CHECK (amount > 0)');
       const normalizedOfferSchema = normalizeWhitespace(OFFERS_SCHEMA);
-      expect(normalizedOfferSchema).toContain("source_type IN ('manual', 'url', 'ocr', 'api')");
+      expect(normalizedOfferSchema).toContain(
+        "source_type IN ('manual', 'url', 'ocr', 'api')"
+      );
     });
   });
 });
@@ -226,7 +243,9 @@ describe('Seed Data', () => {
       const { sql, params } = getBatchUnitConversionSQL();
 
       expect(sql).toContain('INSERT OR REPLACE INTO unit_conversions');
-      expect(sql).toContain('id, from_unit, to_unit, factor, dimension, created_at, updated_at');
+      expect(sql).toContain(
+        'id, from_unit, to_unit, factor, dimension, created_at, updated_at'
+      );
       expect(sql).toContain('VALUES');
 
       expect(params.length).toBeGreaterThan(0);
@@ -239,10 +258,10 @@ describe('Seed Data', () => {
 
       // Should include common conversions
       expect(flatValues).toContain('kg'); // from_unit
-      expect(flatValues).toContain('g');  // to_unit
-      expect(flatValues).toContain('L');  // from_unit 
+      expect(flatValues).toContain('g'); // to_unit
+      expect(flatValues).toContain('L'); // from_unit
       expect(flatValues).toContain('ml'); // to_unit
-      expect(flatValues).toContain('mass');   // dimension
+      expect(flatValues).toContain('mass'); // dimension
       expect(flatValues).toContain('volume'); // dimension
     });
 

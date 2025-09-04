@@ -14,7 +14,6 @@ import {
 } from './types';
 import { executeSql } from '../sqlite/database';
 import { appStorageWrapper } from '../mmkv/storage';
-import { StorageError } from '../types';
 
 export class VersionTracker implements IVersionTracker {
   private config: MigrationConfig;
@@ -42,20 +41,29 @@ export class VersionTracker implements IVersionTracker {
       // If no version record exists, this is a fresh install
       return 0;
     } catch (error) {
-      if (this.config.logLevel === 'debug' && (typeof __DEV__ !== 'undefined' && __DEV__)) {
-        console.error('[VersionTracker] Error getting database version:', error);
+      if (
+        this.config.logLevel === 'debug' &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
+        console.error(
+          '[VersionTracker] Error getting database version:',
+          error
+        );
       }
-      
+
       // Only return 0 for missing table errors (fresh install)
       // For other errors, rethrow to surface the real problem
       const errorMessage = (error as Error).message.toLowerCase();
-      if (errorMessage.includes('no such table') || 
-          errorMessage.includes('sqlite_master') || 
-          errorMessage.includes('database_metadata')) {
+      if (
+        errorMessage.includes('no such table') ||
+        errorMessage.includes('sqlite_master') ||
+        errorMessage.includes('database_metadata')
+      ) {
         // Fresh install - no metadata table exists yet
         return 0;
       }
-      
+
       // Re-throw other errors as they indicate real problems
       throw new MigrationError(
         'Failed to retrieve database version',
@@ -69,12 +77,19 @@ export class VersionTracker implements IVersionTracker {
   async setDatabaseVersion(version: number): Promise<void> {
     try {
       // Use INSERT OR REPLACE to handle both initial insert and updates
-      await executeSql(`
+      await executeSql(
+        `
         INSERT OR REPLACE INTO database_metadata (key, value, created_at, updated_at)
         VALUES (?, ?, datetime('now'), datetime('now'))
-      `, [this.config.databaseVersionKey, version.toString()]);
+      `,
+        [this.config.databaseVersionKey, version.toString()]
+      );
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(`[VersionTracker] Database version set to: ${version}`);
       }
     } catch (error) {
@@ -99,7 +114,7 @@ export class VersionTracker implements IVersionTracker {
       if (this.config.logLevel === 'debug' && __DEV__) {
         console.error('[VersionTracker] Error getting data version:', error);
       }
-      
+
       // On error, assume version 0
       return 0;
     }
@@ -108,8 +123,12 @@ export class VersionTracker implements IVersionTracker {
   async setDataVersion(version: number): Promise<void> {
     try {
       appStorageWrapper.set(this.config.dataVersionKey, version);
-      
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(`[VersionTracker] Data version set to: ${version}`);
       }
     } catch (error) {
@@ -126,7 +145,10 @@ export class VersionTracker implements IVersionTracker {
   // Migration History Management
   // ===============================
 
-  async recordMigrationExecution(migration: Migration, result: MigrationResult): Promise<void> {
+  async recordMigrationExecution(
+    migration: Migration,
+    result: MigrationResult
+  ): Promise<void> {
     try {
       const record: MigrationExecutionRecord = {
         migrationId: migration.id,
@@ -140,7 +162,11 @@ export class VersionTracker implements IVersionTracker {
 
       await this.addToMigrationHistory(record);
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(
           `[VersionTracker] Recorded migration execution: ${migration.id} (${result.success ? 'SUCCESS' : 'FAILED'})`
         );
@@ -148,43 +174,58 @@ export class VersionTracker implements IVersionTracker {
     } catch (error) {
       // Don't throw here - migration history recording is not critical
       if (this.config.logLevel !== 'error' && __DEV__) {
-        console.warn('[VersionTracker] Failed to record migration execution:', error);
+        console.warn(
+          '[VersionTracker] Failed to record migration execution:',
+          error
+        );
       }
     }
   }
 
   async getMigrationHistory(): Promise<MigrationExecutionRecord[]> {
     try {
-      const historyData = appStorageWrapper.getObject<MigrationExecutionRecord[]>(
-        this.config.migrationHistoryKey
-      );
-      
+      const historyData = appStorageWrapper.getObject<
+        MigrationExecutionRecord[]
+      >(this.config.migrationHistoryKey);
+
       return historyData || [];
     } catch (error) {
       if (this.config.logLevel === 'debug' && __DEV__) {
-        console.error('[VersionTracker] Error getting migration history:', error);
+        console.error(
+          '[VersionTracker] Error getting migration history:',
+          error
+        );
       }
-      
+
       return [];
     }
   }
 
-  async recordRollback(migrationId: string, rollbackResult: MigrationResult): Promise<void> {
+  async recordRollback(
+    migrationId: string,
+    rollbackResult: MigrationResult
+  ): Promise<void> {
     try {
       const history = await this.getMigrationHistory();
-      
+
       // Find the migration record and mark it as rolled back
-      const recordIndex = history.findIndex(record => record.migrationId === migrationId);
-      
+      const recordIndex = history.findIndex(
+        record => record.migrationId === migrationId
+      );
+
       if (recordIndex !== -1) {
         history[recordIndex].rolledBack = true;
         history[recordIndex].rolledBackAt = new Date().toISOString();
-        
+
         // Save the updated history
         appStorageWrapper.setObject(this.config.migrationHistoryKey, history);
       }
 
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log(
           `[VersionTracker] Recorded rollback: ${migrationId} (${rollbackResult.success ? 'SUCCESS' : 'FAILED'})`
         );
@@ -201,23 +242,33 @@ export class VersionTracker implements IVersionTracker {
   // Private Helper Methods
   // ===============================
 
-  private async addToMigrationHistory(record: MigrationExecutionRecord): Promise<void> {
+  private async addToMigrationHistory(
+    record: MigrationExecutionRecord
+  ): Promise<void> {
     const history = await this.getMigrationHistory();
-    
+
     // Remove any existing record for this migration (in case of retry)
-    const filteredHistory = history.filter(h => h.migrationId !== record.migrationId);
-    
+    const filteredHistory = history.filter(
+      h => h.migrationId !== record.migrationId
+    );
+
     // Add the new record
     filteredHistory.push(record);
-    
+
     // Sort by execution time (most recent first)
-    filteredHistory.sort((a, b) => new Date(b.executedAt).getTime() - new Date(a.executedAt).getTime());
-    
+    filteredHistory.sort(
+      (a, b) =>
+        new Date(b.executedAt).getTime() - new Date(a.executedAt).getTime()
+    );
+
     // Keep only the last 100 migration records to prevent unlimited growth
     const trimmedHistory = filteredHistory.slice(0, 100);
-    
+
     // Save to storage
-    appStorageWrapper.setObject(this.config.migrationHistoryKey, trimmedHistory);
+    appStorageWrapper.setObject(
+      this.config.migrationHistoryKey,
+      trimmedHistory
+    );
   }
 
   // ===============================
@@ -242,27 +293,29 @@ export class VersionTracker implements IVersionTracker {
   async isMigrationExecuted(migrationId: string): Promise<boolean> {
     const history = await this.getMigrationHistory();
     const record = history.find(h => h.migrationId === migrationId);
-    
+
     return record ? record.success && !record.rolledBack : false;
   }
 
   /**
    * Get the last successful migration for a given type
    */
-  async getLastSuccessfulMigration(type: 'database' | 'data'): Promise<MigrationExecutionRecord | null> {
+  async getLastSuccessfulMigration(
+    type: 'database' | 'data'
+  ): Promise<MigrationExecutionRecord | null> {
     const history = await this.getMigrationHistory();
-    
+
     const typeRecords = history.filter(
       h => h.type === type && h.success && !h.rolledBack
     );
-    
+
     if (typeRecords.length === 0) {
       return null;
     }
-    
+
     // Sort by version (highest first)
     typeRecords.sort((a, b) => b.version - a.version);
-    
+
     return typeRecords[0];
   }
 
@@ -272,8 +325,12 @@ export class VersionTracker implements IVersionTracker {
   async clearMigrationHistory(): Promise<void> {
     try {
       appStorageWrapper.delete(this.config.migrationHistoryKey);
-      
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log('[VersionTracker] Migration history cleared');
       }
     } catch (error) {
@@ -293,14 +350,18 @@ export class VersionTracker implements IVersionTracker {
     try {
       // Reset database version
       await this.setDatabaseVersion(0);
-      
+
       // Reset data version
       await this.setDataVersion(0);
-      
+
       // Clear migration history
       await this.clearMigrationHistory();
-      
-      if (this.config.enableDetailedLogging && (typeof __DEV__ !== 'undefined' && __DEV__)) {
+
+      if (
+        this.config.enableDetailedLogging &&
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__
+      ) {
         console.log('[VersionTracker] All versions and history reset');
       }
     } catch (error) {
@@ -344,4 +405,3 @@ export class VersionTracker implements IVersionTracker {
 
 // Export a default instance
 export const versionTracker = new VersionTracker();
-

@@ -525,3 +525,4 @@ export class MigrationManager implements IMigrationManager {
 
 // Export a default instance
 export const migrationManager = new MigrationManager();
+

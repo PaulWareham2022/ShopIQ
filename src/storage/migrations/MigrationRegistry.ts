@@ -418,3 +418,4 @@ export class MigrationRegistry implements IMigrationRegistry {
 
 // Export a default instance
 export const migrationRegistry = new MigrationRegistry();
+

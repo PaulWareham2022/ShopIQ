@@ -42,6 +42,9 @@ export { testStorageIntegration } from './test-storage';
 // Migration system
 export * from './migrations';
 
+// Validation schemas
+export * from './validation';
+
 /**
  * Quick Start Guide:
  * 

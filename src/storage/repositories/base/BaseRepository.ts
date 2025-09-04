@@ -236,7 +236,7 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
     }
   }
 
-  async update(id: string, updates: Partial<Omit<T, 'id' | 'created_at'>>): Promise<T | null> {
+  async update(id: string, updates: Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>): Promise<T | null> {
     try {
       // First check if entity exists
       const existing = await this.findById(id);
@@ -276,7 +276,7 @@ export abstract class BaseRepository<T extends BaseEntity> implements Repository
     }
   }
 
-  async updateMany(conditions: Partial<T>, updates: Partial<Omit<T, 'id' | 'created_at'>>): Promise<number> {
+  async updateMany(conditions: Partial<T>, updates: Partial<Omit<T, 'id' | 'created_at' | 'updated_at'>>): Promise<number> {
     try {
       const whereConditions: string[] = [];
       const params: any[] = [];

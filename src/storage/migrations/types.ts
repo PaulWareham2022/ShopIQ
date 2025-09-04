@@ -229,3 +229,4 @@ export const DEFAULT_MIGRATION_CONFIG: MigrationConfig = {
   enableDetailedLogging: __DEV__,
   logLevel: __DEV__ ? 'debug' : 'error',
 };
+

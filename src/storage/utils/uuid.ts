@@ -1,36 +1,55 @@
 /**
  * UUID v4 generation utility
- * Uses react-native-uuid for UUID generation with fallback for web
+ * Uses react-native-uuid as primary method with secure fallbacks
  */
 
 import { Platform } from 'react-native';
 
 let uuidv4: () => string;
 
-if (Platform.OS === 'web') {
-  // Web fallback - simple UUID v4 implementation
-  uuidv4 = (): string => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
-} else {
-  // Native platforms - use react-native-uuid
-  try {
-    const uuid = require('react-native-uuid');
-    uuidv4 = () => uuid.v4();
-  } catch (error) {
-    // Fallback if react-native-uuid is not available
-    console.warn('react-native-uuid not available, using fallback UUID generation');
-    uuidv4 = (): string => {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    };
+const hasCrypto = typeof globalThis.crypto !== 'undefined';
+const canRandomUUID = hasCrypto && typeof globalThis.crypto.randomUUID === 'function';
+const canGRV = hasCrypto && typeof globalThis.crypto.getRandomValues === 'function';
+
+const insecureFallback = (): string =>
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+
+const secureV4 = (): string => {
+  if (canRandomUUID) return globalThis.crypto.randomUUID();
+  if (canGRV) {
+    const b = new Uint8Array(16);
+    globalThis.crypto.getRandomValues(b);
+    b[6] = (b[6] & 0x0f) | 0x40; // version 4
+    b[8] = (b[8] & 0x3f) | 0x80; // variant 10
+    const hex = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
+  return insecureFallback();
+};
+
+// Initialize UUID generation function
+// Priority: react-native-uuid > crypto API > insecure fallback
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const rn = require('react-native-uuid');
+  uuidv4 = () => rn.default.v4();
+  console.log('Using react-native-uuid for UUID generation');
+} catch {
+  console.warn('react-native-uuid not available; falling back to crypto API');
+  if (Platform.OS === 'web') {
+    uuidv4 = secureV4;
+  } else {
+    // Native: prefer crypto if available; otherwise use insecure fallback
+    if (canRandomUUID || canGRV) {
+      uuidv4 = secureV4;
+    } else {
+      console.warn('Crypto API not available; using insecure UUID fallback');
+      uuidv4 = insecureFallback;
+    }
   }
 }
 

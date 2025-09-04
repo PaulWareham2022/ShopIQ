@@ -5,9 +5,9 @@
  */
 
 import { 
-  RepositoryFactory as IRepositoryFactory, 
+  IRepositoryFactory, 
   Repository, 
-  KeyValueRepository as IKeyValueRepository,
+  IKeyValueRepository,
   Transaction,
   StorageConfig,
   StorageError

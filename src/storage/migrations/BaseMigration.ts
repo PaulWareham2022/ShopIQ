@@ -408,3 +408,4 @@ export abstract class DataMigration extends BaseMigration implements IDataMigrat
     return migrated;
   }
 }
+

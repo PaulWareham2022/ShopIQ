@@ -104,21 +104,28 @@ export const mockSQLiteResponse = (rows: any[] = [], rowsAffected = 0) => {
 
 // Helper to create test entities
 export const createTestSupplier = (overrides: any = {}) => ({
-  id: 'test-supplier-id',
+  id: '123e4567-e89b-12d3-a456-426614174000',
   name: 'Test Supplier',
-  contact_name: 'John Doe',
-  email: 'john@example.com',
-  phone: '+1-555-123-4567',
-  website: 'https://example.com',
+  countryCode: 'CA',
+  regionCode: 'CA-NS',
+  storeCode: 'test-store',
+  defaultCurrency: 'CAD',
+  membershipRequired: false,
+  membershipType: 'Basic',
+  shippingPolicy: {
+    freeShippingThreshold: 35.0,
+    shippingBaseCost: 5.99,
+    pickupAvailable: true
+  },
+  urlPatterns: ['https://example.com'],
   notes: 'Test notes',
   created_at: '2024-01-01T00:00:00.000Z',
   updated_at: '2024-01-01T00:00:00.000Z',
-  deleted_at: null,
   ...overrides,
 });
 
 export const createTestInventoryItem = (overrides: any = {}) => ({
-  id: 'test-item-id',
+  id: '123e4567-e89b-12d3-a456-426614174001',
   name: 'Test Item',
   sku: 'TEST-001',
   category: 'Test Category',

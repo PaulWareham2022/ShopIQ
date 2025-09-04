@@ -147,3 +147,4 @@ export class MigrateUserPreferencesV2Migration extends DataMigration {
 
 // Register the migration
 export const migration001Data = new MigrateUserPreferencesV2Migration();
+

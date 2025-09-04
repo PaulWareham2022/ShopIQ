@@ -69,3 +69,4 @@ export class AddSupplierContactInfoMigration extends DatabaseMigration {
 
 // Register the migration
 export const migration001 = new AddSupplierContactInfoMigration();
+

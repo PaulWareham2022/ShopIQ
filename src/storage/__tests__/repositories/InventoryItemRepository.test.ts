@@ -12,6 +12,13 @@ jest.mock('../../sqlite/database', () => ({
   executeSql: mockExecuteSql,
 }));
 
+// Mock the utils module
+jest.mock('../../utils', () => ({
+  generateUUID: jest.fn(() => 'test-uuid'),
+  getCurrentTimestamp: jest.fn(() => '2024-01-01T00:00:00.000Z'),
+  validateTimestampFields: jest.fn(() => []),
+}));
+
 describe('InventoryItemRepository', () => {
   let repository: InventoryItemRepository;
   const mockTimestamp = '2024-01-01T00:00:00.000Z';
@@ -603,14 +610,6 @@ describe('InventoryItemRepository', () => {
   });
 
   describe('integration with BaseRepository', () => {
-    beforeEach(() => {
-      // Mock the BaseRepository dependencies
-      jest.mock('../../utils', () => ({
-        generateUUID: jest.fn(() => 'test-uuid'),
-        getCurrentTimestamp: jest.fn(() => mockTimestamp),
-        validateTimestampFields: jest.fn(() => []),
-      }));
-    });
 
     it('should inherit CRUD operations from BaseRepository', () => {
       expect(repository.create).toBeDefined();
@@ -722,3 +721,4 @@ describe('InventoryItemRepository', () => {
     });
   });
 });
+

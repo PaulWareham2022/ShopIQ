@@ -329,3 +329,4 @@ export class VersionTracker implements IVersionTracker {
 
 // Export a default instance
 export const versionTracker = new VersionTracker();
+

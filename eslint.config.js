@@ -28,9 +28,6 @@ export default [
         require: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
-        module: 'readonly',
-        exports: 'readonly',
-        Buffer: 'readonly',
       },
     },
     plugins: {
@@ -102,5 +99,17 @@ export default [
       'no-console': 'off', // Allow console in storage files since they're wrapped in __DEV__
       '@typescript-eslint/no-explicit-any': 'off', // Allow any in storage compatibility layers
     },
+  },
+  {
+    files: ['*.config.{js,cjs,mjs,ts}', 'scripts/**/*.{js,ts}', 'jest.config.*', 'metro.config.*', 'babel.config.*'],
+    languageOptions: {
+      globals: {
+        module: 'readonly',
+        exports: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        require: 'readonly'
+      }
+    }
   },
 ];

@@ -200,6 +200,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
       }: FormikProps<FormValues>) => (
         <ScrollView
           style={styles.container}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.form}>
@@ -395,6 +396,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40, // Extra padding to ensure buttons are visible
+  },
   form: {
     padding: 20,
   },
@@ -460,33 +465,47 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 30,
-    marginBottom: 20,
+    marginTop: 40,
+    marginBottom: 30,
+    paddingHorizontal: 0,
+    backgroundColor: colors.white, // Ensure background visibility
   },
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: colors.lightGray,
     marginRight: 10,
     alignItems: 'center',
+    backgroundColor: colors.white,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.grayText,
+    color: colors.darkText,
   },
   submitButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: colors.primary,
     marginLeft: 10,
     alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   submitButtonDisabled: {
     backgroundColor: colors.lightGray,
+    shadowOpacity: 0.1,
   },
   submitButtonText: {
     fontSize: 16,

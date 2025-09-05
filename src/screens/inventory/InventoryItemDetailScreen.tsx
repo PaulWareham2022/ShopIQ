@@ -134,12 +134,14 @@ export const InventoryItemDetailScreen: React.FC<
           </Text>
         </View>
 
-        <InventoryItemForm
-          initialValues={item || undefined}
-          onSubmit={handleSave}
-          onCancel={onBack}
-          submitButtonText={itemId ? 'Update Item' : 'Add Item'}
-        />
+        <View style={styles.formContainer}>
+          <InventoryItemForm
+            initialValues={item || undefined}
+            onSubmit={handleSave}
+            onCancel={onBack}
+            submitButtonText={itemId ? 'Update Item' : 'Add Item'}
+          />
+        </View>
       </View>
     );
   }
@@ -223,6 +225,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
+  },
+  formContainer: {
+    flex: 1, // Give the form all remaining space
   },
   header: {
     flexDirection: 'row',

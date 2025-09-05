@@ -7,6 +7,27 @@ import { BaseRepository } from './base/BaseRepository';
 import { BaseEntity } from '../types';
 import { executeSql } from '../sqlite/database';
 import { DatabaseError } from '../types';
+import { Platform } from 'react-native';
+
+// Mock data for web testing
+const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
+  {
+    id: '1',
+    name: 'Apples',
+    canonical_unit: 'kg',
+    shelf_life_sensitive: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    name: 'Milk',
+    canonical_unit: 'L',
+    shelf_life_sensitive: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
 
 // InventoryItem entity interface
 export interface InventoryItem extends BaseEntity {
@@ -18,6 +39,73 @@ export interface InventoryItem extends BaseEntity {
 
 export class InventoryItemRepository extends BaseRepository<InventoryItem> {
   protected tableName = 'inventory_items';
+  private mockItems: InventoryItem[] = [...MOCK_INVENTORY_ITEMS];
+
+  // Web fallback methods
+  private isWebFallback(): boolean {
+    return Platform.OS === 'web';
+  }
+
+  // Override main CRUD methods for web fallback
+  async findAll(): Promise<InventoryItem[]> {
+    if (this.isWebFallback()) {
+      return [...this.mockItems];
+    }
+    return super.findAll();
+  }
+
+  async findById(id: string): Promise<InventoryItem | null> {
+    if (this.isWebFallback()) {
+      return this.mockItems.find(item => item.id === id) || null;
+    }
+    return super.findById(id);
+  }
+
+  async create(
+    entity: Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<InventoryItem> {
+    if (this.isWebFallback()) {
+      const newItem: InventoryItem = {
+        ...entity,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      this.mockItems.push(newItem);
+      return newItem;
+    }
+    return super.create(entity);
+  }
+
+  async update(
+    id: string,
+    entity: Partial<InventoryItem>
+  ): Promise<InventoryItem | null> {
+    if (this.isWebFallback()) {
+      const index = this.mockItems.findIndex(item => item.id === id);
+      if (index === -1) return null;
+
+      this.mockItems[index] = {
+        ...this.mockItems[index],
+        ...entity,
+        id,
+        updated_at: new Date().toISOString(),
+      };
+      return this.mockItems[index];
+    }
+    return super.update(id, entity);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    if (this.isWebFallback()) {
+      const index = this.mockItems.findIndex(item => item.id === id);
+      if (index === -1) return false;
+
+      this.mockItems.splice(index, 1);
+      return true;
+    }
+    return super.delete(id);
+  }
 
   protected mapRowToEntity(row: any): InventoryItem {
     return {
@@ -51,6 +139,13 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
    * Find inventory items by name (case-insensitive partial match)
    */
   async findByName(name: string): Promise<InventoryItem[]> {
+    if (this.isWebFallback()) {
+      const lowerName = name.toLowerCase();
+      return this.mockItems.filter(item =>
+        item.name.toLowerCase().includes(lowerName)
+      );
+    }
+
     try {
       const sql = `
         SELECT * FROM ${this.tableName} 

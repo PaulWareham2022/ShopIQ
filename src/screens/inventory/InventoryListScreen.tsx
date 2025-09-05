@@ -15,25 +15,19 @@ import { InventoryItem } from '../../storage/repositories/InventoryItemRepositor
 interface InventoryListScreenProps {
   onItemPress: (item: InventoryItem) => void;
   onAddItem: () => void;
+  onBack: () => void;
 }
 
 export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   onItemPress,
   onAddItem,
+  onBack,
 }) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [repository] = useState(() => new InventoryItemRepository());
-
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
-
-  useEffect(() => {
-    filterItems();
-  }, [filterItems]);
 
   const loadItems = useCallback(async () => {
     try {
@@ -63,6 +57,14 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
     setFilteredItems(filtered);
   }, [items, searchQuery]);
 
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
+
+  useEffect(() => {
+    filterItems();
+  }, [filterItems]);
+
   const handleDeleteItem = async (item: InventoryItem) => {
     Alert.alert(
       'Delete Item',
@@ -75,9 +77,15 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
           onPress: async () => {
             try {
               await repository.delete(item.id);
-              await loadItems();
+              // Update local state immediately for better UX
+              setItems(currentItems =>
+                currentItems.filter(i => i.id !== item.id)
+              );
+              setFilteredItems(currentItems =>
+                currentItems.filter(i => i.id !== item.id)
+              );
             } catch {
-              // Error handling is done via Alert.alert
+              // Failed to delete item - error handled via Alert
               Alert.alert('Error', 'Failed to delete item');
             }
           },
@@ -132,6 +140,9 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Inventory</Text>
         <TouchableOpacity style={styles.addButton} onPress={onAddItem}>
           <Text style={styles.addButtonText}>+ Add Item</Text>
@@ -176,10 +187,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
   },
+  backButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: colors.primary,
+    fontWeight: '600',
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.darkText,
+    flex: 1,
+    textAlign: 'center',
   },
   addButton: {
     backgroundColor: colors.primary,

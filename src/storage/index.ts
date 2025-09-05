@@ -44,8 +44,8 @@ export {
   clearAllStorages,
 } from './mmkv/storage';
 
-// Test utilities
-export { testStorageIntegration } from './test-storage';
+// Test utilities (not exported to avoid circular dependency)
+// export { testStorageIntegration } from './test-storage';
 
 // Migration system
 export * from './migrations';

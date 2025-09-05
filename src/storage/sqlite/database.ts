@@ -12,6 +12,7 @@ class WebDatabase {
   private dbName: string;
   private version: number;
   private db: any = null;
+  private mockData: Map<string, any[]> = new Map();
 
   constructor(dbName: string, version: number = 1) {
     this.dbName = dbName;
@@ -95,6 +96,143 @@ class WebDatabase {
             // Mock metadata insert
             if (successCb) {
               successCb(mockTx, { rows: { length: 0 } });
+            }
+          } else if (sql.includes('INSERT INTO suppliers')) {
+            // Mock supplier insert
+            const tableName = 'suppliers';
+            if (!this.mockData.has(tableName)) {
+              this.mockData.set(tableName, []);
+            }
+            const suppliers = this.mockData.get(tableName)!;
+            const newSupplier = {
+              id: params?.[0] || `supplier_${Date.now()}`,
+              name: params?.[1] || 'Test Supplier',
+              website: params?.[2] || null,
+              notes: params?.[3] || null,
+              shipping_policy: params?.[4] || null,
+              quality_rating: params?.[5] || null,
+              created_at: params?.[6] || new Date().toISOString(),
+              updated_at: params?.[7] || new Date().toISOString(),
+              deleted_at: params?.[8] || null,
+            };
+            suppliers.push(newSupplier);
+            if (successCb) {
+              successCb(mockTx, {
+                rows: { length: 0 },
+                insertId: newSupplier.id,
+                rowsAffected: 1,
+              });
+            }
+          } else if (sql.includes('SELECT * FROM suppliers WHERE id = ?')) {
+            // Mock supplier find by ID
+            const tableName = 'suppliers';
+            const suppliers = this.mockData.get(tableName) || [];
+            const supplierId = params?.[0];
+            const foundSupplier = suppliers.find(
+              s => s.id === supplierId && !s.deleted_at
+            );
+            if (successCb) {
+              successCb(mockTx, {
+                rows: {
+                  length: foundSupplier ? 1 : 0,
+                  item: (_i: number) => foundSupplier || null,
+                },
+              });
+            }
+          } else if (
+            sql.includes('SELECT * FROM suppliers WHERE deleted_at IS NULL')
+          ) {
+            // Mock supplier find all
+            const tableName = 'suppliers';
+            const suppliers = this.mockData.get(tableName) || [];
+            const activeSuppliers = suppliers.filter(s => !s.deleted_at);
+            if (successCb) {
+              successCb(mockTx, {
+                rows: {
+                  length: activeSuppliers.length,
+                  item: (i: number) => activeSuppliers[i] || null,
+                },
+              });
+            }
+          } else if (sql.includes('UPDATE suppliers SET deleted_at = ?')) {
+            // Mock supplier soft delete
+            const tableName = 'suppliers';
+            const suppliers = this.mockData.get(tableName) || [];
+            const supplierId = params?.[2]; // ID is the last parameter
+            const deletedAt = params?.[0];
+            const updatedAt = params?.[1];
+
+            const supplierIndex = suppliers.findIndex(s => s.id === supplierId);
+            if (supplierIndex !== -1) {
+              suppliers[supplierIndex] = {
+                ...suppliers[supplierIndex],
+                deleted_at: deletedAt,
+                updated_at: updatedAt,
+              };
+            }
+
+            if (successCb) {
+              successCb(mockTx, {
+                rows: { length: 0 },
+                rowsAffected: 1,
+                changes: 1,
+              });
+            }
+          } else if (sql.includes('UPDATE suppliers SET name = ?')) {
+            // Mock supplier update
+            const tableName = 'suppliers';
+            const suppliers = this.mockData.get(tableName) || [];
+            const supplierId = params?.[8]; // ID is the last parameter
+            const updatedAt = params?.[7];
+
+            const supplierIndex = suppliers.findIndex(s => s.id === supplierId);
+            if (supplierIndex !== -1) {
+              suppliers[supplierIndex] = {
+                ...suppliers[supplierIndex],
+                name: params?.[0],
+                website: params?.[1],
+                notes: params?.[2],
+                shipping_policy: params?.[3],
+                quality_rating: params?.[4],
+                created_at: params?.[5],
+                updated_at: updatedAt,
+              };
+            }
+
+            if (successCb) {
+              successCb(mockTx, {
+                rows: { length: 0 },
+                rowsAffected: 1,
+                changes: 1,
+              });
+            }
+          } else if (
+            sql.includes(
+              "SELECT COUNT(*) as count FROM sqlite_master WHERE type='table'"
+            )
+          ) {
+            // Mock table count query
+            if (successCb) {
+              successCb(mockTx, {
+                rows: {
+                  length: 1,
+                  item: (_i: number) => ({ count: 7 }), // 7 tables as per our schema
+                },
+              });
+            }
+          } else if (
+            sql.includes(
+              "SELECT value FROM database_metadata WHERE key = 'version'"
+            )
+          ) {
+            // Mock version query
+            if (successCb) {
+              successCb(mockTx, {
+                rows: {
+                  length: 1,
+                  item: (_i: number) => ({ value: '1.0.0' }),
+                },
+              });
             }
           } else {
             // Default mock response

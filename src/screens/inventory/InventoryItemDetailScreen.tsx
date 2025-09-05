@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { colors } from '../../constants/colors';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
-import { InventoryItem } from '../../storage/repositories/InventoryItemRepository';
+import { InventoryItem } from '../../storage/types';
 import { InventoryItemForm } from '../../components/forms/InventoryItemForm';
 import { ValidatedInventoryItem } from '../../storage/validation/schemas';
 
@@ -26,6 +26,8 @@ export const InventoryItemDetailScreen: React.FC<
   const [isEditing, setIsEditing] = useState(!itemId); // New item if no ID provided
   const [loading, setLoading] = useState(!!itemId); // Only load if editing existing item
   const [repository] = useState(() => new InventoryItemRepository());
+
+  // Debug logging (remove before release)
 
   const loadItem = useCallback(async () => {
     try {
@@ -66,15 +68,12 @@ export const InventoryItemDetailScreen: React.FC<
       };
 
       if (itemId) {
-        // Update existing item
         await repository.update(itemId, itemData);
         Alert.alert('Success', 'Item updated successfully!');
       } else {
-        // Create new item
         await repository.create(itemData);
         Alert.alert('Success', 'Item created successfully!');
       }
-
       onItemSaved();
     } catch {
       Alert.alert('Error', 'Failed to save inventory item');

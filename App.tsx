@@ -50,10 +50,8 @@ export default function App() {
   };
 
   const handleAddItem = () => {
-    console.log('🔵 Add Item button clicked - navigating to inventory-add');
     setSelectedItem(null);
     setCurrentScreen('inventory-add');
-    console.log('🔵 Current screen set to: inventory-add');
   };
 
   const handleBackToList = () => {
@@ -70,7 +68,7 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>ShopIQ</Text>
-        <Text style={styles.subtitle}>Smart household shopping tracker</Text>
+        <Text style={styles.subtitle}>Smart household price comparison</Text>
       </View>
 
       <View style={styles.actionsContainer}>
@@ -100,13 +98,13 @@ export default function App() {
   );
 
   const renderCurrentScreen = () => {
-    console.log('🟡 Rendering screen:', currentScreen);
     switch (currentScreen) {
       case 'home':
         return renderHomeScreen();
       case 'inventory-list':
         return (
           <InventoryListScreen
+            key="inventory-list"
             onItemPress={handleItemPress}
             onAddItem={handleAddItem}
             onBack={() => setCurrentScreen('home')}
@@ -115,15 +113,16 @@ export default function App() {
       case 'inventory-detail':
         return (
           <InventoryItemDetailScreen
+            key={`edit-${selectedItem?.id}`}
             itemId={selectedItem?.id}
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
           />
         );
       case 'inventory-add':
-        console.log('🟢 Rendering inventory-add screen');
         return (
           <InventoryItemDetailScreen
+            key="add-new-item"
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
           />
@@ -133,7 +132,8 @@ export default function App() {
     }
   };
 
-  return renderCurrentScreen();
+  const screenToRender = renderCurrentScreen();
+  return screenToRender;
 }
 
 const styles = StyleSheet.create({

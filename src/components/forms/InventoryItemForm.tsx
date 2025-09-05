@@ -202,21 +202,21 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 />
               </View>
 
-              {/* Canonical Unit with Chip Selection */}
+              {/* Canonical Unit with Comprehensive Chip Selection */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Canonical Unit *</Text>
 
-                {/* Common Units by Category */}
-                <View style={styles.unitCategoryContainer}>
-                  <Text style={styles.categoryLabel}>Weight</Text>
-                  <View style={styles.chipRow}>
-                    {['kg', 'g', 'lb', 'oz'].map(unit => (
+                {/* Mass/Weight Units */}
+                <View style={styles.compactCategoryContainer}>
+                  <Text style={styles.compactCategoryLabel}>Weight</Text>
+                  <View style={styles.compactChipRow}>
+                    {['kg', 'g', 'mg', 'lb', 'oz', 't'].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.unitChip,
+                          styles.compactChip,
                           values.canonicalUnit === unit &&
-                            styles.unitChipSelected,
+                            styles.compactChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
@@ -225,9 +225,9 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                       >
                         <Text
                           style={[
-                            styles.unitChipText,
+                            styles.compactChipText,
                             values.canonicalUnit === unit &&
-                              styles.unitChipTextSelected,
+                              styles.compactChipTextSelected,
                           ]}
                         >
                           {unit}
@@ -237,16 +237,28 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                   </View>
                 </View>
 
-                <View style={styles.unitCategoryContainer}>
-                  <Text style={styles.categoryLabel}>Volume</Text>
-                  <View style={styles.chipRow}>
-                    {['L', 'ml', 'gal', 'fl oz'].map(unit => (
+                {/* Volume Units */}
+                <View style={styles.compactCategoryContainer}>
+                  <Text style={styles.compactCategoryLabel}>Volume</Text>
+                  <View style={styles.compactChipRow}>
+                    {[
+                      'L',
+                      'ml',
+                      'cl',
+                      'gal',
+                      'qt',
+                      'pt',
+                      'cup',
+                      'fl oz',
+                      'tbsp',
+                      'tsp',
+                    ].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.unitChip,
+                          styles.compactChip,
                           values.canonicalUnit === unit &&
-                            styles.unitChipSelected,
+                            styles.compactChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
@@ -255,9 +267,9 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                       >
                         <Text
                           style={[
-                            styles.unitChipText,
+                            styles.compactChipText,
                             values.canonicalUnit === unit &&
-                              styles.unitChipTextSelected,
+                              styles.compactChipTextSelected,
                           ]}
                         >
                           {unit}
@@ -267,16 +279,27 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                   </View>
                 </View>
 
-                <View style={styles.unitCategoryContainer}>
-                  <Text style={styles.categoryLabel}>Count</Text>
-                  <View style={styles.chipRow}>
-                    {['unit', 'piece', 'dozen', 'pack'].map(unit => (
+                {/* Count Units */}
+                <View style={styles.compactCategoryContainer}>
+                  <Text style={styles.compactCategoryLabel}>Count</Text>
+                  <View style={styles.compactChipRow}>
+                    {[
+                      'unit',
+                      'piece',
+                      'each',
+                      'dozen',
+                      'pair',
+                      'pack',
+                      'box',
+                      'tablet',
+                      'capsule',
+                    ].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.unitChip,
+                          styles.compactChip,
                           values.canonicalUnit === unit &&
-                            styles.unitChipSelected,
+                            styles.compactChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
@@ -285,9 +308,9 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                       >
                         <Text
                           style={[
-                            styles.unitChipText,
+                            styles.compactChipText,
                             values.canonicalUnit === unit &&
-                              styles.unitChipTextSelected,
+                              styles.compactChipTextSelected,
                           ]}
                         >
                           {unit}
@@ -297,30 +320,133 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                   </View>
                 </View>
 
-                {/* Custom Unit Input */}
-                <View style={styles.customUnitContainer}>
-                  <Text style={styles.categoryLabel}>Custom</Text>
+                {/* Length Units */}
+                <View style={styles.compactCategoryContainer}>
+                  <Text style={styles.compactCategoryLabel}>Length</Text>
+                  <View style={styles.compactChipRow}>
+                    {['m', 'cm', 'mm', 'km', 'ft', 'in', 'yd', 'mi'].map(
+                      unit => (
+                        <TouchableOpacity
+                          key={unit}
+                          style={[
+                            styles.compactChip,
+                            values.canonicalUnit === unit &&
+                              styles.compactChipSelected,
+                          ]}
+                          onPress={() => {
+                            setFieldValue('canonicalUnit', unit);
+                            handleUnitChange(unit, setFieldValue);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.compactChipText,
+                              values.canonicalUnit === unit &&
+                                styles.compactChipTextSelected,
+                            ]}
+                          >
+                            {unit}
+                          </Text>
+                        </TouchableOpacity>
+                      )
+                    )}
+                  </View>
+                </View>
+
+                {/* Area Units */}
+                <View style={styles.compactCategoryContainer}>
+                  <Text style={styles.compactCategoryLabel}>Area</Text>
+                  <View style={styles.compactChipRow}>
+                    {[
+                      'm²',
+                      'cm²',
+                      'mm²',
+                      'km²',
+                      'ft²',
+                      'in²',
+                      'yd²',
+                      'acre',
+                    ].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.compactChip,
+                          values.canonicalUnit === unit &&
+                            styles.compactChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.compactChipText,
+                            values.canonicalUnit === unit &&
+                              styles.compactChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Custom Unit Input - More Compact */}
+                <View style={styles.compactCustomContainer}>
+                  <Text style={styles.compactCategoryLabel}>Custom</Text>
                   <TextInput
                     style={[
-                      styles.customUnitInput,
+                      styles.compactCustomInput,
                       errors.canonicalUnit &&
                         touched.canonicalUnit &&
                         styles.inputError,
                     ]}
                     value={
+                      // Check if current unit is not in any of our predefined lists
                       ![
                         'kg',
                         'g',
+                        'mg',
                         'lb',
                         'oz',
+                        't',
                         'L',
                         'ml',
+                        'cl',
                         'gal',
+                        'qt',
+                        'pt',
+                        'cup',
                         'fl oz',
+                        'tbsp',
+                        'tsp',
                         'unit',
                         'piece',
+                        'each',
                         'dozen',
+                        'pair',
                         'pack',
+                        'box',
+                        'tablet',
+                        'capsule',
+                        'm',
+                        'cm',
+                        'mm',
+                        'km',
+                        'ft',
+                        'in',
+                        'yd',
+                        'mi',
+                        'm²',
+                        'cm²',
+                        'mm²',
+                        'km²',
+                        'ft²',
+                        'in²',
+                        'yd²',
+                        'acre',
                       ].includes(values.canonicalUnit)
                         ? values.canonicalUnit
                         : ''
@@ -330,7 +456,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                       handleUnitChange(text, setFieldValue);
                     }}
                     onBlur={handleBlur('canonicalUnit')}
-                    placeholder="Enter custom unit"
+                    placeholder="Custom unit"
                     placeholderTextColor={colors.grayText}
                     autoCapitalize="none"
                   />
@@ -474,20 +600,20 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   fieldContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
     paddingHorizontal: 20,
   },
   label: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.darkText,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   input: {
     backgroundColor: colors.white,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 16,
     color: colors.darkText,
     borderWidth: 1,
@@ -510,52 +636,61 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
-  unitCategoryContainer: {
-    marginBottom: 16,
+  compactCategoryContainer: {
+    marginBottom: 10,
   },
-  categoryLabel: {
-    fontSize: 14,
+  compactCategoryLabel: {
+    fontSize: 12,
     fontWeight: '600',
     color: colors.grayText,
-    marginBottom: 8,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  chipRow: {
+  compactChipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
   },
-  unitChip: {
-    backgroundColor: colors.lightGray,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  compactChip: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderWidth: 1,
-    borderColor: colors.lightGray,
+    borderColor: '#E0E0E0',
+    minWidth: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  unitChipSelected: {
+  compactChipSelected: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-  unitChipText: {
-    fontSize: 14,
+  compactChipText: {
+    fontSize: 12,
     fontWeight: '600',
     color: colors.darkText,
   },
-  unitChipTextSelected: {
+  compactChipTextSelected: {
     color: colors.white,
   },
-  customUnitContainer: {
-    marginTop: 8,
+  compactCustomContainer: {
+    marginTop: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  customUnitInput: {
+  compactCustomInput: {
     backgroundColor: colors.white,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 12,
     color: colors.darkText,
     borderWidth: 1,
     borderColor: colors.lightGray,
+    flex: 1,
+    marginLeft: 8,
   },
   errorText: {
     fontSize: 14,

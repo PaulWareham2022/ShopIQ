@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Shelf-Life Sensitivity Warning
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Implement informational flag for shelf-life sensitive items when high-quantity purchases risk expiry.
+# Details:
+Detect shelf-life sensitive items and large quantity offers. Show warning banner in offer entry and comparison views. Use configurable threshold for warning logic. No expiry math in MVP.
+
+# Test Strategy:
+Unit tests for warning logic. E2E tests for UI display under relevant conditions.

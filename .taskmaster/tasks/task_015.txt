@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: CSV Import/Export Functionality
+# Status: pending
+# Dependencies: 14
+# Priority: medium
+# Description: Enable CSV import/export for inventory and offers, with UUID assignment and schema versioning.
+# Details:
+Use 'react-native-csv' or 'papaparse' for parsing/generation. Validate CSV against schema. Assign UUIDs to imported records. Export with current schema version. Handle errors and duplicates gracefully.
+
+# Test Strategy:
+Unit tests for import/export logic. E2E tests for file selection and data integrity.

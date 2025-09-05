@@ -1,0 +1,59 @@
+# Task ID: 6
+# Title: Supplier CRUD Module
+# Status: done
+# Dependencies: 5
+# Priority: high
+# Description: Implement supplier management: add, edit, delete, and list suppliers with shipping policy fields.
+# Details:
+Build React Native screens for supplier CRUD. Validate country/region codes (ISO 3166), currency (ISO 4217), and membership fields. Store shipping policy as JSON. Support notes and URL patterns.
+<info added on 2025-09-05T10:23:08.508Z>
+Updated SupplierRepository to match full PRD schema:
+
+- Imports now use Supplier and ShippingPolicy types from '../types'.
+- mapRowToEntity() handles all new fields: countryCode, regionCode, storeCode, defaultCurrency, membershipRequired, membershipType, shippingPolicy (JSON), urlPatterns (JSON array), and notes.
+- Safe JSON parsing with error handling is implemented for shippingPolicy and urlPatterns fields.
+- mapEntityToRow() serializes JSON fields and maps all entity properties to database columns using nullish coalescing (??null).
+- Specialized query methods added: findByCountryCode(), findByCurrency(), findByMembershipRequired().
+- getStats() returns statistics: total, withMembership, withShippingPolicy, withUrlPatterns, and breakdowns by country and currency.
+- All changes are lint-free and ready for use in supplier CRUD screens.
+
+Next: Create supplier screens following the inventory screen patterns.
+</info added on 2025-09-05T10:23:08.508Z>
+<info added on 2025-09-05T10:31:39.072Z>
+Implemented comprehensive supplier CRUD screens with full validation:
+
+Supplier Screens:
+- Created /app/suppliers/index.tsx for listing suppliers with search, delete, and restore features, following inventory module patterns.
+- Developed /app/suppliers/form.tsx as a unified create/edit form supporting all PRD fields.
+- Added /app/suppliers/[id].tsx for dynamic supplier editing.
+- Updated the home screen to include a "Manage Suppliers" button.
+- Integrated supplier navigation routes in _layout.tsx.
+
+Validation:
+- Added /src/storage/utils/supplier-validation.ts for robust ISO code validation.
+- Enforced ISO 3166-1 alpha-2 country code validation (supported: CA, US, GB, AU, DE, FR, JP, CN, IN, MX).
+- Implemented ISO 4217 currency code validation for supported currencies.
+- Validated ISO 3166-2 region code format.
+- Included cross-field validation for country-region combinations.
+- Provided warnings for unusual currency-country pairings.
+- Enhanced error messages and real-time form feedback.
+
+Shipping Policy & Advanced Features:
+- Enabled shipping policy JSON storage with validation for free shipping threshold, base cost, per-item cost, and pickup availability.
+- Supported URL patterns as a JSON array, with form input as one URL per line.
+- Added membership required toggle and conditional membership type field.
+- Ensured all fields are validated and correctly mapped between form and entity formats.
+
+Form Features:
+- Maintained Apple-style UI consistent with the inventory module.
+- Used horizontal scroll pickers for country and currency selection.
+- Applied progressive disclosure (membership type shown only when required).
+- Implemented real-time validation and robust error handling.
+- Supported both create and edit modes.
+- Included delete functionality with confirmation dialog.
+
+All screens are lint-free and ready for testing. Next step: implement E2E and unit tests.
+</info added on 2025-09-05T10:31:39.072Z>
+
+# Test Strategy:
+E2E tests for supplier CRUD. Unit tests for field validation and persistence.

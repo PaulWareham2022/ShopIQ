@@ -1,0 +1,35 @@
+# Maestro Configuration for ShopIQ
+# https://maestro.mobile.dev/
+
+# Global settings
+name: ShopIQ E2E Tests
+appId: com.shopiq.app
+
+# Test settings
+env:
+  APP_ID: com.shopiq.app
+  TIMEOUT: 30000
+  SLOW_NETWORK: false
+
+# Device settings
+tags:
+  - supplier-tests
+  - inventory-tests
+  - integration-tests
+
+# Include common flows
+includeTags:
+  - supplier-crud
+  - navigation
+
+# Test execution
+onFlowStart:
+  - launchApp: ${APP_ID}
+  - waitForAnimationToEnd
+
+onFlowComplete:
+  - stopApp: ${APP_ID}
+
+# Common assertions
+assertions:
+  timeout: 30000

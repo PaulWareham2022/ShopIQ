@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: Inventory Comparison View UI
+# Status: pending
+# Dependencies: 8
+# Priority: high
+# Description: Build UI to display per-item comparisons, sorted by normalized price-per-unit, with best offer highlight and historical trend.
+# Details:
+Use FlatList for performance. Prominently display normalized price-per-unit. Show best deal and historical prices. Support tap-to-open supplier URL if present. Optimize for fast scanning and clarity.
+
+# Test Strategy:
+E2E tests for sorting, highlighting, and navigation. UI snapshot tests for layout.

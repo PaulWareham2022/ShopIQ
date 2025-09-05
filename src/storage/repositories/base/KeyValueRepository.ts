@@ -133,7 +133,7 @@ export class KeyValueRepository implements IKeyValueRepository {
     }
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     try {
       if (!this.namespace) {
         // Clear all storage if no namespace

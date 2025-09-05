@@ -1,0 +1,43 @@
+# Task ID: 17
+# Title: App Theming and UI Consistency
+# Status: pending
+# Dependencies: 16
+# Priority: medium
+# Description: Apply the established design system and theming to all non-form UI components and screens, ensuring accessibility, clarity, and comprehensive documentation.
+# Details:
+A comprehensive standardized design system and form component library have already been implemented (see `src/components/forms/` and `src/constants/colors.ts`). The iOS-style color system with semantic naming and Apple-style interaction patterns are in place, with consistent theming across supplier and inventory forms. Remaining work focuses on applying the standardized components and color system to all non-form screens and UI elements, updating any legacy or non-conforming components, and ensuring all new screens adhere to the established patterns. Additionally, create and maintain design system documentation for developer onboarding and future scalability. Conduct an accessibility audit to ensure all UI elements (including non-form components) meet WCAG compliance using the established patterns.
+
+# Test Strategy:
+UI snapshot tests for non-form screens and components. Accessibility audits using axe-core/react-native, focusing on non-form UI. Review and validate design system documentation for completeness and clarity.
+
+# Subtasks:
+## 1. Apply standardized components to remaining non-form screens [pending]
+### Dependencies: None
+### Description: Refactor any screens that do not use the standardized component library to ensure consistency with the established design system.
+### Details:
+
+
+## 2. Update non-form UI components to match established theming [pending]
+### Dependencies: None
+### Description: Audit and update any non-form UI components to use the iOS-style color system and semantic naming from `src/constants/colors.ts`.
+### Details:
+
+
+## 3. Ensure all new screens use standardized color system [pending]
+### Dependencies: None
+### Description: Review all new and upcoming screens to confirm adherence to the standardized color palette and theming conventions.
+### Details:
+
+
+## 4. Conduct accessibility audit for non-form UI [pending]
+### Dependencies: None
+### Description: Perform accessibility audits on all non-form screens and components using axe-core/react-native, ensuring WCAG compliance with the established patterns.
+### Details:
+
+
+## 5. Create and maintain design system documentation [pending]
+### Dependencies: None
+### Description: Document the design system, including component usage, color system, interaction patterns, and accessibility guidelines for developer onboarding and future scalability.
+### Details:
+
+

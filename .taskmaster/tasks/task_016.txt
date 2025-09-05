@@ -1,0 +1,52 @@
+# Task ID: 16
+# Title: Unit and Integration Test Suite
+# Status: pending
+# Dependencies: 15
+# Priority: high
+# Description: Develop comprehensive unit and integration tests for conversion, normalization, CRUD, and comparison logic.
+# Details:
+Use Jest v29+ for unit tests. Use Detox for E2E tests. Cover edge cases, error handling, and performance. Integrate with CI pipeline (GitHub Actions).
+
+# Test Strategy:
+Run full test suite on CI. Monitor coverage and fix regressions.
+
+# Subtasks:
+## 1. Set Up Jest for Unit Testing [pending]
+### Dependencies: None
+### Description: Install and configure Jest v29+ for the project, including necessary presets and scripts for running unit tests.
+### Details:
+Install jest, @types/jest, and configure jest-expo preset in package.json. Add test scripts for running and watching tests.
+
+## 2. Set Up Detox for End-to-End Testing [pending]
+### Dependencies: None
+### Description: Install and configure Detox for E2E testing, ensuring compatibility with the current project and test environment.
+### Details:
+Install Detox, configure Detox scripts, and set up device configurations for running E2E tests.
+<info added on 2025-09-03T00:52:11.375Z>
+Replace Detox with Maestro for E2E testing. Install the Maestro CLI and set up YAML-based test flows for end-to-end scenarios. Maestro offers a simpler setup process, improved Expo compatibility, built-in flakiness handling, and faster execution compared to Detox. No complex device configuration is required; instead, define test steps declaratively in YAML files and run them using the Maestro CLI. Integrate Maestro into the CI pipeline for automated E2E test execution.
+</info added on 2025-09-03T00:52:11.375Z>
+
+## 3. Write Unit Tests for Conversion and Normalization Logic [pending]
+### Dependencies: 16.1
+### Description: Develop comprehensive unit tests for all conversion and normalization functions using Jest.
+### Details:
+Identify conversion and normalization modules, write test cases for typical, edge, and error scenarios, and ensure coverage.
+
+## 4. Write Unit Tests for CRUD and Comparison Logic [pending]
+### Dependencies: 16.1
+### Description: Create unit tests for CRUD operations and comparison logic, validating correct behavior and data integrity.
+### Details:
+Test all CRUD functions and comparison algorithms, including historical trend and price-per-unit calculations.
+
+## 5. Cover Edge Cases and Error Handling in Tests [pending]
+### Dependencies: 16.3, 16.4
+### Description: Expand test suites to include edge cases, error handling, and performance scenarios for all tested logic.
+### Details:
+Review all logic for potential edge cases, invalid inputs, and error conditions. Add tests to ensure robust handling and performance.
+
+## 6. Integrate Test Suites with CI Pipeline and Monitor Coverage [pending]
+### Dependencies: 16.1, 16.2, 16.3, 16.4, 16.5
+### Description: Configure CI pipeline (GitHub Actions) to run all test suites, monitor code coverage, and report regressions.
+### Details:
+Set up CI workflows to execute Jest and Detox tests, generate coverage reports, and enforce coverage thresholds.
+

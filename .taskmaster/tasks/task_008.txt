@@ -1,0 +1,49 @@
+# Task ID: 8
+# Title: Comparison Engine Implementation
+# Status: pending
+# Dependencies: 7
+# Priority: high
+# Description: Develop engine to compute best price-per-unit for each inventory item, including historical trend and effective comparator.
+# Details:
+Implement logic for price-per-canonical-unit (excl/incl shipping/tax). Use SQLite queries for sorting and filtering. Highlight best offer and show historical prices. Support configuration for comparator selection.
+
+# Test Strategy:
+Unit tests for comparator logic. E2E tests for comparison view accuracy.
+
+# Subtasks:
+## 1. Define Comparator Logic and Configuration [pending]
+### Dependencies: None
+### Description: Specify the logic for comparing inventory items, including configuration options for selecting different comparators (e.g., price-per-unit, total price, historical trend). Design a flexible interface to allow runtime comparator selection.
+### Details:
+Document comparator strategies and configuration schema. Ensure extensibility for future comparator types. Validate with stakeholders.
+
+## 2. Implement Price-per-Canonical-Unit Calculation [pending]
+### Dependencies: 8.1
+### Description: Develop logic to compute price-per-canonical-unit for each offer, supporting both exclusion and inclusion of shipping and tax. Ensure calculations are accurate and handle edge cases (e.g., missing data, zero units).
+### Details:
+Implement calculation functions in the comparison engine. Integrate with data models for offers and inventory items. Write unit tests for calculation accuracy.
+
+## 3. Develop SQLite Queries for Sorting and Filtering [pending]
+### Dependencies: 8.2
+### Description: Create efficient SQLite queries to sort and filter inventory items and offers based on computed price-per-unit and other comparator criteria. Support dynamic query generation based on user configuration.
+### Details:
+Optimize queries for performance. Ensure compatibility with local storage schema. Test with large datasets for scalability.
+
+## 4. Implement Historical Price Tracking [pending]
+### Dependencies: 8.2
+### Description: Design and implement logic to track and store historical prices for each inventory item and offer. Enable retrieval and display of price trends over time.
+### Details:
+Extend data models and storage schema to support historical data. Implement update and retrieval logic. Provide API for accessing historical trends.
+
+## 5. Highlight Best Offer Logic [pending]
+### Dependencies: 8.3, 8.4
+### Description: Develop logic to identify and highlight the best offer for each inventory item based on the selected comparator and current configuration. Ensure visual and programmatic distinction of the best offer.
+### Details:
+Integrate with UI highlighting mechanism. Support edge cases (e.g., ties, missing data). Validate with test scenarios.
+
+## 6. Write Unit and End-to-End Tests [pending]
+### Dependencies: 8.1, 8.2, 8.3, 8.4, 8.5
+### Description: Develop comprehensive unit and E2E tests for all comparison engine logic, including comparator selection, price calculations, sorting/filtering, historical tracking, and best offer highlighting.
+### Details:
+Use Jest for unit tests and Detox for E2E tests. Cover edge cases, error handling, and performance. Integrate with CI pipeline.
+

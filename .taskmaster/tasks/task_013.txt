@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Barcode Scanner Stub Integration
+# Status: pending
+# Dependencies: 12
+# Priority: low
+# Description: Add UI stub for future barcode scanning using Expo Camera, with placeholder logic.
+# Details:
+Integrate Expo Camera v5+ and show barcode scan button in offer entry. Display stubbed result and log for future implementation. Ensure permissions are handled gracefully.
+
+# Test Strategy:
+Manual test for UI presence and permission handling. Unit test for stub logic.

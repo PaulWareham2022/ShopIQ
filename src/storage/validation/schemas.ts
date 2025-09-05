@@ -439,7 +439,7 @@ export type {
   CanonicalDimension,
   SourceType,
   PriceAllocationMethod,
-} from '../types/index.js';
+} from '../types/index';
 
 export type ValidatedSupplier = z.infer<typeof SupplierSchema>;
 export type ValidatedInventoryItem = z.infer<typeof InventoryItemSchema>;

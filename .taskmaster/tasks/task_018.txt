@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Prepare Documentation and Release Notes
+# Status: pending
+# Dependencies: 17
+# Priority: medium
+# Description: Document data models, normalization logic, UX flows, and known limitations. Prepare release notes for MVP.
+# Details:
+Use TypeDoc for API docs. Write user guide and developer onboarding docs. Document normalization/comparator logic and shelf-life warning. List known issues and future roadmap.
+
+# Test Strategy:
+Manual review of documentation for completeness and clarity. Peer review by team.

@@ -1,6 +1,6 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.(ts|tsx|js)', '**/*.(test|spec).(ts|tsx|js)'],
   transform: {
@@ -8,6 +8,9 @@ export default {
       'ts-jest',
       {
         useESM: true,
+        tsconfig: {
+          jsx: 'react-jsx',
+        },
       },
     ],
   },
@@ -19,7 +22,7 @@ export default {
     '!src/**/test-*.ts',
   ],
   coverageDirectory: 'coverage',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/storage/__tests__/setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
@@ -30,7 +33,7 @@ export default {
     __DEV__: false,
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|react-native-mmkv|expo-sqlite)/)',
+    'node_modules/(?!(react-native|@react-native|expo|react-native-mmkv|expo-sqlite|@testing-library)/)',
   ],
   testTimeout: 30000,
 };

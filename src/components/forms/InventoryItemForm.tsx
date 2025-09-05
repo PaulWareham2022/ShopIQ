@@ -202,264 +202,176 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 />
               </View>
 
-              {/* Canonical Unit with Comprehensive Chip Selection */}
+              {/* Canonical Unit with iOS Settings Style */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Canonical Unit *</Text>
 
-                {/* Mass/Weight Units */}
-                <View style={styles.compactCategoryContainer}>
-                  <Text style={styles.compactCategoryLabel}>Weight</Text>
-                  <View style={styles.compactChipRow}>
-                    {['kg', 'g', 'mg', 'lb', 'oz', 't'].map(unit => (
+                {/* Weight Section */}
+                <View style={styles.settingsGroup}>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>Weight</Text>
+                  </View>
+                  <View style={styles.settingsSection}>
+                    {['kg', 'g', 'lb', 'oz'].map((unit, index, array) => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.compactChip,
-                          values.canonicalUnit === unit &&
-                            styles.compactChipSelected,
+                          styles.settingsRow,
+                          index === 0 && styles.settingsRowFirst,
+                          index === array.length - 1 && styles.settingsRowLast,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text
-                          style={[
-                            styles.compactChipText,
-                            values.canonicalUnit === unit &&
-                              styles.compactChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
+                        <Text style={styles.settingsRowText}>{unit}</Text>
+                        {values.canonicalUnit === unit && (
+                          <Text style={styles.checkmark}>✓</Text>
+                        )}
                       </TouchableOpacity>
                     ))}
+                    <TouchableOpacity style={styles.settingsRowLast}>
+                      <Text style={styles.settingsRowTextSecondary}>
+                        Other...
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Volume Units */}
-                <View style={styles.compactCategoryContainer}>
-                  <Text style={styles.compactCategoryLabel}>Volume</Text>
-                  <View style={styles.compactChipRow}>
-                    {[
-                      'L',
-                      'ml',
-                      'cl',
-                      'gal',
-                      'qt',
-                      'pt',
-                      'cup',
-                      'fl oz',
-                      'tbsp',
-                      'tsp',
-                    ].map(unit => (
+                {/* Volume Section */}
+                <View style={styles.settingsGroup}>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>Volume</Text>
+                  </View>
+                  <View style={styles.settingsSection}>
+                    {['L', 'ml', 'gal', 'fl oz'].map((unit, index, array) => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.compactChip,
-                          values.canonicalUnit === unit &&
-                            styles.compactChipSelected,
+                          styles.settingsRow,
+                          index === 0 && styles.settingsRowFirst,
+                          index === array.length - 1 && styles.settingsRowLast,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text
-                          style={[
-                            styles.compactChipText,
-                            values.canonicalUnit === unit &&
-                              styles.compactChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
+                        <Text style={styles.settingsRowText}>{unit}</Text>
+                        {values.canonicalUnit === unit && (
+                          <Text style={styles.checkmark}>✓</Text>
+                        )}
                       </TouchableOpacity>
                     ))}
+                    <TouchableOpacity style={styles.settingsRowLast}>
+                      <Text style={styles.settingsRowTextSecondary}>
+                        Other...
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Count Units */}
-                <View style={styles.compactCategoryContainer}>
-                  <Text style={styles.compactCategoryLabel}>Count</Text>
-                  <View style={styles.compactChipRow}>
-                    {[
-                      'unit',
-                      'piece',
-                      'each',
-                      'dozen',
-                      'pair',
-                      'pack',
-                      'box',
-                      'tablet',
-                      'capsule',
-                    ].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.compactChip,
-                          values.canonicalUnit === unit &&
-                            styles.compactChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.compactChipText,
-                            values.canonicalUnit === unit &&
-                              styles.compactChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+                {/* Count Section */}
+                <View style={styles.settingsGroup}>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>Count</Text>
                   </View>
-                </View>
-
-                {/* Length Units */}
-                <View style={styles.compactCategoryContainer}>
-                  <Text style={styles.compactCategoryLabel}>Length</Text>
-                  <View style={styles.compactChipRow}>
-                    {['m', 'cm', 'mm', 'km', 'ft', 'in', 'yd', 'mi'].map(
-                      unit => (
+                  <View style={styles.settingsSection}>
+                    {['unit', 'piece', 'dozen', 'pack'].map(
+                      (unit, index, array) => (
                         <TouchableOpacity
                           key={unit}
                           style={[
-                            styles.compactChip,
-                            values.canonicalUnit === unit &&
-                              styles.compactChipSelected,
+                            styles.settingsRow,
+                            index === 0 && styles.settingsRowFirst,
+                            index === array.length - 1 &&
+                              styles.settingsRowLast,
                           ]}
                           onPress={() => {
                             setFieldValue('canonicalUnit', unit);
                             handleUnitChange(unit, setFieldValue);
                           }}
                         >
-                          <Text
-                            style={[
-                              styles.compactChipText,
-                              values.canonicalUnit === unit &&
-                                styles.compactChipTextSelected,
-                            ]}
-                          >
-                            {unit}
-                          </Text>
+                          <Text style={styles.settingsRowText}>{unit}</Text>
+                          {values.canonicalUnit === unit && (
+                            <Text style={styles.checkmark}>✓</Text>
+                          )}
                         </TouchableOpacity>
                       )
                     )}
+                    <TouchableOpacity style={styles.settingsRowLast}>
+                      <Text style={styles.settingsRowTextSecondary}>
+                        Other...
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Area Units */}
-                <View style={styles.compactCategoryContainer}>
-                  <Text style={styles.compactCategoryLabel}>Area</Text>
-                  <View style={styles.compactChipRow}>
-                    {[
-                      'm²',
-                      'cm²',
-                      'mm²',
-                      'km²',
-                      'ft²',
-                      'in²',
-                      'yd²',
-                      'acre',
-                    ].map(unit => (
+                {/* Length Section */}
+                <View style={styles.settingsGroup}>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>Length</Text>
+                  </View>
+                  <View style={styles.settingsSection}>
+                    {['m', 'cm', 'ft', 'in'].map((unit, index, array) => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.compactChip,
-                          values.canonicalUnit === unit &&
-                            styles.compactChipSelected,
+                          styles.settingsRow,
+                          index === 0 && styles.settingsRowFirst,
+                          index === array.length - 1 && styles.settingsRowLast,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text
-                          style={[
-                            styles.compactChipText,
-                            values.canonicalUnit === unit &&
-                              styles.compactChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
+                        <Text style={styles.settingsRowText}>{unit}</Text>
+                        {values.canonicalUnit === unit && (
+                          <Text style={styles.checkmark}>✓</Text>
+                        )}
                       </TouchableOpacity>
                     ))}
+                    <TouchableOpacity style={styles.settingsRowLast}>
+                      <Text style={styles.settingsRowTextSecondary}>
+                        Other...
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Custom Unit Input - More Compact */}
-                <View style={styles.compactCustomContainer}>
-                  <Text style={styles.compactCategoryLabel}>Custom</Text>
-                  <TextInput
-                    style={[
-                      styles.compactCustomInput,
-                      errors.canonicalUnit &&
-                        touched.canonicalUnit &&
-                        styles.inputError,
-                    ]}
-                    value={
-                      // Check if current unit is not in any of our predefined lists
-                      ![
-                        'kg',
-                        'g',
-                        'mg',
-                        'lb',
-                        'oz',
-                        't',
-                        'L',
-                        'ml',
-                        'cl',
-                        'gal',
-                        'qt',
-                        'pt',
-                        'cup',
-                        'fl oz',
-                        'tbsp',
-                        'tsp',
-                        'unit',
-                        'piece',
-                        'each',
-                        'dozen',
-                        'pair',
-                        'pack',
-                        'box',
-                        'tablet',
-                        'capsule',
-                        'm',
-                        'cm',
-                        'mm',
-                        'km',
-                        'ft',
-                        'in',
-                        'yd',
-                        'mi',
-                        'm²',
-                        'cm²',
-                        'mm²',
-                        'km²',
-                        'ft²',
-                        'in²',
-                        'yd²',
-                        'acre',
-                      ].includes(values.canonicalUnit)
-                        ? values.canonicalUnit
-                        : ''
-                    }
-                    onChangeText={text => {
-                      setFieldValue('canonicalUnit', text);
-                      handleUnitChange(text, setFieldValue);
-                    }}
-                    onBlur={handleBlur('canonicalUnit')}
-                    placeholder="Custom unit"
-                    placeholderTextColor={colors.grayText}
-                    autoCapitalize="none"
-                  />
+                {/* Area Section */}
+                <View style={styles.settingsGroup}>
+                  <View style={styles.settingsHeader}>
+                    <Text style={styles.settingsHeaderText}>Area</Text>
+                  </View>
+                  <View style={styles.settingsSection}>
+                    {['m²', 'cm²', 'ft²', 'in²'].map((unit, index, array) => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.settingsRow,
+                          index === 0 && styles.settingsRowFirst,
+                          index === array.length - 1 && styles.settingsRowLast,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text style={styles.settingsRowText}>{unit}</Text>
+                        {values.canonicalUnit === unit && (
+                          <Text style={styles.checkmark}>✓</Text>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                    <TouchableOpacity style={styles.settingsRowLast}>
+                      <Text style={styles.settingsRowTextSecondary}>
+                        Other...
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 {detectedDimension && (
@@ -588,7 +500,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
 const styles = StyleSheet.create({
   formWrapper: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: '#F2F2F7', // iOS grouped background
   },
   scrollContainer: {
     flex: 1,
@@ -636,61 +548,57 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
-  compactCategoryContainer: {
-    marginBottom: 10,
+  settingsGroup: {
+    marginBottom: 24,
   },
-  compactCategoryLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+  settingsHeader: {
+    marginBottom: 8,
+  },
+  settingsHeaderText: {
+    fontSize: 13,
+    fontWeight: '400',
     color: colors.grayText,
-    marginBottom: 6,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: -0.08,
   },
-  compactChipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  compactChip: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    minWidth: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  compactChipSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  compactChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.darkText,
-  },
-  compactChipTextSelected: {
-    color: colors.white,
-  },
-  compactCustomContainer: {
-    marginTop: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  compactCustomInput: {
+  settingsSection: {
     backgroundColor: colors.white,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    fontSize: 12,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  settingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: colors.white,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#C6C6C8',
+  },
+  settingsRowFirst: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  settingsRowLast: {
+    borderBottomWidth: 0,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  settingsRowText: {
+    fontSize: 17,
     color: colors.darkText,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    flex: 1,
-    marginLeft: 8,
+    fontWeight: '400',
+  },
+  settingsRowTextSecondary: {
+    fontSize: 17,
+    color: colors.primary,
+    fontWeight: '400',
+  },
+  checkmark: {
+    fontSize: 17,
+    color: colors.primary,
+    fontWeight: '600',
   },
   errorText: {
     fontSize: 14,

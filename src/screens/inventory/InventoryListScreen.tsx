@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { colors } from '../../constants/colors';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
-import { InventoryItem } from '../../storage/repositories/InventoryItemRepository';
+import { InventoryItem } from '../../storage/types';
 
 interface InventoryListScreenProps {
   onItemPress: (item: InventoryItem) => void;
@@ -109,9 +109,9 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
           <Text style={styles.itemName}>{item.name}</Text>
           <View style={styles.itemMetaRow}>
             <View style={styles.unitChip}>
-              <Text style={styles.unitChipText}>{item.canonical_unit}</Text>
+              <Text style={styles.unitChipText}>{item.canonicalUnit}</Text>
             </View>
-            {item.shelf_life_sensitive && (
+            {item.shelfLifeSensitive && (
               <View style={styles.shelfLifeChip}>
                 <Text style={styles.shelfLifeChipText}>⏰ Expires</Text>
               </View>

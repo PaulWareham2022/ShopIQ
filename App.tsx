@@ -6,7 +6,7 @@ import { initializeDatabase } from './src/storage/sqlite/database';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
-import { InventoryItem } from './src/storage/repositories/InventoryItemRepository';
+import { InventoryItem } from './src/storage/types';
 
 type Screen = 'home' | 'inventory-list' | 'inventory-detail' | 'inventory-add';
 

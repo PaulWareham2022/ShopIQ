@@ -96,36 +96,52 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
 
   const renderItem = ({ item }: { item: InventoryItem }) => (
     <TouchableOpacity
-      style={styles.itemContainer}
+      style={styles.itemCard}
       onPress={() => onItemPress(item)}
       onLongPress={() => handleDeleteItem(item)}
+      activeOpacity={0.7}
     >
-      <View style={styles.itemContent}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemUnit}>Unit: {item.canonical_unit}</Text>
-        {item.shelf_life_sensitive && (
-          <View style={styles.shelfLifeBadge}>
-            <Text style={styles.shelfLifeText}>Shelf-life sensitive</Text>
+      <View style={styles.itemHeader}>
+        <View style={styles.itemIcon}>
+          <Text style={styles.itemIconText}>📦</Text>
+        </View>
+        <View style={styles.itemInfo}>
+          <Text style={styles.itemName}>{item.name}</Text>
+          <View style={styles.itemMetaRow}>
+            <View style={styles.unitChip}>
+              <Text style={styles.unitChipText}>{item.canonical_unit}</Text>
+            </View>
+            {item.shelf_life_sensitive && (
+              <View style={styles.shelfLifeChip}>
+                <Text style={styles.shelfLifeChipText}>⏰ Expires</Text>
+              </View>
+            )}
           </View>
-        )}
-        {item.notes && (
-          <Text style={styles.itemNotes} numberOfLines={2}>
-            {item.notes}
-          </Text>
-        )}
-      </View>
-      <View style={styles.itemActions}>
-        <Text style={styles.editText}>Edit</Text>
+          {item.notes && (
+            <Text style={styles.itemNotes} numberOfLines={2}>
+              {item.notes}
+            </Text>
+          )}
+        </View>
+        <View style={styles.itemActions}>
+          <Text style={styles.chevronIcon}>›</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateTitle}>No inventory items</Text>
+      <View style={styles.emptyStateIcon}>
+        <Text style={styles.emptyStateIconText}>📦</Text>
+      </View>
+      <Text style={styles.emptyStateTitle}>No items yet</Text>
       <Text style={styles.emptyStateSubtitle}>
-        Add your first item to get started
+        Tap the + button to add your first inventory item
       </Text>
+      <TouchableOpacity style={styles.emptyStateButton} onPress={onAddItem}>
+        <Text style={styles.emptyStateButtonText}>Add First Item</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -144,19 +160,20 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Inventory</Text>
-        <TouchableOpacity style={styles.addButton} onPress={onAddItem}>
-          <Text style={styles.addButtonText}>+ Add Item</Text>
-        </TouchableOpacity>
+        <View style={styles.headerSpacer} />
       </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search items..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor={colors.grayText}
-        />
+        <View style={styles.searchInputContainer}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search items..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={colors.grayText}
+          />
+        </View>
       </View>
 
       <FlatList
@@ -167,6 +184,11 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
         ListEmptyComponent={renderEmptyState}
         showsVerticalScrollIndicator={false}
       />
+
+      {/* Floating Action Button */}
+      <TouchableOpacity style={styles.fab} onPress={onAddItem}>
+        <Text style={styles.fabIcon}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -174,7 +196,7 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: '#F2F2F7', // iOS system background
   },
   header: {
     flexDirection: 'row',
@@ -183,9 +205,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
+    backgroundColor: '#F2F2F7',
   },
   backButton: {
     paddingVertical: 8,
@@ -198,76 +218,110 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: 'bold',
     color: colors.darkText,
     flex: 1,
     textAlign: 'center',
   },
-  addButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: colors.white,
-    fontWeight: '600',
-    fontSize: 16,
+  headerSpacer: {
+    width: 60, // Balance the back button
   },
   searchContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.white,
+    paddingBottom: 16,
+    backgroundColor: '#F2F2F7',
   },
-  searchInput: {
-    backgroundColor: colors.lightGray,
-    borderRadius: 8,
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+    color: colors.grayText,
+  },
+  searchInput: {
+    flex: 1,
     fontSize: 16,
     color: colors.darkText,
   },
   listContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 100, // Space for FAB
   },
-  itemContainer: {
+  itemCard: {
     backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  itemHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 20,
   },
-  itemContent: {
+  itemIcon: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  itemIconText: {
+    fontSize: 20,
+  },
+  itemInfo: {
     flex: 1,
   },
   itemName: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.darkText,
-    marginBottom: 4,
-  },
-  itemUnit: {
-    fontSize: 14,
-    color: colors.grayText,
     marginBottom: 8,
   },
-  shelfLifeBadge: {
-    backgroundColor: colors.warning,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
+  itemMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  shelfLifeText: {
-    color: colors.white,
+  unitChip: {
+    backgroundColor: '#E5F3FF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  unitChipText: {
     fontSize: 12,
     fontWeight: '600',
+    color: '#007AFF',
+  },
+  shelfLifeChip: {
+    backgroundColor: '#FFF4E6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  shelfLifeChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FF9500',
   },
   itemNotes: {
     fontSize: 14,
@@ -277,30 +331,77 @@ const styles = StyleSheet.create({
   itemActions: {
     marginLeft: 16,
   },
-  editText: {
-    color: colors.primary,
-    fontWeight: '600',
-    fontSize: 16,
+  chevronIcon: {
+    fontSize: 20,
+    color: colors.grayText,
+    fontWeight: '300',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    width: 56,
+    height: 56,
+    backgroundColor: colors.primary,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    fontSize: 24,
+    color: colors.white,
+    fontWeight: '300',
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateIcon: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  emptyStateIconText: {
+    fontSize: 32,
   },
   emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: 'bold',
     color: colors.darkText,
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 16,
     color: colors.grayText,
     textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  emptyStateButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  emptyStateButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: 18,
     color: colors.grayText,
     textAlign: 'center',
     marginTop: 60,

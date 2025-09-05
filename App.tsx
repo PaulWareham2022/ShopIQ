@@ -68,7 +68,7 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>ShopIQ</Text>
-        <Text style={styles.subtitle}>Smart household price comparison</Text>
+        <Text style={styles.subtitle}>Smart shopping comparisons</Text>
       </View>
 
       <View style={styles.actionsContainer}>

@@ -7,6 +7,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { Platform } from 'react-native';
 import { colors } from '../../constants/colors';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
 import { InventoryItem } from '../../storage/types';
@@ -83,6 +84,23 @@ export const InventoryItemDetailScreen: React.FC<
   const handleDelete = () => {
     if (!item) return;
 
+    // React Native Web's Alert has limited button support. Use confirm() on web.
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm(
+        `Delete "${item.name}"? This action cannot be undone.`
+      );
+      if (!confirmed) return;
+      (async () => {
+        try {
+          await repository.delete(item.id);
+          onItemSaved();
+        } catch {
+          Alert.alert('Error', 'Failed to delete item');
+        }
+      })();
+      return;
+    }
+
     Alert.alert(
       'Delete Item',
       `Are you sure you want to delete "${item.name}"?`,
@@ -96,7 +114,6 @@ export const InventoryItemDetailScreen: React.FC<
               await repository.delete(item.id);
               onItemSaved();
             } catch {
-              // Error handling is done via Alert.alert
               Alert.alert('Error', 'Failed to delete item');
             }
           },

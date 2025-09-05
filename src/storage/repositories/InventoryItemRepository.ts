@@ -8,6 +8,15 @@ import { InventoryItem, DatabaseError } from '../types';
 import { executeSql } from '../sqlite/database';
 import { Platform } from 'react-native';
 
+// Local helper to safely parse JSON strings
+function safeParseJson<T = any>(value: string): T | undefined {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return undefined;
+  }
+}
+
 // Mock data for web testing (seed)
 const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
   {
@@ -112,8 +121,19 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
     return {
       id: row.id,
       name: row.name,
-      canonical_unit: row.canonical_unit,
-      shelf_life_sensitive: Boolean(row.shelf_life_sensitive),
+      category: row.category || undefined,
+      canonicalDimension: row.canonical_dimension,
+      canonicalUnit: row.canonical_unit,
+      shelfLifeSensitive: Boolean(row.shelf_life_sensitive),
+      shelfLifeDays: row.shelf_life_days ?? undefined,
+      usageRatePerDay: row.usage_rate_per_day ?? undefined,
+      attributes: row.attributes ? safeParseJson(row.attributes) : undefined,
+      equivalenceFactor:
+        typeof row.equivalence_factor === 'number'
+          ? row.equivalence_factor
+          : row.equivalence_factor
+            ? Number(row.equivalence_factor)
+            : undefined,
       notes: row.notes || undefined,
       created_at: row.created_at,
       updated_at: row.updated_at,
@@ -127,12 +147,23 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
     return {
       id: entity.id,
       name: entity.name,
-      canonical_unit: entity.canonical_unit,
-      shelf_life_sensitive: entity.shelf_life_sensitive ? 1 : 0,
-      notes: entity.notes || null,
+      category: entity.category ?? null,
+      canonical_dimension: entity.canonicalDimension,
+      canonical_unit: entity.canonicalUnit,
+      shelf_life_sensitive: entity.shelfLifeSensitive ? 1 : 0,
+      shelf_life_days:
+        entity.shelfLifeDays === undefined ? null : entity.shelfLifeDays,
+      usage_rate_per_day:
+        entity.usageRatePerDay === undefined ? null : entity.usageRatePerDay,
+      attributes: entity.attributes ? JSON.stringify(entity.attributes) : null,
+      equivalence_factor:
+        entity.equivalenceFactor === undefined
+          ? null
+          : entity.equivalenceFactor,
+      notes: entity.notes ?? null,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
-      deleted_at: entity.deleted_at || null,
+      deleted_at: entity.deleted_at ?? null,
     };
   }
 
@@ -142,7 +173,7 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
   async findByName(name: string): Promise<InventoryItem[]> {
     if (this.isWebFallback()) {
       const lowerName = name.toLowerCase();
-      return this.mockItems.filter(item =>
+      return InventoryItemRepository.sharedItems.filter(item =>
         item.name.toLowerCase().includes(lowerName)
       );
     }

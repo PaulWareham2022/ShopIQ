@@ -22,7 +22,7 @@ export default {
     '!src/**/test-*.ts',
   ],
   coverageDirectory: 'coverage',
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/src/storage/__tests__/setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

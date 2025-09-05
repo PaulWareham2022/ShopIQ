@@ -49,8 +49,10 @@ describe('InventoryListScreen', () => {
     );
 
     await waitFor(() => {
-      expect(getByText('No inventory items')).toBeTruthy();
-      expect(getByText('Add your first item to get started')).toBeTruthy();
+      expect(getByText('No items yet')).toBeTruthy();
+      expect(
+        getByText('Tap the + button to add your first inventory item')
+      ).toBeTruthy();
     });
   });
 
@@ -88,9 +90,9 @@ describe('InventoryListScreen', () => {
     await waitFor(() => {
       expect(getByText('Test Item 1')).toBeTruthy();
       expect(getByText('Test Item 2')).toBeTruthy();
-      expect(getByText('Unit: kg')).toBeTruthy();
-      expect(getByText('Unit: ml')).toBeTruthy();
-      expect(getByText('Shelf-life sensitive')).toBeTruthy();
+      expect(getByText('kg')).toBeTruthy();
+      expect(getByText('ml')).toBeTruthy();
+      expect(getByText('⏰ Expires')).toBeTruthy();
     });
   });
 
@@ -132,7 +134,7 @@ describe('InventoryListScreen', () => {
       />
     );
 
-    const addButton = getByText('+ Add Item');
+    const addButton = getByText('+');
     fireEvent.press(addButton);
 
     expect(mockOnAddItem).toHaveBeenCalled();

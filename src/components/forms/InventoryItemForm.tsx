@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,8 @@ import { InventoryItemSchema } from '../../storage/validation/schemas';
 import { ValidatedInventoryItem } from '../../storage/validation/schemas';
 import { InventoryItem } from '../../storage/repositories/InventoryItemRepository';
 import {
-  getSupportedUnitsForDimension,
   getUnitDimension,
   isSupportedUnit,
-  getSupportedDimensions,
 } from '../../storage/utils/canonical-units';
 import { CanonicalDimension } from '../../storage/types';
 
@@ -47,26 +45,9 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
 }) => {
   const [detectedDimension, setDetectedDimension] =
     useState<CanonicalDimension | null>(null);
-  const [unitSuggestions, setUnitSuggestions] = useState<string[]>([]);
-  const [showUnitSuggestions, setShowUnitSuggestions] = useState(false);
-  const [availableUnits, setAvailableUnits] = useState<
-    Record<CanonicalDimension, string[]>
-  >({} as Record<CanonicalDimension, string[]>);
+  // Removed unit suggestions and available units - now using chip selection
 
-  useEffect(() => {
-    // Load all available units by dimension
-    const unitsByDimension: Record<CanonicalDimension, string[]> = {} as Record<
-      CanonicalDimension,
-      string[]
-    >;
-    const dimensions = getSupportedDimensions();
-
-    dimensions.forEach(dimension => {
-      unitsByDimension[dimension] = getSupportedUnitsForDimension(dimension);
-    });
-
-    setAvailableUnits(unitsByDimension);
-  }, []);
+  // Removed useEffect for loading units - now using predefined chip categories
 
   const getInitialFormValues = (): FormValues => ({
     name: initialValues?.name || '',
@@ -87,23 +68,6 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
     // Auto-detect dimension from unit
     const dimension = getUnitDimension(unit);
     setDetectedDimension(dimension || null);
-
-    // Show suggestions for the detected dimension
-    if (dimension) {
-      setUnitSuggestions(availableUnits[dimension] || []);
-      setShowUnitSuggestions(true);
-    } else {
-      setShowUnitSuggestions(false);
-    }
-  };
-
-  const handleUnitInputFocus = (
-    _setFieldValue: (field: string, value: string) => void
-  ) => {
-    // Show all available units when focusing
-    const allUnits = Object.values(availableUnits).flat();
-    setUnitSuggestions(allUnits);
-    setShowUnitSuggestions(true);
   };
 
   const validateForm = (values: FormValues) => {
@@ -198,229 +162,341 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
         handleSubmit,
         isSubmitting,
       }: FormikProps<FormValues>) => (
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.form}>
-            {/* Item Name */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Item Name *</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.name && touched.name && styles.inputError,
-                ]}
-                value={values.name}
-                onChangeText={handleChange('name')}
-                onBlur={handleBlur('name')}
-                placeholder="Enter item name"
-                placeholderTextColor={colors.grayText}
-              />
-              {errors.name && touched.name && (
-                <Text style={styles.errorText}>{errors.name}</Text>
-              )}
-            </View>
-
-            {/* Category */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Category</Text>
-              <TextInput
-                style={styles.input}
-                value={values.category}
-                onChangeText={handleChange('category')}
-                onBlur={handleBlur('category')}
-                placeholder="Enter category (optional)"
-                placeholderTextColor={colors.grayText}
-              />
-            </View>
-
-            {/* Canonical Unit with Auto-detection */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Canonical Unit *</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.canonicalUnit &&
-                    touched.canonicalUnit &&
-                    styles.inputError,
-                ]}
-                value={values.canonicalUnit}
-                onChangeText={text => handleUnitChange(text, setFieldValue)}
-                onBlur={handleBlur('canonicalUnit')}
-                onFocus={() => handleUnitInputFocus(setFieldValue)}
-                placeholder="Enter unit (e.g., kg, ml, unit)"
-                placeholderTextColor={colors.grayText}
-                autoCapitalize="none"
-              />
-              {detectedDimension && (
-                <Text style={styles.dimensionText}>
-                  Detected dimension: {detectedDimension}
-                </Text>
-              )}
-              {errors.canonicalUnit && touched.canonicalUnit && (
-                <Text style={styles.errorText}>{errors.canonicalUnit}</Text>
-              )}
-
-              {/* Unit Suggestions */}
-              {showUnitSuggestions && unitSuggestions.length > 0 && (
-                <View style={styles.suggestionsContainer}>
-                  {unitSuggestions.slice(0, 10).map(unit => (
-                    <TouchableOpacity
-                      key={unit}
-                      style={styles.suggestionItem}
-                      onPress={() => {
-                        handleUnitChange(unit, setFieldValue);
-                        setShowUnitSuggestions(false);
-                      }}
-                    >
-                      <Text style={styles.suggestionText}>{unit}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Shelf Life Sensitivity */}
-            <View style={styles.fieldContainer}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.label}>Shelf-life Sensitive</Text>
-                <Switch
-                  value={values.shelfLifeSensitive}
-                  onValueChange={value =>
-                    setFieldValue('shelfLifeSensitive', value)
-                  }
-                  trackColor={{ false: colors.lightGray, true: colors.primary }}
-                  thumbColor={
-                    values.shelfLifeSensitive ? colors.white : colors.grayText
-                  }
-                />
-              </View>
-            </View>
-
-            {/* Shelf Life Days (conditional) */}
-            {values.shelfLifeSensitive && (
+        <View style={styles.formWrapper}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.form}>
+              {/* Item Name */}
               <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Shelf Life (days)</Text>
+                <Text style={styles.label}>Item Name *</Text>
                 <TextInput
                   style={[
                     styles.input,
-                    errors.shelfLifeDays &&
-                      touched.shelfLifeDays &&
+                    errors.name && touched.name && styles.inputError,
+                  ]}
+                  value={values.name}
+                  onChangeText={handleChange('name')}
+                  onBlur={handleBlur('name')}
+                  placeholder="Enter item name"
+                  placeholderTextColor={colors.grayText}
+                />
+                {errors.name && touched.name && (
+                  <Text style={styles.errorText}>{errors.name}</Text>
+                )}
+              </View>
+
+              {/* Category */}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Category</Text>
+                <TextInput
+                  style={styles.input}
+                  value={values.category}
+                  onChangeText={handleChange('category')}
+                  onBlur={handleBlur('category')}
+                  placeholder="Enter category (optional)"
+                  placeholderTextColor={colors.grayText}
+                />
+              </View>
+
+              {/* Canonical Unit with Chip Selection */}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Canonical Unit *</Text>
+
+                {/* Common Units by Category */}
+                <View style={styles.unitCategoryContainer}>
+                  <Text style={styles.categoryLabel}>Weight</Text>
+                  <View style={styles.chipRow}>
+                    {['kg', 'g', 'lb', 'oz'].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.unitChip,
+                          values.canonicalUnit === unit &&
+                            styles.unitChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.unitChipText,
+                            values.canonicalUnit === unit &&
+                              styles.unitChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.unitCategoryContainer}>
+                  <Text style={styles.categoryLabel}>Volume</Text>
+                  <View style={styles.chipRow}>
+                    {['L', 'ml', 'gal', 'fl oz'].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.unitChip,
+                          values.canonicalUnit === unit &&
+                            styles.unitChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.unitChipText,
+                            values.canonicalUnit === unit &&
+                              styles.unitChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.unitCategoryContainer}>
+                  <Text style={styles.categoryLabel}>Count</Text>
+                  <View style={styles.chipRow}>
+                    {['unit', 'piece', 'dozen', 'pack'].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.unitChip,
+                          values.canonicalUnit === unit &&
+                            styles.unitChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.unitChipText,
+                            values.canonicalUnit === unit &&
+                              styles.unitChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Custom Unit Input */}
+                <View style={styles.customUnitContainer}>
+                  <Text style={styles.categoryLabel}>Custom</Text>
+                  <TextInput
+                    style={[
+                      styles.customUnitInput,
+                      errors.canonicalUnit &&
+                        touched.canonicalUnit &&
+                        styles.inputError,
+                    ]}
+                    value={
+                      ![
+                        'kg',
+                        'g',
+                        'lb',
+                        'oz',
+                        'L',
+                        'ml',
+                        'gal',
+                        'fl oz',
+                        'unit',
+                        'piece',
+                        'dozen',
+                        'pack',
+                      ].includes(values.canonicalUnit)
+                        ? values.canonicalUnit
+                        : ''
+                    }
+                    onChangeText={text => {
+                      setFieldValue('canonicalUnit', text);
+                      handleUnitChange(text, setFieldValue);
+                    }}
+                    onBlur={handleBlur('canonicalUnit')}
+                    placeholder="Enter custom unit"
+                    placeholderTextColor={colors.grayText}
+                    autoCapitalize="none"
+                  />
+                </View>
+
+                {detectedDimension && (
+                  <Text style={styles.dimensionText}>
+                    Detected dimension: {detectedDimension}
+                  </Text>
+                )}
+                {errors.canonicalUnit && touched.canonicalUnit && (
+                  <Text style={styles.errorText}>{errors.canonicalUnit}</Text>
+                )}
+              </View>
+
+              {/* Shelf Life Sensitivity */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.switchContainer}>
+                  <Text style={styles.label}>Shelf-life Sensitive</Text>
+                  <Switch
+                    value={values.shelfLifeSensitive}
+                    onValueChange={value =>
+                      setFieldValue('shelfLifeSensitive', value)
+                    }
+                    trackColor={{
+                      false: colors.lightGray,
+                      true: colors.primary,
+                    }}
+                    thumbColor={
+                      values.shelfLifeSensitive ? colors.white : colors.grayText
+                    }
+                  />
+                </View>
+              </View>
+
+              {/* Shelf Life Days (conditional) */}
+              {values.shelfLifeSensitive && (
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.label}>Shelf Life (days)</Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      errors.shelfLifeDays &&
+                        touched.shelfLifeDays &&
+                        styles.inputError,
+                    ]}
+                    value={values.shelfLifeDays}
+                    onChangeText={handleChange('shelfLifeDays')}
+                    onBlur={handleBlur('shelfLifeDays')}
+                    placeholder="Enter shelf life in days"
+                    placeholderTextColor={colors.grayText}
+                    keyboardType="numeric"
+                  />
+                  {errors.shelfLifeDays && touched.shelfLifeDays && (
+                    <Text style={styles.errorText}>{errors.shelfLifeDays}</Text>
+                  )}
+                </View>
+              )}
+
+              {/* Usage Rate Per Day */}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Usage Rate (per day)</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.usageRatePerDay &&
+                      touched.usageRatePerDay &&
                       styles.inputError,
                   ]}
-                  value={values.shelfLifeDays}
-                  onChangeText={handleChange('shelfLifeDays')}
-                  onBlur={handleBlur('shelfLifeDays')}
-                  placeholder="Enter shelf life in days"
+                  value={values.usageRatePerDay}
+                  onChangeText={handleChange('usageRatePerDay')}
+                  onBlur={handleBlur('usageRatePerDay')}
+                  placeholder="Enter usage rate (optional)"
                   placeholderTextColor={colors.grayText}
                   keyboardType="numeric"
                 />
-                {errors.shelfLifeDays && touched.shelfLifeDays && (
-                  <Text style={styles.errorText}>{errors.shelfLifeDays}</Text>
+                {errors.usageRatePerDay && touched.usageRatePerDay && (
+                  <Text style={styles.errorText}>{errors.usageRatePerDay}</Text>
                 )}
               </View>
-            )}
 
-            {/* Usage Rate Per Day */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Usage Rate (per day)</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.usageRatePerDay &&
-                    touched.usageRatePerDay &&
-                    styles.inputError,
-                ]}
-                value={values.usageRatePerDay}
-                onChangeText={handleChange('usageRatePerDay')}
-                onBlur={handleBlur('usageRatePerDay')}
-                placeholder="Enter usage rate (optional)"
-                placeholderTextColor={colors.grayText}
-                keyboardType="numeric"
-              />
-              {errors.usageRatePerDay && touched.usageRatePerDay && (
-                <Text style={styles.errorText}>{errors.usageRatePerDay}</Text>
-              )}
+              {/* Notes */}
+              <View style={styles.fieldContainer}>
+                <Text style={styles.label}>Notes</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  value={values.notes}
+                  onChangeText={handleChange('notes')}
+                  onBlur={handleBlur('notes')}
+                  placeholder="Enter notes (optional)"
+                  placeholderTextColor={colors.grayText}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                />
+              </View>
             </View>
+          </ScrollView>
 
-            {/* Notes */}
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Notes</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={values.notes}
-                onChangeText={handleChange('notes')}
-                onBlur={handleBlur('notes')}
-                placeholder="Enter notes (optional)"
-                placeholderTextColor={colors.grayText}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-              />
-            </View>
+          {/* Fixed Action Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={onCancel}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
 
-            {/* Action Buttons */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={onCancel}
-                disabled={isSubmitting}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.submitButton,
-                  isSubmitting && styles.submitButtonDisabled,
-                ]}
-                onPress={() => handleSubmit()}
-                disabled={isSubmitting}
-              >
-                <Text style={styles.submitButtonText}>
-                  {isSubmitting ? 'Saving...' : submitButtonText}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                isSubmitting && styles.submitButtonDisabled,
+              ]}
+              onPress={() => handleSubmit()}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? 'Saving...' : submitButtonText}
+              </Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       )}
     </Formik>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  formWrapper: {
     flex: 1,
     backgroundColor: colors.white,
   },
+  scrollContainer: {
+    flex: 1,
+  },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 40, // Extra padding to ensure buttons are visible
+    paddingBottom: 20,
   },
   form: {
-    padding: 20,
+    padding: 0,
   },
   fieldContainer: {
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.darkText,
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    borderRadius: 8,
+    backgroundColor: colors.white,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
     color: colors.darkText,
-    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+    shadowColor: colors.darkText,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   inputError: {
     borderColor: colors.error,
@@ -431,8 +507,55 @@ const styles = StyleSheet.create({
   dimensionText: {
     fontSize: 14,
     color: colors.primary,
-    marginTop: 4,
+    marginTop: 8,
     fontWeight: '500',
+  },
+  unitCategoryContainer: {
+    marginBottom: 16,
+  },
+  categoryLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.grayText,
+    marginBottom: 8,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  unitChip: {
+    backgroundColor: colors.lightGray,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+  },
+  unitChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  unitChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.darkText,
+  },
+  unitChipTextSelected: {
+    color: colors.white,
+  },
+  customUnitContainer: {
+    marginTop: 8,
+  },
+  customUnitInput: {
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: colors.darkText,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
   },
   errorText: {
     fontSize: 14,
@@ -444,46 +567,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  suggestionsContainer: {
-    marginTop: 8,
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    maxHeight: 200,
-  },
-  suggestionItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
-  },
-  suggestionText: {
-    fontSize: 16,
-    color: colors.darkText,
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 40,
-    marginBottom: 30,
-    paddingHorizontal: 0,
-    backgroundColor: colors.white, // Ensure background visibility
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.lightGray,
+    shadowColor: colors.darkText,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: colors.lightGray,
-    marginRight: 10,
+    marginRight: 8,
     alignItems: 'center',
-    backgroundColor: colors.white,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: colors.lightGray,
   },
   cancelButtonText: {
     fontSize: 16,
@@ -493,9 +599,9 @@ const styles = StyleSheet.create({
   submitButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 25,
     backgroundColor: colors.primary,
-    marginLeft: 10,
+    marginLeft: 8,
     alignItems: 'center',
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 2 },

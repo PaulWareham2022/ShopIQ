@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -27,13 +27,7 @@ export const InventoryItemDetailScreen: React.FC<
   const [loading, setLoading] = useState(!!itemId); // Only load if editing existing item
   const [repository] = useState(() => new InventoryItemRepository());
 
-  useEffect(() => {
-    if (itemId) {
-      loadItem();
-    }
-  }, [itemId]);
-
-  const loadItem = async () => {
+  const loadItem = useCallback(async () => {
     try {
       setLoading(true);
       const foundItem = await repository.findById(itemId!);
@@ -50,7 +44,13 @@ export const InventoryItemDetailScreen: React.FC<
     } finally {
       setLoading(false);
     }
-  };
+  }, [itemId, repository, onBack]);
+
+  useEffect(() => {
+    if (itemId) {
+      loadItem();
+    }
+  }, [itemId, loadItem]);
 
   const handleSave = async (values: ValidatedInventoryItem) => {
     try {

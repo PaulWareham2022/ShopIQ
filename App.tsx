@@ -50,8 +50,10 @@ export default function App() {
   };
 
   const handleAddItem = () => {
+    console.log('🔵 Add Item button clicked - navigating to inventory-add');
     setSelectedItem(null);
     setCurrentScreen('inventory-add');
+    console.log('🔵 Current screen set to: inventory-add');
   };
 
   const handleBackToList = () => {
@@ -98,6 +100,7 @@ export default function App() {
   );
 
   const renderCurrentScreen = () => {
+    console.log('🟡 Rendering screen:', currentScreen);
     switch (currentScreen) {
       case 'home':
         return renderHomeScreen();
@@ -118,6 +121,7 @@ export default function App() {
           />
         );
       case 'inventory-add':
+        console.log('🟢 Rendering inventory-add screen');
         return (
           <InventoryItemDetailScreen
             onBack={handleBackToList}

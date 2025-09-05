@@ -139,7 +139,13 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
       <Text style={styles.emptyStateSubtitle}>
         Tap the + button to add your first inventory item
       </Text>
-      <TouchableOpacity style={styles.emptyStateButton} onPress={onAddItem}>
+      <TouchableOpacity
+        style={styles.emptyStateButton}
+        onPress={() => {
+          console.log('🔴 Empty state button pressed in InventoryListScreen');
+          onAddItem();
+        }}
+      >
         <Text style={styles.emptyStateButtonText}>Add First Item</Text>
       </TouchableOpacity>
     </View>
@@ -186,7 +192,13 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
       />
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={onAddItem}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => {
+          console.log('🔴 FAB button pressed in InventoryListScreen');
+          onAddItem();
+        }}
+      >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
     </View>

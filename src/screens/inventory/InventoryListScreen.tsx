@@ -130,20 +130,38 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
     </TouchableOpacity>
   );
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <View style={styles.emptyStateIcon}>
-        <Text style={styles.emptyStateIconText}>📦</Text>
+  const renderEmptyState = () => {
+    // If there are no items at all in the system, show the "add first item" state
+    if (items.length === 0) {
+      return (
+        <View style={styles.emptyState}>
+          <View style={styles.emptyStateIcon}>
+            <Text style={styles.emptyStateIconText}>📦</Text>
+          </View>
+          <Text style={styles.emptyStateTitle}>No items yet</Text>
+          <Text style={styles.emptyStateSubtitle}>
+            Tap the + button to add your first inventory item
+          </Text>
+          <TouchableOpacity style={styles.emptyStateButton} onPress={onAddItem}>
+            <Text style={styles.emptyStateButtonText}>Add First Item</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    // If there are items but search returned no results, show search empty state
+    return (
+      <View style={styles.emptyState}>
+        <View style={styles.emptyStateIcon}>
+          <Text style={styles.emptyStateIconText}>🔍</Text>
+        </View>
+        <Text style={styles.emptyStateTitle}>No matching items</Text>
+        <Text style={styles.emptyStateSubtitle}>
+          Try adjusting your search or add a new item
+        </Text>
       </View>
-      <Text style={styles.emptyStateTitle}>No items yet</Text>
-      <Text style={styles.emptyStateSubtitle}>
-        Tap the + button to add your first inventory item
-      </Text>
-      <TouchableOpacity style={styles.emptyStateButton} onPress={onAddItem}>
-        <Text style={styles.emptyStateButtonText}>Add First Item</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (

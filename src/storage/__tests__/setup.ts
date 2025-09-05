@@ -8,6 +8,19 @@ jest.mock('react-native', () => ({
   Platform: {
     OS: 'web', // Default to web for testing
   },
+  StyleSheet: {
+    create: (styles: any) => styles,
+    flatten: (styles: any) => styles,
+  },
+  View: 'View',
+  Text: 'Text',
+  TouchableOpacity: 'TouchableOpacity',
+  FlatList: 'FlatList',
+  TextInput: 'TextInput',
+  ScrollView: 'ScrollView',
+  Alert: {
+    alert: jest.fn(),
+  },
 }));
 
 // Mock MMKV storage

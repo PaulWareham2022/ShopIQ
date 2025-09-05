@@ -17,10 +17,11 @@ const mockRepository = {
 describe('InventoryListScreen', () => {
   const mockOnItemPress = jest.fn();
   const mockOnAddItem = jest.fn();
+  const mockOnBack = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (InventoryItemRepository as jest.Mock).mockImplementation(
+    (InventoryItemRepository as unknown as jest.Mock).mockImplementation(
       () => mockRepository
     );
   });
@@ -32,6 +33,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -45,6 +47,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -56,13 +59,55 @@ describe('InventoryListScreen', () => {
     });
   });
 
+  it('renders search empty state when items exist but search has no matches', async () => {
+    const mockItems = [
+      {
+        id: '1',
+        name: 'Apple',
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z',
+      },
+    ];
+
+    mockFindAll.mockResolvedValue(mockItems);
+
+    const { getByPlaceholderText, getByText, queryByText } = render(
+      <InventoryListScreen
+        onItemPress={mockOnItemPress}
+        onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
+      />
+    );
+
+    await waitFor(() => {
+      expect(getByText('Apple')).toBeTruthy();
+    });
+
+    const searchInput = getByPlaceholderText('Search items...');
+    fireEvent.changeText(searchInput, 'NonExistentItem');
+
+    await waitFor(() => {
+      expect(getByText('No matching items')).toBeTruthy();
+      expect(
+        getByText('Try adjusting your search or add a new item')
+      ).toBeTruthy();
+      // Should NOT show the "add first item" message when items exist
+      expect(queryByText('No items yet')).toBeNull();
+      expect(queryByText('Add First Item')).toBeNull();
+    });
+  });
+
   it('renders inventory items', async () => {
     const mockItems = [
       {
         id: '1',
         name: 'Test Item 1',
-        canonical_unit: 'kg',
-        shelf_life_sensitive: false,
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
         notes: 'Test notes',
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
@@ -70,8 +115,9 @@ describe('InventoryListScreen', () => {
       {
         id: '2',
         name: 'Test Item 2',
-        canonical_unit: 'ml',
-        shelf_life_sensitive: true,
+        canonicalDimension: 'volume',
+        canonicalUnit: 'ml',
+        shelfLifeSensitive: true,
         notes: undefined,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
@@ -84,6 +130,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -101,8 +148,9 @@ describe('InventoryListScreen', () => {
       {
         id: '1',
         name: 'Test Item',
-        canonical_unit: 'kg',
-        shelf_life_sensitive: false,
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
       },
@@ -114,6 +162,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -131,6 +180,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -145,16 +195,18 @@ describe('InventoryListScreen', () => {
       {
         id: '1',
         name: 'Apple',
-        canonical_unit: 'kg',
-        shelf_life_sensitive: false,
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
       },
       {
         id: '2',
         name: 'Banana',
-        canonical_unit: 'kg',
-        shelf_life_sensitive: false,
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
       },
@@ -166,6 +218,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 
@@ -188,8 +241,9 @@ describe('InventoryListScreen', () => {
       {
         id: '1',
         name: 'Test Item',
-        canonical_unit: 'kg',
-        shelf_life_sensitive: false,
+        canonicalDimension: 'mass',
+        canonicalUnit: 'kg',
+        shelfLifeSensitive: false,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z',
       },
@@ -202,6 +256,7 @@ describe('InventoryListScreen', () => {
       <InventoryListScreen
         onItemPress={mockOnItemPress}
         onAddItem={mockOnAddItem}
+        onBack={mockOnBack}
       />
     );
 

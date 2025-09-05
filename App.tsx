@@ -68,51 +68,30 @@ export default function App() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>ShopIQ</Text>
-        <Text style={styles.subtitle}>Smart grocery price comparison</Text>
+        <Text style={styles.subtitle}>Smart household shopping tracker</Text>
       </View>
 
-      <View style={styles.statusContainer}>
-        <View style={styles.statusItem}>
-          <Text style={styles.statusLabel}>System Status</Text>
-          <Text
-            style={[
-              styles.statusValue,
-              storageStatus === 'success' && styles.success,
-              storageStatus === 'error' && styles.error,
-            ]}
-          >
-            {storageStatus === 'testing'
-              ? '🔧 Initializing...'
-              : storageStatus === 'success'
-                ? '✅ Ready'
-                : '⚠️ Limited Mode'}
-          </Text>
-        </View>
-      </View>
-
-      {(storageStatus === 'success' || storageStatus === 'error') && (
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => setCurrentScreen('inventory-list')}
-          >
-            <View style={styles.buttonContent}>
-              <Text style={styles.buttonIcon}>📦</Text>
-              <View style={styles.buttonTextContainer}>
-                <Text style={styles.buttonTitle}>Inventory</Text>
-                <Text style={styles.buttonSubtitle}>Manage your items</Text>
-              </View>
-              <Text style={styles.chevron}>›</Text>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setCurrentScreen('inventory-list')}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonIcon}>📦</Text>
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonTitle}>Inventory</Text>
+              <Text style={styles.buttonSubtitle}>Manage your items</Text>
             </View>
-          </TouchableOpacity>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
 
-          {storageStatus === 'error' && (
-            <Text style={styles.warningText}>
-              Running in demo mode - data won't persist
-            </Text>
-          )}
-        </View>
-      )}
+        {storageStatus === 'error' && (
+          <Text style={styles.warningText}>
+            Running in demo mode - data won't persist
+          </Text>
+        )}
+      </View>
 
       <StatusBar style="auto" />
     </View>
@@ -176,35 +155,9 @@ const styles = StyleSheet.create({
     color: colors.grayText,
     textAlign: 'center',
   },
-  statusContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 40,
-  },
-  statusItem: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  statusLabel: {
-    fontSize: 16,
-    color: colors.darkText,
-    fontWeight: '500',
-  },
-  statusValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  success: {
-    color: colors.success,
-  },
-  error: {
-    color: colors.error,
-  },
   actionsContainer: {
     paddingHorizontal: 20,
+    marginTop: 20,
   },
   primaryButton: {
     backgroundColor: colors.white,

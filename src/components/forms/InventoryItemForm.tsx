@@ -202,176 +202,240 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 />
               </View>
 
-              {/* Canonical Unit with iOS Settings Style */}
+              {/* Canonical Unit with Health App Style */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.label}>Canonical Unit *</Text>
 
-                {/* Weight Section */}
-                <View style={styles.settingsGroup}>
-                  <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Weight</Text>
+                {/* Weight Card */}
+                <View style={[styles.healthCard, styles.weightCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.weightIcon]}>
+                      <Text style={styles.iconText}>⚖️</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Weight</Text>
                   </View>
-                  <View style={styles.settingsSection}>
-                    {['kg', 'g', 'lb', 'oz'].map((unit, index, array) => (
+                  <View style={styles.chipGrid}>
+                    {['kg', 'g', 'lb', 'oz'].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.settingsRow,
-                          index === 0 && styles.settingsRowFirst,
-                          index === array.length - 1 && styles.settingsRowLast,
+                          styles.healthChip,
+                          values.canonicalUnit === unit &&
+                            styles.healthChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text style={styles.settingsRowText}>{unit}</Text>
-                        {values.canonicalUnit === unit && (
-                          <Text style={styles.checkmark}>✓</Text>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity style={styles.settingsRowLast}>
-                      <Text style={styles.settingsRowTextSecondary}>
-                        Other...
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Volume Section */}
-                <View style={styles.settingsGroup}>
-                  <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Volume</Text>
-                  </View>
-                  <View style={styles.settingsSection}>
-                    {['L', 'ml', 'gal', 'fl oz'].map((unit, index, array) => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.settingsRow,
-                          index === 0 && styles.settingsRowFirst,
-                          index === array.length - 1 && styles.settingsRowLast,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text style={styles.settingsRowText}>{unit}</Text>
-                        {values.canonicalUnit === unit && (
-                          <Text style={styles.checkmark}>✓</Text>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity style={styles.settingsRowLast}>
-                      <Text style={styles.settingsRowTextSecondary}>
-                        Other...
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Count Section */}
-                <View style={styles.settingsGroup}>
-                  <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Count</Text>
-                  </View>
-                  <View style={styles.settingsSection}>
-                    {['unit', 'piece', 'dozen', 'pack'].map(
-                      (unit, index, array) => (
-                        <TouchableOpacity
-                          key={unit}
+                        <Text
                           style={[
-                            styles.settingsRow,
-                            index === 0 && styles.settingsRowFirst,
-                            index === array.length - 1 &&
-                              styles.settingsRowLast,
+                            styles.healthChipText,
+                            values.canonicalUnit === unit &&
+                              styles.healthChipTextSelected,
                           ]}
-                          onPress={() => {
-                            setFieldValue('canonicalUnit', unit);
-                            handleUnitChange(unit, setFieldValue);
-                          }}
                         >
-                          <Text style={styles.settingsRowText}>{unit}</Text>
-                          {values.canonicalUnit === unit && (
-                            <Text style={styles.checkmark}>✓</Text>
-                          )}
-                        </TouchableOpacity>
-                      )
-                    )}
-                    <TouchableOpacity style={styles.settingsRowLast}>
-                      <Text style={styles.settingsRowTextSecondary}>
-                        Other...
-                      </Text>
-                    </TouchableOpacity>
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
                 </View>
 
-                {/* Length Section */}
-                <View style={styles.settingsGroup}>
-                  <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Length</Text>
+                {/* Volume Card */}
+                <View style={[styles.healthCard, styles.volumeCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.volumeIcon]}>
+                      <Text style={styles.iconText}>🧪</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Volume</Text>
                   </View>
-                  <View style={styles.settingsSection}>
-                    {['m', 'cm', 'ft', 'in'].map((unit, index, array) => (
+                  <View style={styles.chipGrid}>
+                    {['L', 'ml', 'gal', 'fl oz'].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.settingsRow,
-                          index === 0 && styles.settingsRowFirst,
-                          index === array.length - 1 && styles.settingsRowLast,
+                          styles.healthChip,
+                          values.canonicalUnit === unit &&
+                            styles.healthChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text style={styles.settingsRowText}>{unit}</Text>
-                        {values.canonicalUnit === unit && (
-                          <Text style={styles.checkmark}>✓</Text>
-                        )}
+                        <Text
+                          style={[
+                            styles.healthChipText,
+                            values.canonicalUnit === unit &&
+                              styles.healthChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
                       </TouchableOpacity>
                     ))}
-                    <TouchableOpacity style={styles.settingsRowLast}>
-                      <Text style={styles.settingsRowTextSecondary}>
-                        Other...
-                      </Text>
-                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Area Section */}
-                <View style={styles.settingsGroup}>
-                  <View style={styles.settingsHeader}>
-                    <Text style={styles.settingsHeaderText}>Area</Text>
+                {/* Count Card */}
+                <View style={[styles.healthCard, styles.countCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.countIcon]}>
+                      <Text style={styles.iconText}>📦</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Count</Text>
                   </View>
-                  <View style={styles.settingsSection}>
-                    {['m²', 'cm²', 'ft²', 'in²'].map((unit, index, array) => (
+                  <View style={styles.chipGrid}>
+                    {['unit', 'piece', 'dozen', 'pack'].map(unit => (
                       <TouchableOpacity
                         key={unit}
                         style={[
-                          styles.settingsRow,
-                          index === 0 && styles.settingsRowFirst,
-                          index === array.length - 1 && styles.settingsRowLast,
+                          styles.healthChip,
+                          values.canonicalUnit === unit &&
+                            styles.healthChipSelected,
                         ]}
                         onPress={() => {
                           setFieldValue('canonicalUnit', unit);
                           handleUnitChange(unit, setFieldValue);
                         }}
                       >
-                        <Text style={styles.settingsRowText}>{unit}</Text>
-                        {values.canonicalUnit === unit && (
-                          <Text style={styles.checkmark}>✓</Text>
-                        )}
+                        <Text
+                          style={[
+                            styles.healthChipText,
+                            values.canonicalUnit === unit &&
+                              styles.healthChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
                       </TouchableOpacity>
                     ))}
-                    <TouchableOpacity style={styles.settingsRowLast}>
-                      <Text style={styles.settingsRowTextSecondary}>
-                        Other...
-                      </Text>
-                    </TouchableOpacity>
                   </View>
+                </View>
+
+                {/* Length Card */}
+                <View style={[styles.healthCard, styles.lengthCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.lengthIcon]}>
+                      <Text style={styles.iconText}>📏</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Length</Text>
+                  </View>
+                  <View style={styles.chipGrid}>
+                    {['m', 'cm', 'ft', 'in'].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.healthChip,
+                          values.canonicalUnit === unit &&
+                            styles.healthChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.healthChipText,
+                            values.canonicalUnit === unit &&
+                              styles.healthChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Area Card */}
+                <View style={[styles.healthCard, styles.areaCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.areaIcon]}>
+                      <Text style={styles.iconText}>🗺️</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Area</Text>
+                  </View>
+                  <View style={styles.chipGrid}>
+                    {['m²', 'cm²', 'ft²', 'in²'].map(unit => (
+                      <TouchableOpacity
+                        key={unit}
+                        style={[
+                          styles.healthChip,
+                          values.canonicalUnit === unit &&
+                            styles.healthChipSelected,
+                        ]}
+                        onPress={() => {
+                          setFieldValue('canonicalUnit', unit);
+                          handleUnitChange(unit, setFieldValue);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.healthChipText,
+                            values.canonicalUnit === unit &&
+                              styles.healthChipTextSelected,
+                          ]}
+                        >
+                          {unit}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Custom Unit Card */}
+                <View style={[styles.healthCard, styles.customCard]}>
+                  <View style={styles.cardHeader}>
+                    <View style={[styles.categoryIcon, styles.customIcon]}>
+                      <Text style={styles.iconText}>✏️</Text>
+                    </View>
+                    <Text style={styles.cardTitle}>Custom</Text>
+                  </View>
+                  <TextInput
+                    style={[
+                      styles.customInput,
+                      errors.canonicalUnit &&
+                        touched.canonicalUnit &&
+                        styles.inputError,
+                    ]}
+                    value={
+                      ![
+                        'kg',
+                        'g',
+                        'lb',
+                        'oz',
+                        'L',
+                        'ml',
+                        'gal',
+                        'fl oz',
+                        'unit',
+                        'piece',
+                        'dozen',
+                        'pack',
+                        'm',
+                        'cm',
+                        'ft',
+                        'in',
+                        'm²',
+                        'cm²',
+                        'ft²',
+                        'in²',
+                      ].includes(values.canonicalUnit)
+                        ? values.canonicalUnit
+                        : ''
+                    }
+                    onChangeText={text => {
+                      setFieldValue('canonicalUnit', text);
+                      handleUnitChange(text, setFieldValue);
+                    }}
+                    onBlur={handleBlur('canonicalUnit')}
+                    placeholder="Enter custom unit"
+                    placeholderTextColor={colors.grayText}
+                    autoCapitalize="none"
+                  />
                 </View>
 
                 {detectedDimension && (
@@ -548,57 +612,114 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
-  settingsGroup: {
-    marginBottom: 24,
-  },
-  settingsHeader: {
-    marginBottom: 8,
-  },
-  settingsHeaderText: {
-    fontSize: 13,
-    fontWeight: '400',
-    color: colors.grayText,
-    textTransform: 'uppercase',
-    letterSpacing: -0.08,
-  },
-  settingsSection: {
+  healthCard: {
     backgroundColor: colors.white,
-    borderRadius: 10,
-    overflow: 'hidden',
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  settingsRow: {
+  weightCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF3B30', // Red
+  },
+  volumeCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#007AFF', // Blue
+  },
+  countCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#34C759', // Green
+  },
+  lengthCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF9500', // Orange
+  },
+  areaCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#AF52DE', // Purple
+  },
+  customCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: colors.grayText,
+  },
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  categoryIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  weightIcon: {
+    backgroundColor: '#FFE5E5',
+  },
+  volumeIcon: {
+    backgroundColor: '#E5F2FF',
+  },
+  countIcon: {
+    backgroundColor: '#E5F8E8',
+  },
+  lengthIcon: {
+    backgroundColor: '#FFF2E5',
+  },
+  areaIcon: {
+    backgroundColor: '#F0E5FF',
+  },
+  customIcon: {
+    backgroundColor: '#F5F5F5',
+  },
+  iconText: {
+    fontSize: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.darkText,
+  },
+  chipGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  healthChip: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  healthChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  healthChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.darkText,
+  },
+  healthChipTextSelected: {
+    color: colors.white,
+  },
+  customInput: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.white,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#C6C6C8',
-  },
-  settingsRowFirst: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  settingsRowLast: {
-    borderBottomWidth: 0,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  settingsRowText: {
-    fontSize: 17,
+    fontSize: 16,
     color: colors.darkText,
-    fontWeight: '400',
-  },
-  settingsRowTextSecondary: {
-    fontSize: 17,
-    color: colors.primary,
-    fontWeight: '400',
-  },
-  checkmark: {
-    fontSize: 17,
-    color: colors.primary,
-    fontWeight: '600',
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
   },
   errorText: {
     fontSize: 14,

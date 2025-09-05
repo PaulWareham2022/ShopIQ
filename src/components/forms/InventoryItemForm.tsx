@@ -52,10 +52,10 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
   const getInitialFormValues = (): FormValues => ({
     name: initialValues?.name || '',
     category: initialValues?.category || '',
-    canonicalUnit: initialValues?.canonical_unit || '',
-    shelfLifeSensitive: initialValues?.shelf_life_sensitive || false,
-    shelfLifeDays: initialValues?.shelf_life_days?.toString() || '',
-    usageRatePerDay: initialValues?.usage_rate_per_day?.toString() || '',
+    canonicalUnit: initialValues?.canonicalUnit || '',
+    shelfLifeSensitive: initialValues?.shelfLifeSensitive || false,
+    shelfLifeDays: initialValues?.shelfLifeDays?.toString() || '',
+    usageRatePerDay: initialValues?.usageRatePerDay?.toString() || '',
     notes: initialValues?.notes || '',
   });
 
@@ -202,251 +202,156 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 />
               </View>
 
-              {/* Canonical Unit with Health App Style */}
-              <View style={styles.fieldContainer}>
-                <Text style={styles.label}>Canonical Unit *</Text>
+                             {/* Canonical Unit with Compact Chips */}
+               <View style={styles.fieldContainer}>
+                 <Text style={styles.label}>Canonical Unit *</Text>
 
-                {/* Weight Card */}
-                <View style={[styles.healthCard, styles.weightCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.weightIcon]}>
-                      <Text style={styles.iconText}>⚖️</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Weight</Text>
-                  </View>
-                  <View style={styles.chipGrid}>
-                    {['kg', 'g', 'lb', 'oz'].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.healthChip,
-                          values.canonicalUnit === unit &&
-                            styles.healthChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.healthChipText,
-                            values.canonicalUnit === unit &&
-                              styles.healthChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
+                 <View style={styles.compactChipContainer}>
+                   {/* Weight chips */}
+                   {['kg', 'g', 'lb', 'oz'].map(unit => (
+                     <TouchableOpacity
+                       key={unit}
+                       style={[
+                         styles.compactChip,
+                         styles.weightChip,
+                         values.canonicalUnit === unit && styles.compactChipSelected,
+                       ]}
+                       onPress={() => {
+                         setFieldValue('canonicalUnit', unit);
+                         handleUnitChange(unit, setFieldValue);
+                       }}>
+                       <Text style={[
+                         styles.compactChipText,
+                         values.canonicalUnit === unit && styles.compactChipTextSelected,
+                       ]}>
+                         {unit}
+                       </Text>
+                     </TouchableOpacity>
+                   ))}
 
-                {/* Volume Card */}
-                <View style={[styles.healthCard, styles.volumeCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.volumeIcon]}>
-                      <Text style={styles.iconText}>🧪</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Volume</Text>
-                  </View>
-                  <View style={styles.chipGrid}>
-                    {['L', 'ml', 'gal', 'fl oz'].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.healthChip,
-                          values.canonicalUnit === unit &&
-                            styles.healthChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.healthChipText,
-                            values.canonicalUnit === unit &&
-                              styles.healthChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
+                   {/* Volume chips */}
+                   {['L', 'ml', 'gal', 'fl oz'].map(unit => (
+                     <TouchableOpacity
+                       key={unit}
+                       style={[
+                         styles.compactChip,
+                         styles.volumeChip,
+                         values.canonicalUnit === unit && styles.compactChipSelected,
+                       ]}
+                       onPress={() => {
+                         setFieldValue('canonicalUnit', unit);
+                         handleUnitChange(unit, setFieldValue);
+                       }}>
+                       <Text style={[
+                         styles.compactChipText,
+                         values.canonicalUnit === unit && styles.compactChipTextSelected,
+                       ]}>
+                         {unit}
+                       </Text>
+                     </TouchableOpacity>
+                   ))}
 
-                {/* Count Card */}
-                <View style={[styles.healthCard, styles.countCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.countIcon]}>
-                      <Text style={styles.iconText}>📦</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Count</Text>
-                  </View>
-                  <View style={styles.chipGrid}>
-                    {['unit', 'piece', 'dozen', 'pack'].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.healthChip,
-                          values.canonicalUnit === unit &&
-                            styles.healthChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.healthChipText,
-                            values.canonicalUnit === unit &&
-                              styles.healthChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
+                   {/* Count chips */}
+                   {['unit', 'piece', 'dozen', 'pack'].map(unit => (
+                     <TouchableOpacity
+                       key={unit}
+                       style={[
+                         styles.compactChip,
+                         styles.countChip,
+                         values.canonicalUnit === unit && styles.compactChipSelected,
+                       ]}
+                       onPress={() => {
+                         setFieldValue('canonicalUnit', unit);
+                         handleUnitChange(unit, setFieldValue);
+                       }}>
+                       <Text style={[
+                         styles.compactChipText,
+                         values.canonicalUnit === unit && styles.compactChipTextSelected,
+                       ]}>
+                         {unit}
+                       </Text>
+                     </TouchableOpacity>
+                   ))}
 
-                {/* Length Card */}
-                <View style={[styles.healthCard, styles.lengthCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.lengthIcon]}>
-                      <Text style={styles.iconText}>📏</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Length</Text>
-                  </View>
-                  <View style={styles.chipGrid}>
-                    {['m', 'cm', 'ft', 'in'].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.healthChip,
-                          values.canonicalUnit === unit &&
-                            styles.healthChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.healthChipText,
-                            values.canonicalUnit === unit &&
-                              styles.healthChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
+                   {/* Length chips */}
+                   {['m', 'cm', 'ft', 'in'].map(unit => (
+                     <TouchableOpacity
+                       key={unit}
+                       style={[
+                         styles.compactChip,
+                         styles.lengthChip,
+                         values.canonicalUnit === unit && styles.compactChipSelected,
+                       ]}
+                       onPress={() => {
+                         setFieldValue('canonicalUnit', unit);
+                         handleUnitChange(unit, setFieldValue);
+                       }}>
+                       <Text style={[
+                         styles.compactChipText,
+                         values.canonicalUnit === unit && styles.compactChipTextSelected,
+                       ]}>
+                         {unit}
+                       </Text>
+                     </TouchableOpacity>
+                   ))}
 
-                {/* Area Card */}
-                <View style={[styles.healthCard, styles.areaCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.areaIcon]}>
-                      <Text style={styles.iconText}>🗺️</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Area</Text>
-                  </View>
-                  <View style={styles.chipGrid}>
-                    {['m²', 'cm²', 'ft²', 'in²'].map(unit => (
-                      <TouchableOpacity
-                        key={unit}
-                        style={[
-                          styles.healthChip,
-                          values.canonicalUnit === unit &&
-                            styles.healthChipSelected,
-                        ]}
-                        onPress={() => {
-                          setFieldValue('canonicalUnit', unit);
-                          handleUnitChange(unit, setFieldValue);
-                        }}
-                      >
-                        <Text
-                          style={[
-                            styles.healthChipText,
-                            values.canonicalUnit === unit &&
-                              styles.healthChipTextSelected,
-                          ]}
-                        >
-                          {unit}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
+                   {/* Area chips */}
+                   {['m²', 'cm²', 'ft²', 'in²'].map(unit => (
+                     <TouchableOpacity
+                       key={unit}
+                       style={[
+                         styles.compactChip,
+                         styles.areaChip,
+                         values.canonicalUnit === unit && styles.compactChipSelected,
+                       ]}
+                       onPress={() => {
+                         setFieldValue('canonicalUnit', unit);
+                         handleUnitChange(unit, setFieldValue);
+                       }}>
+                       <Text style={[
+                         styles.compactChipText,
+                         values.canonicalUnit === unit && styles.compactChipTextSelected,
+                       ]}>
+                         {unit}
+                       </Text>
+                     </TouchableOpacity>
+                   ))}
+                 </View>
 
-                {/* Custom Unit Card */}
-                <View style={[styles.healthCard, styles.customCard]}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.categoryIcon, styles.customIcon]}>
-                      <Text style={styles.iconText}>✏️</Text>
-                    </View>
-                    <Text style={styles.cardTitle}>Custom</Text>
-                  </View>
-                  <TextInput
-                    style={[
-                      styles.customInput,
-                      errors.canonicalUnit &&
-                        touched.canonicalUnit &&
-                        styles.inputError,
-                    ]}
-                    value={
-                      ![
-                        'kg',
-                        'g',
-                        'lb',
-                        'oz',
-                        'L',
-                        'ml',
-                        'gal',
-                        'fl oz',
-                        'unit',
-                        'piece',
-                        'dozen',
-                        'pack',
-                        'm',
-                        'cm',
-                        'ft',
-                        'in',
-                        'm²',
-                        'cm²',
-                        'ft²',
-                        'in²',
-                      ].includes(values.canonicalUnit)
-                        ? values.canonicalUnit
-                        : ''
-                    }
-                    onChangeText={text => {
-                      setFieldValue('canonicalUnit', text);
-                      handleUnitChange(text, setFieldValue);
-                    }}
-                    onBlur={handleBlur('canonicalUnit')}
-                    placeholder="Enter custom unit"
-                    placeholderTextColor={colors.grayText}
-                    autoCapitalize="none"
-                  />
-                </View>
+                 {/* Custom unit input */}
+                 <TextInput
+                   style={[
+                     styles.compactCustomInput,
+                     errors.canonicalUnit && touched.canonicalUnit && styles.inputError,
+                   ]}
+                   value={
+                     ![
+                       'kg', 'g', 'lb', 'oz', 'L', 'ml', 'gal', 'fl oz', 
+                       'unit', 'piece', 'dozen', 'pack', 'm', 'cm', 'ft', 'in', 
+                       'm²', 'cm²', 'ft²', 'in²'
+                     ].includes(values.canonicalUnit)
+                       ? values.canonicalUnit
+                       : ''
+                   }
+                   onChangeText={text => {
+                     setFieldValue('canonicalUnit', text);
+                     handleUnitChange(text, setFieldValue);
+                   }}
+                   onBlur={handleBlur('canonicalUnit')}
+                   placeholder="Or enter custom unit"
+                   placeholderTextColor={colors.grayText}
+                   autoCapitalize="none"
+                 />
 
-                {detectedDimension && (
-                  <Text style={styles.dimensionText}>
-                    Detected dimension: {detectedDimension}
-                  </Text>
-                )}
-                {errors.canonicalUnit && touched.canonicalUnit && (
-                  <Text style={styles.errorText}>{errors.canonicalUnit}</Text>
-                )}
-              </View>
+                 {detectedDimension && (
+                   <Text style={styles.dimensionText}>
+                     Detected dimension: {detectedDimension}
+                   </Text>
+                 )}
+                 {errors.canonicalUnit && touched.canonicalUnit && (
+                   <Text style={styles.errorText}>{errors.canonicalUnit}</Text>
+                 )}
+               </View>
 
               {/* Shelf Life Sensitivity */}
               <View style={styles.fieldContainer}>
@@ -564,7 +469,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
 const styles = StyleSheet.create({
   formWrapper: {
     flex: 1,
-    backgroundColor: '#F2F2F7', // iOS grouped background
+    backgroundColor: '#F8F9FA', // Warmer, softer background
   },
   scrollContainer: {
     flex: 1,
@@ -612,114 +517,74 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
-  healthCard: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    marginBottom: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  weightCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#FF3B30', // Red
-  },
-  volumeCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#007AFF', // Blue
-  },
-  countCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#34C759', // Green
-  },
-  lengthCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#FF9500', // Orange
-  },
-  areaCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#AF52DE', // Purple
-  },
-  customCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: colors.grayText,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  weightIcon: {
-    backgroundColor: '#FFE5E5',
-  },
-  volumeIcon: {
-    backgroundColor: '#E5F2FF',
-  },
-  countIcon: {
-    backgroundColor: '#E5F8E8',
-  },
-  lengthIcon: {
-    backgroundColor: '#FFF2E5',
-  },
-  areaIcon: {
-    backgroundColor: '#F0E5FF',
-  },
-  customIcon: {
-    backgroundColor: '#F5F5F5',
-  },
-  iconText: {
-    fontSize: 16,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.darkText,
-  },
-  chipGrid: {
+  compactChipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
+    marginBottom: 12,
   },
-  healthChip: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
+  compactChip: {
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1.5,
+    minWidth: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  healthChipSelected: {
+  compactChipSelected: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  healthChipText: {
-    fontSize: 14,
+  compactChipText: {
+    fontSize: 13,
     fontWeight: '600',
+    textAlign: 'center',
     color: colors.darkText,
   },
-  healthChipTextSelected: {
+  compactChipTextSelected: {
     color: colors.white,
   },
-  customInput: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+  weightChip: {
+    backgroundColor: '#FFF0F0',
+    borderColor: '#FF9999',
+    color: '#D63384',
+  },
+  volumeChip: {
+    backgroundColor: '#E6F3FF',
+    borderColor: '#99CCFF',
+    color: '#0066CC',
+  },
+  countChip: {
+    backgroundColor: '#E8F5E8',
+    borderColor: '#99E699',
+    color: '#198754',
+  },
+  lengthChip: {
+    backgroundColor: '#FFF4E6',
+    borderColor: '#FFB366',
+    color: '#FD7E14',
+  },
+  areaChip: {
+    backgroundColor: '#F3E8FF',
+    borderColor: '#CC99FF',
+    color: '#6F42C1',
+  },
+  compactCustomInput: {
+    backgroundColor: colors.white,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
     color: colors.darkText,
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: colors.lightGray,
+    fontStyle: 'italic',
   },
   errorText: {
     fontSize: 14,
@@ -738,48 +603,54 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: colors.lightGray,
-    shadowColor: colors.darkText,
+    borderTopColor: '#E8F4FD',
+    shadowColor: '#007AFF',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: 6,
+    elevation: 6,
   },
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
     borderRadius: 25,
     borderWidth: 2,
-    borderColor: colors.lightGray,
+    borderColor: '#E8F4FD',
     marginRight: 8,
     alignItems: 'center',
-    backgroundColor: colors.lightGray,
+    backgroundColor: '#F8FBFF',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.darkText,
+    color: '#007AFF',
   },
   submitButton: {
     flex: 1,
     paddingVertical: 16,
     borderRadius: 25,
-    backgroundColor: colors.primary,
+    backgroundColor: '#007AFF', // iOS blue with guaranteed contrast
     marginLeft: 8,
     alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   submitButtonDisabled: {
-    backgroundColor: colors.lightGray,
+    backgroundColor: '#C7C7CC',
     shadowOpacity: 0.1,
+    shadowColor: '#C7C7CC',
   },
   submitButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.white,
+    color: '#FFFFFF', // Explicit white for maximum contrast
   },
 });

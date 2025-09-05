@@ -54,29 +54,29 @@ export const InventoryItemDetailScreen: React.FC<
 
   const handleSave = async (values: ValidatedInventoryItem) => {
     try {
+      const itemData = {
+        name: values.name,
+        category: values.category,
+        canonicalDimension: values.canonicalDimension,
+        canonicalUnit: values.canonicalUnit,
+        shelfLifeSensitive: values.shelfLifeSensitive,
+        shelfLifeDays: values.shelfLifeDays,
+        usageRatePerDay: values.usageRatePerDay,
+        notes: values.notes,
+      };
+
       if (itemId) {
         // Update existing item
-        await repository.update(itemId, {
-          name: values.name,
-          category: values.category,
-          canonical_unit: values.canonicalUnit,
-          shelf_life_sensitive: values.shelfLifeSensitive,
-          notes: values.notes,
-        });
+        await repository.update(itemId, itemData);
+        Alert.alert('Success', 'Item updated successfully!');
       } else {
         // Create new item
-        await repository.create({
-          name: values.name,
-          category: values.category,
-          canonical_unit: values.canonicalUnit,
-          shelf_life_sensitive: values.shelfLifeSensitive,
-          notes: values.notes,
-        });
+        await repository.create(itemData);
+        Alert.alert('Success', 'Item created successfully!');
       }
 
       onItemSaved();
     } catch {
-      // Error handling is done via Alert.alert
       Alert.alert('Error', 'Failed to save inventory item');
     }
   };
@@ -168,7 +168,7 @@ export const InventoryItemDetailScreen: React.FC<
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Canonical Unit:</Text>
-            <Text style={styles.detailValue}>{item?.canonical_unit}</Text>
+            <Text style={styles.detailValue}>{item?.canonicalUnit}</Text>
           </View>
 
           {item?.category && (
@@ -181,7 +181,7 @@ export const InventoryItemDetailScreen: React.FC<
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Shelf-life Sensitive:</Text>
             <Text style={styles.detailValue}>
-              {item?.shelf_life_sensitive ? 'Yes' : 'No'}
+              {item?.shelfLifeSensitive ? 'Yes' : 'No'}
             </Text>
           </View>
 
@@ -238,7 +238,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
+    borderBottomColor: '#E8F4FD',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   backButton: {
     paddingVertical: 8,

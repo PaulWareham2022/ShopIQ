@@ -4,9 +4,8 @@
  */
 
 import { BaseRepository } from './base/BaseRepository';
-import { BaseEntity } from '../types';
+import { InventoryItem, DatabaseError } from '../types';
 import { executeSql } from '../sqlite/database';
-import { DatabaseError } from '../types';
 import { Platform } from 'react-native';
 
 // Mock data for web testing
@@ -14,28 +13,22 @@ const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
   {
     id: '1',
     name: 'Apples',
-    canonical_unit: 'kg',
-    shelf_life_sensitive: true,
+    canonicalDimension: 'mass' as const,
+    canonicalUnit: 'kg',
+    shelfLifeSensitive: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
   {
     id: '2',
     name: 'Milk',
-    canonical_unit: 'L',
-    shelf_life_sensitive: true,
+    canonicalDimension: 'volume' as const,
+    canonicalUnit: 'L',
+    shelfLifeSensitive: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
 ];
-
-// InventoryItem entity interface
-export interface InventoryItem extends BaseEntity {
-  name: string;
-  canonical_unit: string;
-  shelf_life_sensitive: boolean;
-  notes?: string;
-}
 
 export class InventoryItemRepository extends BaseRepository<InventoryItem> {
   protected tableName = 'inventory_items';

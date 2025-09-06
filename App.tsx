@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { testStorageIntegration } from './src/storage/test-storage';
 import { initializeDatabase } from './src/storage/sqlite/database';
+import { seedSampleSuppliers } from './src/storage/seed-suppliers';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
-import { InventoryItem } from './src/storage/types';
+import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
+import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
+import { InventoryItem, Supplier } from './src/storage/types';
 
-type Screen = 'home' | 'inventory-list' | 'inventory-detail' | 'inventory-add';
+type Screen =
+  | 'home'
+  | 'inventory-list'
+  | 'inventory-detail'
+  | 'inventory-add'
+  | 'supplier-list'
+  | 'supplier-detail'
+  | 'supplier-add';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null
+  );
   const [storageStatus, setStorageStatus] = useState<
     'testing' | 'success' | 'error'
   >('testing');
@@ -20,11 +32,19 @@ export default function App() {
   useEffect(() => {
     const initStorage = async () => {
       try {
-        if (__DEV__) {
-          await testStorageIntegration();
-        } else {
-          await initializeDatabase();
+        // Initialize database without running tests that create test suppliers
+        await initializeDatabase();
+
+        // Seed sample suppliers for testing
+        try {
+          await seedSampleSuppliers();
+        } catch (error) {
+          console.log(
+            'Sample suppliers already exist or seeding failed:',
+            error
+          );
         }
+
         setStorageStatus('success');
       } catch {
         // Error handling is done via UI state
@@ -64,6 +84,27 @@ export default function App() {
     setSelectedItem(null);
   };
 
+  // Supplier navigation handlers
+  const handleSupplierPress = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    setCurrentScreen('supplier-detail');
+  };
+
+  const handleAddSupplier = () => {
+    setSelectedSupplier(null);
+    setCurrentScreen('supplier-add');
+  };
+
+  const handleBackToSupplierList = () => {
+    setCurrentScreen('supplier-list');
+    setSelectedSupplier(null);
+  };
+
+  const handleSupplierSaved = () => {
+    setCurrentScreen('supplier-list');
+    setSelectedSupplier(null);
+  };
+
   const renderHomeScreen = () => (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -81,6 +122,20 @@ export default function App() {
             <View style={styles.buttonTextContainer}>
               <Text style={styles.buttonTitle}>Inventory</Text>
               <Text style={styles.buttonSubtitle}>Manage your items</Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setCurrentScreen('supplier-list')}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonIcon}>🏪</Text>
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonTitle}>Suppliers</Text>
+              <Text style={styles.buttonSubtitle}>Manage your suppliers</Text>
             </View>
             <Text style={styles.chevron}>›</Text>
           </View>
@@ -125,6 +180,32 @@ export default function App() {
             key="add-new-item"
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
+          />
+        );
+      case 'supplier-list':
+        return (
+          <SupplierListScreen
+            key="supplier-list"
+            onSupplierPress={handleSupplierPress}
+            onAddSupplier={handleAddSupplier}
+            onBack={() => setCurrentScreen('home')}
+          />
+        );
+      case 'supplier-detail':
+        return (
+          <SupplierDetailScreen
+            key={`edit-${selectedSupplier?.id}`}
+            supplierId={selectedSupplier?.id}
+            onBack={handleBackToSupplierList}
+            onSupplierSaved={handleSupplierSaved}
+          />
+        );
+      case 'supplier-add':
+        return (
+          <SupplierDetailScreen
+            key="add-new-supplier"
+            onBack={handleBackToSupplierList}
+            onSupplierSaved={handleSupplierSaved}
           />
         );
       default:

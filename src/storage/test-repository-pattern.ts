@@ -263,9 +263,13 @@ async function testTransactions(): Promise<void> {
 
   console.log('✅ Transaction rollback working correctly');
 
-  // Clean up
-  await supplierRepo.hardDelete(result[0].id);
-  await supplierRepo.hardDelete(result[1].id);
+  // Clean up all transaction test suppliers
+  const allTransactionSuppliers = await supplierRepo.findByName(
+    'Transaction Test Supplier'
+  );
+  for (const supplier of allTransactionSuppliers) {
+    await supplierRepo.hardDelete(supplier.id);
+  }
 
   console.log('🧹 Cleaned up transaction test data');
 }

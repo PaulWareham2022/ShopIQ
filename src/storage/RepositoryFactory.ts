@@ -14,14 +14,9 @@ import {
 } from './types';
 
 // Repository implementations
-import {
-  SupplierRepository,
-  Supplier,
-} from './repositories/SupplierRepository';
-import {
-  InventoryItemRepository,
-  InventoryItem,
-} from './repositories/InventoryItemRepository';
+import { SupplierRepository } from './repositories/SupplierRepository';
+import { InventoryItemRepository } from './repositories/InventoryItemRepository';
+import { Supplier, InventoryItem } from './types';
 import { KeyValueRepository } from './repositories/base/KeyValueRepository';
 
 // Storage layer imports

@@ -11,9 +11,8 @@ export {
 } from './RepositoryFactory';
 export * from './types';
 
-// Entity interfaces
-export type { Supplier } from './repositories/SupplierRepository';
-export type { InventoryItem } from './repositories/InventoryItemRepository';
+// Entity interfaces (from types file for consistency)
+export type { Supplier, InventoryItem } from './types';
 
 // Repository classes (for direct instantiation if needed)
 export { SupplierRepository } from './repositories/SupplierRepository';

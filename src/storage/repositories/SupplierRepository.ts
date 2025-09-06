@@ -4,18 +4,9 @@
  */
 
 import { BaseRepository } from './base/BaseRepository';
-import { BaseEntity } from '../types';
+import { Supplier } from '../types';
 import { executeSql } from '../sqlite/database';
 import { DatabaseError, ValidationError } from '../types';
-
-// Supplier entity interface
-export interface Supplier extends BaseEntity {
-  name: string;
-  website?: string;
-  notes?: string;
-  shipping_policy?: string;
-  quality_rating?: number; // 1-5
-}
 
 export class SupplierRepository extends BaseRepository<Supplier> {
   protected tableName = 'suppliers';
@@ -24,10 +15,17 @@ export class SupplierRepository extends BaseRepository<Supplier> {
     return {
       id: row.id,
       name: row.name,
-      website: row.website || undefined,
+      countryCode: row.country_code,
+      regionCode: row.region_code || undefined,
+      storeCode: row.store_code || undefined,
+      defaultCurrency: row.default_currency,
+      membershipRequired: Boolean(row.membership_required),
+      membershipType: row.membership_type || undefined,
+      shippingPolicy: row.shipping_policy
+        ? JSON.parse(row.shipping_policy)
+        : undefined,
+      urlPatterns: row.url_patterns ? JSON.parse(row.url_patterns) : undefined,
       notes: row.notes || undefined,
-      shipping_policy: row.shipping_policy || undefined,
-      quality_rating: row.quality_rating || undefined,
       created_at: row.created_at,
       updated_at: row.updated_at,
       deleted_at: row.deleted_at || undefined,
@@ -38,10 +36,19 @@ export class SupplierRepository extends BaseRepository<Supplier> {
     return {
       id: entity.id,
       name: entity.name,
-      website: entity.website || null,
+      country_code: entity.countryCode,
+      region_code: entity.regionCode || null,
+      store_code: entity.storeCode || null,
+      default_currency: entity.defaultCurrency,
+      membership_required: entity.membershipRequired ? 1 : 0,
+      membership_type: entity.membershipType || null,
+      shipping_policy: entity.shippingPolicy
+        ? JSON.stringify(entity.shippingPolicy)
+        : null,
+      url_patterns: entity.urlPatterns
+        ? JSON.stringify(entity.urlPatterns)
+        : null,
       notes: entity.notes || null,
-      shipping_policy: entity.shipping_policy || null,
-      quality_rating: entity.quality_rating || null,
       created_at: entity.created_at,
       updated_at: entity.updated_at,
       deleted_at: entity.deleted_at || null,
@@ -76,22 +83,24 @@ export class SupplierRepository extends BaseRepository<Supplier> {
   }
 
   /**
-   * Find suppliers with quality rating above threshold
+   * Find suppliers by country code
    */
-  async findByMinQualityRating(minRating: number): Promise<Supplier[]> {
+  async findByCountryCode(countryCode: string): Promise<Supplier[]> {
     // Validate input parameters
-    if (!Number.isFinite(minRating) || minRating < 1 || minRating > 5) {
-      throw new ValidationError('minRating must be a number between 1 and 5');
+    if (!countryCode || !/^[A-Z]{2}$/.test(countryCode)) {
+      throw new ValidationError(
+        'countryCode must be a 2-letter uppercase ISO 3166-1 code'
+      );
     }
 
     try {
       const sql = `
         SELECT * FROM ${this.tableName} 
-        WHERE quality_rating >= ? 
+        WHERE country_code = ? 
         AND deleted_at IS NULL 
-        ORDER BY quality_rating DESC, name ASC
+        ORDER BY name ASC
       `;
-      const result = await executeSql(sql, [minRating]);
+      const result = await executeSql(sql, [countryCode]);
 
       const suppliers: Supplier[] = [];
       for (let i = 0; i < result.rows.length; i++) {
@@ -101,7 +110,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
       return suppliers;
     } catch (error) {
       throw new DatabaseError(
-        'Failed to find suppliers by quality rating',
+        'Failed to find suppliers by country code',
         error as Error
       );
     }
@@ -112,17 +121,17 @@ export class SupplierRepository extends BaseRepository<Supplier> {
    */
   async getStats(): Promise<{
     total: number;
-    withRating: number;
-    averageRating: number;
-    withWebsite: number;
+    withMembership: number;
+    withShippingPolicy: number;
+    withUrlPatterns: number;
   }> {
     try {
       const statsQuery = `
         SELECT 
           COUNT(*) as total,
-          COUNT(quality_rating) as with_rating,
-          AVG(quality_rating) as average_rating,
-          COUNT(website) as with_website
+          COUNT(CASE WHEN membership_required = 1 THEN 1 END) as with_membership,
+          COUNT(shipping_policy) as with_shipping_policy,
+          COUNT(url_patterns) as with_url_patterns
         FROM ${this.tableName} 
         WHERE deleted_at IS NULL
       `;
@@ -132,9 +141,9 @@ export class SupplierRepository extends BaseRepository<Supplier> {
 
       return {
         total: row.total || 0,
-        withRating: row.with_rating || 0,
-        averageRating: row.average_rating || 0,
-        withWebsite: row.with_website || 0,
+        withMembership: row.with_membership || 0,
+        withShippingPolicy: row.with_shipping_policy || 0,
+        withUrlPatterns: row.with_url_patterns || 0,
       };
     } catch (error) {
       throw new DatabaseError(

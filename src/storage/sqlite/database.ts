@@ -68,7 +68,13 @@ class WebDatabase {
             console.log(`[Web DB] Mock SQL: ${sql}`, params);
           }
 
-          if (sql.includes('CREATE TABLE')) {
+          if (sql.includes('DROP TABLE IF EXISTS suppliers')) {
+            // Mock table drop - clear the mock data
+            this.mockData.delete('suppliers');
+            if (successCb) {
+              successCb(mockTx, { rows: { length: 0 } });
+            }
+          } else if (sql.includes('CREATE TABLE')) {
             // Mock table creation success
             if (successCb) {
               successCb(mockTx, { rows: { length: 0 } });
@@ -98,22 +104,29 @@ class WebDatabase {
               successCb(mockTx, { rows: { length: 0 } });
             }
           } else if (sql.includes('INSERT INTO suppliers')) {
-            // Mock supplier insert
+            // Mock supplier insert - NEW SCHEMA
             const tableName = 'suppliers';
             if (!this.mockData.has(tableName)) {
               this.mockData.set(tableName, []);
             }
             const suppliers = this.mockData.get(tableName)!;
+
+            // New supplier schema with all the correct fields
             const newSupplier = {
               id: params?.[0] || `supplier_${Date.now()}`,
               name: params?.[1] || 'Test Supplier',
-              website: params?.[2] || null,
-              notes: params?.[3] || null,
-              shipping_policy: params?.[4] || null,
-              quality_rating: params?.[5] || null,
-              created_at: params?.[6] || new Date().toISOString(),
-              updated_at: params?.[7] || new Date().toISOString(),
-              deleted_at: params?.[8] || null,
+              country_code: params?.[2] || 'CA',
+              region_code: params?.[3] || null,
+              store_code: params?.[4] || null,
+              default_currency: params?.[5] || 'CAD',
+              membership_required: params?.[6] || 0,
+              membership_type: params?.[7] || null,
+              shipping_policy: params?.[8] || null,
+              url_patterns: params?.[9] || null,
+              notes: params?.[10] || null,
+              created_at: params?.[11] || new Date().toISOString(),
+              updated_at: params?.[12] || new Date().toISOString(),
+              deleted_at: null,
             };
             suppliers.push(newSupplier);
             if (successCb) {
@@ -140,9 +153,12 @@ class WebDatabase {
               });
             }
           } else if (
-            sql.includes('SELECT * FROM suppliers WHERE deleted_at IS NULL')
+            sql.includes('SELECT * FROM suppliers WHERE deleted_at IS NULL') ||
+            sql.includes(
+              'SELECT name, country_code, default_currency FROM suppliers'
+            )
           ) {
-            // Mock supplier find all
+            // Mock supplier find all or specific columns
             const tableName = 'suppliers';
             const suppliers = this.mockData.get(tableName) || [];
             const activeSuppliers = suppliers.filter(s => !s.deleted_at);

@@ -318,7 +318,39 @@
           5
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Implement Supplier CRUD Screens in React Native",
+            "description": "Create React Native screens for adding, editing, deleting, and listing suppliers. Ensure UI supports all required supplier fields, including shipping policy (as JSON), notes, and URL patterns.",
+            "dependencies": [],
+            "details": "Screens must provide intuitive forms for supplier data entry and editing. List view should display all suppliers with options to edit or delete. Integrate state management (e.g., Redux or Context API) for handling supplier data and UI state.\n<info added on 2025-09-06T01:23:01.828Z>\nCreated supplier CRUD screens following established patterns:\n\nSupplierListScreen.tsx: Complete list view with search, filtering, and delete functionality; follows InventoryListScreen pattern; displays supplier chips for country, currency, and membership status; handles empty and loading states; integrated with SupplierRepository.\n\nSupplierDetailScreen.tsx: Complete detail/edit view; follows InventoryItemDetailScreen pattern; supports view and edit modes; shows all supplier fields including shipping policy as JSON; integrated delete functionality.\n\nSupplierForm.tsx: Comprehensive form component with validation; includes all supplier fields per PRD; country code and currency selection with chips for common values; shipping policy section with all fields; URL patterns as comma-separated input; real-time validation and error handling.\n\nUpdated validation schemas: Added CreateSupplierSchema and ValidatedNewSupplier type.\n\nUpdated SupplierRepository: Refactored to match new Supplier interface; updated mapRowToEntity and mapEntityToRow for new schema; added findByCountryCode method; updated getStats method for new fields; handles JSON serialization for shippingPolicy and urlPatterns.\n\nNext: Check for linting errors and fix any issues before moving to subtask 6.2.\n</info added on 2025-09-06T01:23:01.828Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Field Validation and Business Logic",
+            "description": "Develop validation logic for supplier fields, including country/region codes (ISO 3166), currency (ISO 4217), membership fields, and shipping policy JSON structure.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Use a validation library (e.g., Zod or Yup) to enforce correct formats and required fields. Ensure that invalid entries are prevented at the UI level and provide user feedback for validation errors.\n<info added on 2025-09-06T01:53:20.094Z>\nSuccessfully implemented comprehensive field validation and business logic for suppliers:\n\n1. ISO Validation Utilities (`iso-validation.ts`)\n- Comprehensive ISO 3166-1 country code validation with complete list of valid codes\n- ISO 3166-2 region code validation with format checking and country matching\n- ISO 4217 currency code validation with complete list of active currencies\n- URL pattern validation supporting full URLs and hostname patterns (*.example.com)\n- Shipping policy validation with numeric field validation\n- Helper functions for country/currency name display\n\n2. Enhanced Zod Schemas (`schemas.ts`)\n- Updated SupplierSchema with `.refine()` validators using actual ISO code lists\n- Comprehensive URL pattern validation using custom validation functions\n- Better error messages with specific validation feedback\n\n3. Enhanced Form Validation (`SupplierForm.tsx`)\n- Real-time validation using comprehensive validation utilities\n- Better error messages with specific guidance for users\n- Proper handling of country/region code relationships\n- Enhanced URL pattern validation with comma-separated input support\n\n4. Comprehensive Unit Tests (`iso-validation.test.ts`)\n- 24 test cases covering all validation scenarios\n- Tests for valid and invalid inputs across all field types\n- Edge case testing for empty values, malformed inputs, and boundary conditions\n- All tests passing\n\n5. Integration & Exports\n- Added ISO validation utilities to main utils index\n- Proper TypeScript types and interfaces\n- No linting errors\n\nKey Features:\n- Real-time validation with immediate user feedback\n- Comprehensive ISO code validation using actual standards\n- Smart suggestions for common mistakes\n- Flexible URL pattern support for various hostname formats\n- Robust error handling with clear, actionable error messages\n- Full test coverage ensuring reliability\n\nThe validation system now provides enterprise-grade validation for all supplier fields with proper ISO standard compliance and excellent user experience.\n</info added on 2025-09-06T01:53:20.094Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate Data Persistence and Unit Tests",
+            "description": "Connect supplier CRUD operations to the repository layer for data persistence. Write unit tests for validation logic and repository integration.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Implement repository functions for create, read, update, and delete operations. Ensure data is stored and retrieved correctly. Write unit tests to verify validation and persistence logic, covering edge cases and error handling.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 7,
@@ -682,7 +714,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-05T16:55:13.131Z",
+      "updated": "2025-09-06T02:05:04.370Z",
       "description": "Tasks for master context"
     }
   }

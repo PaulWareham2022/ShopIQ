@@ -73,20 +73,19 @@ export async function seedSampleInventoryItems(): Promise<void> {
 
     const inventoryRepo = await repositoryFactory.getInventoryItemRepository();
 
-    // Check if inventory items already exist
-    const existingItems = await inventoryRepo.findAll();
-
-    if (existingItems.length > 0) {
-      console.log('Inventory items already exist, skipping seeding');
-      return;
-    }
-
     console.log('Seeding sample inventory items...');
 
-    // Create each sample inventory item
+    // Create each sample inventory item, but only if it doesn't already exist
     for (const itemData of SAMPLE_INVENTORY_ITEMS) {
       try {
-        await inventoryRepo.create(itemData);
+        // Check if an item with the same name already exists
+        const existingItems = await inventoryRepo.findByName(itemData.name);
+        if (existingItems.length === 0) {
+          await inventoryRepo.create(itemData);
+          console.log(`Created inventory item: ${itemData.name}`);
+        } else {
+          console.log(`Inventory item already exists: ${itemData.name}`);
+        }
       } catch (error) {
         console.warn(
           `Failed to create inventory item "${itemData.name}":`,

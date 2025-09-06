@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Screen, Header } from '../../components/ui';
 import { OfferForm } from '../../components/forms';
-import { OfferInput } from '../../storage/repositories/OfferRepository';
+import {
+  OfferInput,
+  OfferRepository,
+} from '../../storage/repositories/OfferRepository';
 import { InventoryItem } from '../../storage/types';
 import { Supplier } from '../../storage/types';
 import { RepositoryFactory } from '../../storage/RepositoryFactory';
@@ -21,7 +24,13 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
   useEffect(() => {
     const loadData = async () => {
       try {
-        const repositoryFactory = await RepositoryFactory.getInstance();
+        // Get the repository factory instance (synchronous)
+        const repositoryFactory = RepositoryFactory.getInstance();
+
+        // Initialize the factory (async)
+        await repositoryFactory.initialize();
+
+        // Now get the repositories (async)
         const inventoryRepo =
           await repositoryFactory.getInventoryItemRepository();
         const supplierRepo = await repositoryFactory.getSupplierRepository();
@@ -47,18 +56,45 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
 
   const handleSubmit = async (values: OfferInput) => {
     try {
-      // For preview purposes, just show the submitted data
+      // Get the repository factory instance (synchronous)
+      const repositoryFactory = RepositoryFactory.getInstance();
+
+      // Initialize the factory (async)
+      await repositoryFactory.initialize();
+
+      // Get the offer repository (async)
+      const offerRepo =
+        (await repositoryFactory.getOfferRepository()) as OfferRepository;
+
+      // Use the repository's createOffer method which handles unit conversion and price computation
+      const savedOffer = await offerRepo.createOffer(values);
+
+      // Show success message with computed values
       Alert.alert(
-        'Form Submitted!',
-        `This is a preview. In the real app, this would save:\n\n` +
+        'Offer Saved Successfully!',
+        `Offer has been saved with computed price metrics:\n\n` +
           `Item: ${values.inventory_item_id}\n` +
-          `Supplier: ${values.supplier_id}\n` +
-          `Price: ${values.currency} ${values.total_price}\n` +
-          `Amount: ${values.amount} ${values.amount_unit}`,
-        [{ text: 'OK' }]
+          `Supplier: ${values.supplier_name_snapshot || values.supplier_id}\n` +
+          `Total Price: ${values.currency} ${values.total_price}\n` +
+          `Amount: ${values.amount} ${values.amount_unit}\n` +
+          `Canonical Amount: ${savedOffer.amount_canonical.toFixed(4)}\n` +
+          `Effective Price/Unit: ${values.currency} ${savedOffer.effective_price_per_canonical.toFixed(4)}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate back after successful save
+              onBack();
+            },
+          },
+        ]
       );
-    } catch {
-      Alert.alert('Error', 'Failed to submit offer');
+    } catch (error) {
+      console.error('Failed to save offer:', error);
+      Alert.alert(
+        'Error',
+        `Failed to save offer: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 

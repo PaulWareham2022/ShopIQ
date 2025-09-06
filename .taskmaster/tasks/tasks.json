@@ -391,8 +391,8 @@
             "dependencies": [
               "7.2"
             ],
-            "details": "Ensure the date field defaults to today and is editable. Provide dropdowns or selectors for inventory and supplier linkage, fetching data as needed.",
-            "status": "pending",
+            "details": "Ensure the date field defaults to today and is editable. Provide dropdowns or selectors for inventory and supplier linkage, fetching data as needed.\n<info added on 2025-09-06T02:41:33.870Z>\nAuto-fill and linking logic implemented: observed_at field now auto-fills with current date/time in ISO format and is editable via a custom DatePicker supporting \"Now,\" \"Today,\" and manual ISO input. Introduced reusable Picker component for inventory and supplier selection, with integrated repository access, search, empty state, and error handling. Inventory picker displays item name and category; supplier picker shows name and country/region. Deleted items and suppliers are filtered out. Supplier name snapshot is captured on selection. Form supports both prop-based and auto-fetch data, with retry on fetch errors. All new components are unit tested for auto-fill, repository integration, picker behavior, validation, and submission, with no TypeScript errors. OfferForm now uses these new components for a seamless user experience.\n</info added on 2025-09-06T02:41:33.870Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -403,7 +403,7 @@
               "7.3"
             ],
             "details": "Integrate with unit conversion utilities. Calculate and display normalized price fields in real time as the user enters data.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -714,7 +714,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-06T02:33:00.963Z",
+      "updated": "2025-09-06T02:46:51.310Z",
       "description": "Tasks for master context"
     }
   }

@@ -474,6 +474,124 @@ export function validatePartialEntity<T>(
 }
 
 // =============================================================================
+// FORM INPUT SCHEMAS
+// =============================================================================
+
+/**
+ * Offer form input validation schema
+ * Used for validating user input in the OfferForm component before submission
+ */
+export const OfferFormInputSchema = z.object({
+  // Required fields
+  inventoryItemId: z
+    .string()
+    .min(1, 'Please select an inventory item')
+    .uuid('Invalid inventory item selection'),
+
+  supplierId: z
+    .string()
+    .min(1, 'Please select a supplier')
+    .uuid('Invalid supplier selection'),
+
+  totalPrice: z
+    .string()
+    .min(1, 'Total price is required')
+    .refine(val => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'Total price must be a positive number',
+    }),
+
+  currency: z
+    .string()
+    .min(1, 'Currency is required')
+    .length(3, 'Currency must be a 3-letter code (e.g., CAD, USD)')
+    .regex(/^[A-Z]{3}$/, 'Currency must be uppercase letters')
+    .refine(code => ISO_CURRENCY_CODES.has(code), {
+      message: 'Invalid currency code',
+    }),
+
+  amount: z
+    .string()
+    .min(1, 'Amount is required')
+    .refine(val => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'Amount must be a positive number',
+    }),
+
+  amountUnit: z
+    .string()
+    .min(1, 'Amount unit is required')
+    .max(20, 'Amount unit too long'),
+
+  // Optional fields with validation
+  supplierNameSnapshot: z
+    .string()
+    .max(200, 'Supplier name too long')
+    .optional(),
+
+  supplierUrl: z
+    .string()
+    .refine(val => !val || z.string().url().safeParse(val).success, {
+      message: 'Supplier URL must be valid',
+    })
+    .optional(),
+
+  sourceType: SourceTypeSchema.default('manual'),
+
+  sourceUrl: z
+    .string()
+    .refine(val => !val || z.string().url().safeParse(val).success, {
+      message: 'Source URL must be valid',
+    })
+    .optional(),
+
+  observedAt: z
+    .string()
+    .datetime('Observed date must be a valid ISO 8601 datetime'),
+
+  isTaxIncluded: z.boolean().default(true),
+
+  taxRate: z
+    .string()
+    .refine(
+      val =>
+        !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 1),
+      {
+        message:
+          'Tax rate must be a decimal between 0 and 1 (e.g., 0.15 for 15%)',
+      }
+    )
+    .optional(),
+
+  shippingCost: z
+    .string()
+    .refine(val => !val || (!isNaN(Number(val)) && Number(val) >= 0), {
+      message: 'Shipping cost must be a non-negative number',
+    })
+    .optional(),
+
+  shippingIncluded: z.boolean().default(false),
+
+  qualityRating: z
+    .string()
+    .refine(
+      val =>
+        !val || (!isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 5),
+      {
+        message: 'Quality rating must be between 1 and 5',
+      }
+    )
+    .optional(),
+
+  notes: z.string().max(1000, 'Notes too long').optional(),
+
+  photoUri: z
+    .string()
+    .refine(val => !val || z.string().url().safeParse(val).success, {
+      message: 'Photo URI must be valid',
+    })
+    .optional(),
+});
+
+// =============================================================================
 // EXPORTS
 // =============================================================================
 
@@ -494,6 +612,7 @@ export type ValidatedUnitConversion = z.infer<typeof UnitConversionSchema>;
 export type ValidatedBundle = z.infer<typeof BundleSchema>;
 export type ValidatedShippingPolicy = z.infer<typeof ShippingPolicySchema>;
 export type ValidatedBundleItem = z.infer<typeof BundleItemSchema>;
+export type ValidatedOfferFormInput = z.infer<typeof OfferFormInputSchema>;
 
 // Export all schemas for easy access
 export const ValidationSchemas = {
@@ -508,4 +627,5 @@ export const ValidationSchemas = {
   CanonicalDimension: CanonicalDimensionSchema,
   SourceType: SourceTypeSchema,
   PriceAllocationMethod: PriceAllocationMethodSchema,
+  OfferFormInput: OfferFormInputSchema,
 } as const;

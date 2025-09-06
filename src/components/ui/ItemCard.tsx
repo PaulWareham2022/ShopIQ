@@ -46,21 +46,21 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       <View style={styles.iconContainer}>
         <Text style={styles.iconText}>{icon}</Text>
       </View>
-      
+
       <View style={styles.content}>
         <Text style={[styles.title, titleStyle]}>{title}</Text>
-        
+
         {(subtitle || chips.length > 0) && (
           <View style={styles.metaRow}>
             {subtitle && (
               <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
             )}
-            
+
             {chips.map((chip, index) => {
               const chipVariant = chip.variant || 'primary';
               let chipStyle = styles.chip;
               let chipTextStyle = styles.chipText;
-              
+
               if (chipVariant === 'primary') {
                 chipStyle = [styles.chip, styles.chipPrimary];
                 chipTextStyle = [styles.chipText, styles.chipTextPrimary];
@@ -74,25 +74,23 @@ export const ItemCard: React.FC<ItemCardProps> = ({
                 chipStyle = [styles.chip, styles.chipSuccess];
                 chipTextStyle = [styles.chipText, styles.chipTextSuccess];
               }
-              
+
               return (
                 <View key={index} style={chipStyle}>
-                  <Text style={chipTextStyle}>
-                    {chip.label}
-                  </Text>
+                  <Text style={chipTextStyle}>{chip.label}</Text>
                 </View>
               );
             })}
           </View>
         )}
-        
+
         {notes && (
           <Text style={[styles.notes, notesStyle]} numberOfLines={2}>
             {notes}
           </Text>
         )}
       </View>
-      
+
       {showChevron && (
         <View style={styles.actions}>
           <Text style={styles.chevron}>›</Text>
@@ -114,13 +112,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
     );
   }
 
-  return (
-    <View style={[styles.container, containerStyle]}>
-      {content}
-    </View>
-  );
+  return <View style={[styles.container, containerStyle]}>{content}</View>;
 };
-
 
 const styles = StyleSheet.create({
   container: {

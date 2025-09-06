@@ -6,4 +6,5 @@ export const colors = {
   lightGray: '#E5E5E5',
   success: '#22c55e',
   error: '#ef4444',
+  warning: '#FF9500',
 } as const;

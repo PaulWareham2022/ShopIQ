@@ -8,7 +8,13 @@ import {
 } from 'react-native';
 import { colors } from '../../constants/colors';
 
-export type ChipVariant = 'weight' | 'volume' | 'count' | 'length' | 'area' | 'default';
+export type ChipVariant =
+  | 'weight'
+  | 'volume'
+  | 'count'
+  | 'length'
+  | 'area'
+  | 'default';
 export type ChipSize = 'small' | 'medium' | 'large';
 
 interface ChipProps {
@@ -34,12 +40,12 @@ export const Chip: React.FC<ChipProps> = ({
 }) => {
   const getChipStyle = (): ViewStyle[] => {
     const baseStyle = [styles.chip];
-    
+
     // Size styles
     if (size === 'small') baseStyle.push(styles.chipSmall);
     else if (size === 'large') baseStyle.push(styles.chipLarge);
     else baseStyle.push(styles.chipMedium);
-    
+
     // Variant styles
     if (variant === 'weight') baseStyle.push(styles.chipWeight);
     else if (variant === 'volume') baseStyle.push(styles.chipVolume);
@@ -47,42 +53,42 @@ export const Chip: React.FC<ChipProps> = ({
     else if (variant === 'length') baseStyle.push(styles.chipLength);
     else if (variant === 'area') baseStyle.push(styles.chipArea);
     else baseStyle.push(styles.chipDefault);
-    
+
     if (selected) {
       baseStyle.push(styles.chipSelected);
     }
-    
+
     if (disabled) {
       baseStyle.push(styles.chipDisabled);
     }
-    
+
     if (style) {
       baseStyle.push(style);
     }
-    
+
     return baseStyle;
   };
 
   const getTextStyle = (): TextStyle[] => {
     const baseStyle = [styles.chipText];
-    
+
     // Size styles
     if (size === 'small') baseStyle.push(styles.chipTextSmall);
     else if (size === 'large') baseStyle.push(styles.chipTextLarge);
     else baseStyle.push(styles.chipTextMedium);
-    
+
     if (selected) {
       baseStyle.push(styles.chipTextSelected);
     }
-    
+
     if (disabled) {
       baseStyle.push(styles.chipTextDisabled);
     }
-    
+
     if (textStyle) {
       baseStyle.push(textStyle);
     }
-    
+
     return baseStyle;
   };
 
@@ -106,7 +112,6 @@ export const Chip: React.FC<ChipProps> = ({
   );
 };
 
-
 const styles = StyleSheet.create({
   chip: {
     borderRadius: 18,
@@ -119,7 +124,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
     marginBottom: 6,
   },
-  
+
   // Sizes
   chipSmall: {
     paddingHorizontal: 8,
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     minWidth: 56,
   },
-  
+
   // Variants
   chipDefault: {
     backgroundColor: '#F0F0F0',
@@ -165,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3E8FF',
     borderColor: '#CC99FF',
   },
-  
+
   // States
   chipSelected: {
     backgroundColor: colors.primary,
@@ -181,14 +186,14 @@ const styles = StyleSheet.create({
     borderColor: '#E8E8E8',
     opacity: 0.6,
   },
-  
+
   // Text styles
   chipText: {
     fontWeight: '600',
     textAlign: 'center',
     color: colors.darkText,
   },
-  
+
   // Text sizes
   chipTextSmall: {
     fontSize: 11,
@@ -199,7 +204,7 @@ const styles = StyleSheet.create({
   chipTextLarge: {
     fontSize: 15,
   },
-  
+
   // Text states
   chipTextSelected: {
     color: colors.white,

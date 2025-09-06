@@ -37,8 +37,8 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {onBack ? (
-        <TouchableOpacity 
-          style={[styles.backButton, backButtonStyle]} 
+        <TouchableOpacity
+          style={[styles.backButton, backButtonStyle]}
           onPress={onBack}
         >
           <Text style={styles.backButtonText}>{backTitle}</Text>
@@ -46,18 +46,16 @@ export const Header: React.FC<HeaderProps> = ({
       ) : (
         <View style={styles.spacer} />
       )}
-      
-      <Text style={[
-        styles.title,
-        centerTitle && styles.titleCentered,
-        titleStyle
-      ]}>
+
+      <Text
+        style={[styles.title, centerTitle && styles.titleCentered, titleStyle]}
+      >
         {title}
       </Text>
-      
+
       {onAction && actionTitle ? (
-        <TouchableOpacity 
-          style={[styles.actionButton, actionButtonStyle]} 
+        <TouchableOpacity
+          style={[styles.actionButton, actionButtonStyle]}
           onPress={onAction}
         >
           <Text style={styles.actionButtonText}>{actionTitle}</Text>

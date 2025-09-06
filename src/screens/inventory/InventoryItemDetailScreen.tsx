@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Platform } from 'react-native';
 import { colors } from '../../constants/colors';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
@@ -135,10 +130,7 @@ export const InventoryItemDetailScreen: React.FC<
   if (isEditing) {
     return (
       <Screen>
-        <Header 
-          title={itemId ? 'Edit Item' : 'Add New Item'} 
-          onBack={onBack} 
-        />
+        <Header title={itemId ? 'Edit Item' : 'Add New Item'} onBack={onBack} />
         <InventoryItemForm
           initialValues={item || undefined}
           onSubmit={handleSave}
@@ -152,8 +144,8 @@ export const InventoryItemDetailScreen: React.FC<
   // View mode
   return (
     <Screen scrollable>
-      <Header 
-        title="Item Details" 
+      <Header
+        title="Item Details"
         onBack={onBack}
         actionTitle="Edit"
         onAction={() => setIsEditing(true)}

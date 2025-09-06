@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, FlatList, StyleSheet, Alert } from 'react-native';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
 import { InventoryItem } from '../../storage/types';
-import { Screen, Header, SearchBar, ItemCard, EmptyState, FloatingActionButton } from '../../components/ui';
+import {
+  Screen,
+  Header,
+  SearchBar,
+  ItemCard,
+  EmptyState,
+  FloatingActionButton,
+} from '../../components/ui';
 
 interface InventoryListScreenProps {
   onItemPress: (item: InventoryItem) => void;
@@ -94,7 +96,9 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   const renderItem = ({ item }: { item: InventoryItem }) => {
     const chips = [
       { label: item.canonicalUnit, variant: 'primary' as const },
-      ...(item.shelfLifeSensitive ? [{ label: '⏰ Expires', variant: 'warning' as const }] : []),
+      ...(item.shelfLifeSensitive
+        ? [{ label: '⏰ Expires', variant: 'warning' as const }]
+        : []),
     ];
 
     return (
@@ -150,7 +154,7 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   return (
     <Screen backgroundColor="#F2F2F7">
       <Header title="Inventory" onBack={onBack} />
-      
+
       <SearchBar
         placeholder="Search items..."
         value={searchQuery}

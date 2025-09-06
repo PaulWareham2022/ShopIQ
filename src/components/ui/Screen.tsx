@@ -29,11 +29,7 @@ export const Screen: React.FC<ScreenProps> = ({
   showsVerticalScrollIndicator = false,
   safeArea = true,
 }) => {
-  const baseStyle = [
-    styles.container,
-    { backgroundColor },
-    containerStyle,
-  ];
+  const baseStyle = [styles.container, { backgroundColor }, containerStyle];
 
   const content = scrollable ? (
     <ScrollView
@@ -51,18 +47,10 @@ export const Screen: React.FC<ScreenProps> = ({
   );
 
   if (safeArea) {
-    return (
-      <SafeAreaView style={baseStyle}>
-        {content}
-      </SafeAreaView>
-    );
+    return <SafeAreaView style={baseStyle}>{content}</SafeAreaView>;
   }
 
-  return (
-    <View style={baseStyle}>
-      {content}
-    </View>
-  );
+  return <View style={baseStyle}>{content}</View>;
 };
 
 const styles = StyleSheet.create({

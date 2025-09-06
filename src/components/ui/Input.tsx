@@ -38,17 +38,13 @@ export const Input: React.FC<InputProps> = ({
           {required && <Text style={styles.required}> *</Text>}
         </Text>
       )}
-      
+
       <RNTextInput
-        style={[
-          styles.input,
-          error && styles.inputError,
-          inputStyle,
-        ]}
+        style={[styles.input, error && styles.inputError, inputStyle]}
         placeholderTextColor={colors.grayText}
         {...textInputProps}
       />
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
       {helpText && !error && <Text style={styles.helpText}>{helpText}</Text>}
     </View>

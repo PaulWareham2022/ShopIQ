@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
 import {
@@ -233,10 +227,14 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 label="Unit"
                 required
                 value={values.canonicalUnit}
-                onValueChange={(unit) => handleUnitChange(unit, setFieldValue)}
+                onValueChange={unit => handleUnitChange(unit, setFieldValue)}
                 unitGroups={UNIT_GROUPS}
                 customInputPlaceholder="Or search"
-                error={errors.canonicalUnit && touched.canonicalUnit ? errors.canonicalUnit : undefined}
+                error={
+                  errors.canonicalUnit && touched.canonicalUnit
+                    ? errors.canonicalUnit
+                    : undefined
+                }
               />
 
               {detectedDimension && (
@@ -249,7 +247,9 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
               <Switch
                 label="Shelf-life Sensitive"
                 value={values.shelfLifeSensitive}
-                onValueChange={value => setFieldValue('shelfLifeSensitive', value)}
+                onValueChange={value =>
+                  setFieldValue('shelfLifeSensitive', value)
+                }
               />
 
               {/* Shelf Life Days (conditional) */}
@@ -261,7 +261,11 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                   onBlur={handleBlur('shelfLifeDays')}
                   placeholder="Enter shelf life in days"
                   keyboardType="numeric"
-                  error={errors.shelfLifeDays && touched.shelfLifeDays ? errors.shelfLifeDays : undefined}
+                  error={
+                    errors.shelfLifeDays && touched.shelfLifeDays
+                      ? errors.shelfLifeDays
+                      : undefined
+                  }
                 />
               )}
 
@@ -273,7 +277,11 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 onBlur={handleBlur('usageRatePerDay')}
                 placeholder="Enter usage rate (optional)"
                 keyboardType="numeric"
-                error={errors.usageRatePerDay && touched.usageRatePerDay ? errors.usageRatePerDay : undefined}
+                error={
+                  errors.usageRatePerDay && touched.usageRatePerDay
+                    ? errors.usageRatePerDay
+                    : undefined
+                }
               />
 
               {/* Notes */}

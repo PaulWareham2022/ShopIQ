@@ -31,13 +31,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <View style={[styles.iconContainer, iconStyle]}>
         <Text style={styles.iconText}>{icon}</Text>
       </View>
-      
+
       <Text style={[styles.title, titleStyle]}>{title}</Text>
-      
+
       {subtitle && (
         <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
       )}
-      
+
       {actionTitle && onAction && (
         <Button
           title={actionTitle}

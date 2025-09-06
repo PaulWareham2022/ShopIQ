@@ -52,10 +52,10 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
           editable={false}
         />
       )}
-      
+
       <View style={styles.chipContainer}>
-        {unitGroups.map((group) =>
-          group.units.map((unit) => (
+        {unitGroups.map(group =>
+          group.units.map(unit => (
             <Chip
               key={unit}
               label={unit}

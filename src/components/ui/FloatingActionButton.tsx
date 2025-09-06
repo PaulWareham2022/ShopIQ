@@ -65,12 +65,7 @@ export const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
       activeOpacity={0.8}
     >
       <Text
-        style={[
-          styles.icon,
-          getIconSize(),
-          { color: iconColor },
-          iconStyle,
-        ]}
+        style={[styles.icon, getIconSize(), { color: iconColor }, iconStyle]}
       >
         {icon}
       </Text>

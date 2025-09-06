@@ -21,3 +21,6 @@ export type { ItemCardProps } from './ItemCard';
 export { Header } from './Header';
 export { Screen } from './Screen';
 export { FloatingActionButton } from './FloatingActionButton';
+
+// Form Components (re-export from forms directory)
+export * from '../forms';

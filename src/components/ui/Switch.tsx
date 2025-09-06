@@ -31,7 +31,9 @@ export const Switch: React.FC<SwitchProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.switchContainer}>
-        <Text style={[styles.label, disabled && styles.labelDisabled, labelStyle]}>
+        <Text
+          style={[styles.label, disabled && styles.labelDisabled, labelStyle]}
+        >
           {label}
         </Text>
         <RNSwitch

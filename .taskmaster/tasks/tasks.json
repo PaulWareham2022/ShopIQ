@@ -317,7 +317,7 @@
         "dependencies": [
           5
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -369,8 +369,8 @@
             "title": "Design Offer Entry Form UI",
             "description": "Create the user interface for the offer capture form, including fields for manual input, unit selection, price, date, inventory, supplier, and optional photo URI.",
             "dependencies": [],
-            "details": "Ensure the form layout is user-friendly and supports all required fields. Prepare UI elements for future extensibility and canonical unit display.",
-            "status": "pending",
+            "details": "Ensure the form layout is user-friendly and supports all required fields. Prepare UI elements for future extensibility and canonical unit display.\n<info added on 2025-09-06T02:11:38.568Z>\nInitial exploration and analysis of existing form patterns is complete. InventoryItemForm and SupplierForm both use Formik for form management, with consistent UI patterns such as ScrollView layouts, fixed button containers, Apple-like design elements, and reusable input components. The Offer form requires core fields for inventory item, supplier, price, currency, amount, unit, and observed date, plus optional fields for supplier URL, source type, tax, shipping, quality rating, notes, and photo URI. Technical considerations include repository access for dropdowns, canonical unit and currency validation, date handling, and adherence to Formik validation patterns. Next steps: create OfferForm.tsx using established patterns, implement selection and picker components, add date picker, integrate unit/currency validation, and test submission flow.\n</info added on 2025-09-06T02:11:38.568Z>\n<info added on 2025-09-06T02:13:16.111Z>\nOfferForm.tsx implementation is complete with all required and optional fields, following established UI and validation patterns. The form uses Formik for state management, TypeScript interfaces for OfferInput, and provides chip-based selection for common values. Responsive layout, error handling, and user feedback are in place. Files updated: OfferForm.tsx, forms index, and UI index. The form is ready for integration, with placeholders for future picker enhancements. Design is consistent with existing forms and supports extensibility.\n</info added on 2025-09-06T02:13:16.111Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -380,8 +380,8 @@
             "dependencies": [
               "7.1"
             ],
-            "details": "Define Zod schemas for validation and connect them to Formik. Display validation errors inline and ensure type safety throughout the form.",
-            "status": "pending",
+            "details": "Define Zod schemas for validation and connect them to Formik. Display validation errors inline and ensure type safety throughout the form.\n<info added on 2025-09-06T02:33:16.030Z>\nTask 7.2 implementation is complete. Developed a comprehensive Zod validation schema for OfferForm input, enforcing all required and optional field constraints, ISO currency and UUID validation, and clear error messaging. Integrated Zod validation with Formik using custom utilities for error conversion and type safety. Replaced manual validation in OfferForm with Zod-based logic, ensuring robust error handling and user feedback. Added 12 unit tests covering all validation scenarios, with all tests passing. The form now provides type-safe, business rule-compliant validation and is ready for the next subtask (7.3) focused on auto-fill and linking logic.\n</info added on 2025-09-06T02:33:16.030Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -714,7 +714,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-06T02:05:04.370Z",
+      "updated": "2025-09-06T02:33:00.963Z",
       "description": "Tasks for master context"
     }
   }

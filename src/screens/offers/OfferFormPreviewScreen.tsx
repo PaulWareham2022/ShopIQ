@@ -40,6 +40,20 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
           supplierRepo.findAll(),
         ]);
 
+        // eslint-disable-next-line no-console
+        console.log(
+          'Loaded inventory items:',
+          items.map(item => ({ id: item.id, name: item.name }))
+        );
+        // eslint-disable-next-line no-console
+        console.log(
+          'Loaded suppliers:',
+          suppliersList.map(supplier => ({
+            id: supplier.id,
+            name: supplier.name,
+          }))
+        );
+
         setInventoryItems(items);
         setSuppliers(suppliersList);
       } catch (error) {
@@ -56,6 +70,14 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
 
   const handleSubmit = async (values: OfferInput) => {
     try {
+      // eslint-disable-next-line no-console
+      console.log('Form submission values:', values);
+      // eslint-disable-next-line no-console
+      console.log(
+        'Available inventory items:',
+        inventoryItems.map(item => ({ id: item.id, name: item.name }))
+      );
+
       // Get the repository factory instance (synchronous)
       const repositoryFactory = RepositoryFactory.getInstance();
 

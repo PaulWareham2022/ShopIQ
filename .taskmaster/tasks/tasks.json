@@ -362,7 +362,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -447,8 +447,8 @@
             "title": "Define Comparator Logic and Configuration",
             "description": "Specify the logic for comparing inventory items, including configuration options for selecting different comparators (e.g., price-per-unit, total price, historical trend). Design a flexible interface to allow runtime comparator selection.",
             "dependencies": [],
-            "details": "Document comparator strategies and configuration schema. Ensure extensibility for future comparator types. Validate with stakeholders.",
-            "status": "pending",
+            "details": "Document comparator strategies and configuration schema. Ensure extensibility for future comparator types. Validate with stakeholders.\n<info added on 2025-09-06T03:37:47.474Z>\nCurrent System Analysis\n\nExisting Comparison Infrastructure:\n- The system currently uses the `effective_price_per_canonical` field for offer comparison, with sorting handled by the `findByInventoryItemSortedByPrice()` method.\n- Three price metrics are computed and stored: `price_per_canonical_excl_shipping`, `price_per_canonical_incl_shipping`, and `effective_price_per_canonical` (which defaults to including shipping).\n- Comparison is limited to a single strategy (effective price per canonical unit), with no runtime configuration for alternative methods.\n\nCurrent Limitations:\n- Only one comparison strategy is supported.\n- No runtime configurability for different comparison methods.\n- No integration of quality ratings, historical trends, or other comparison factors.\n- Pricing comparison is hard-coded to include shipping.\n\nKey Data Available for Comparison:\n- Price metrics (excluding/including shipping, effective)\n- Quality ratings (1–5 scale)\n- Observed timestamps for historical analysis\n- Supplier information\n- Currency and tax details\n- Bundle information\n- Equivalence factors from inventory items\n\nNext Steps:\nDesign a flexible comparator interface that supports runtime selection of comparison strategies, while maintaining backward compatibility with the current `effective_price_per_canonical` approach.\n</info added on 2025-09-06T03:37:47.474Z>\n<info added on 2025-09-06T03:40:27.055Z>\nCore comparator logic and configuration schema have been fully designed and implemented. The architecture now includes a unified Comparator interface, a base abstract class for shared logic, and multiple concrete comparator strategies (including price-per-canonical, total price, price-per-unit, and quality-adjusted price). The Comparison Engine supports runtime strategy selection, caching, parallel processing, and comprehensive validation. The configuration schema enables flexible, context-specific comparator selection and composite strategies. Extensibility is ensured via the strategy and factory patterns, with plugin support for future custom comparators. All features maintain backward compatibility with the legacy effective price-per-canonical approach. Usage examples and validation patterns have been documented, and the design has been reviewed with stakeholders.\n</info added on 2025-09-06T03:40:27.055Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -714,7 +714,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-06T03:29:14.116Z",
+      "updated": "2025-09-06T03:40:32.848Z",
       "description": "Tasks for master context"
     }
   }

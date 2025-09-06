@@ -3,9 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Alert,
-  ScrollView,
 } from 'react-native';
 import { Platform } from 'react-native';
 import { colors } from '../../constants/colors';
@@ -13,6 +11,7 @@ import { InventoryItemRepository } from '../../storage/repositories/InventoryIte
 import { InventoryItem } from '../../storage/types';
 import { InventoryItemForm } from '../../components/forms/InventoryItemForm';
 import { ValidatedInventoryItem } from '../../storage/validation/schemas';
+import { Screen, Header, Button } from '../../components/ui';
 
 interface InventoryItemDetailScreenProps {
   itemId?: string;
@@ -124,62 +123,43 @@ export const InventoryItemDetailScreen: React.FC<
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Loading...</Text>
-        </View>
+      <Screen>
+        <Header title="Loading..." onBack={onBack} />
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading item...</Text>
         </View>
-      </View>
+      </Screen>
     );
   }
 
   if (isEditing) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>
-            {itemId ? 'Edit Item' : 'Add New Item'}
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
-
-        <View style={styles.formContainer}>
-          <InventoryItemForm
-            initialValues={item || undefined}
-            onSubmit={handleSave}
-            onCancel={onBack}
-            submitButtonText={itemId ? 'Update Item' : 'Add Item'}
-          />
-        </View>
-      </View>
+      <Screen>
+        <Header 
+          title={itemId ? 'Edit Item' : 'Add New Item'} 
+          onBack={onBack} 
+        />
+        <InventoryItemForm
+          initialValues={item || undefined}
+          onSubmit={handleSave}
+          onCancel={onBack}
+          submitButtonText={itemId ? 'Update Item' : 'Add Item'}
+        />
+      </Screen>
     );
   }
 
   // View mode
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Item Details</Text>
-        <TouchableOpacity
-          onPress={() => setIsEditing(true)}
-          style={styles.editButton}
-        >
-          <Text style={styles.editButtonText}>Edit</Text>
-        </TouchableOpacity>
-      </View>
+    <Screen scrollable>
+      <Header 
+        title="Item Details" 
+        onBack={onBack}
+        actionTitle="Edit"
+        onAction={() => setIsEditing(true)}
+      />
 
-      <ScrollView style={styles.content}>
+      <View style={styles.content}>
         <View style={styles.detailCard}>
           <Text style={styles.itemName}>{item?.name}</Text>
 
@@ -229,65 +209,19 @@ export const InventoryItemDetailScreen: React.FC<
         </View>
 
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.deleteButtonText}>Delete Item</Text>
-          </TouchableOpacity>
+          <Button
+            title="Delete Item"
+            variant="danger"
+            onPress={handleDelete}
+            style={styles.deleteButton}
+          />
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  formContainer: {
-    flex: 1, // Give the form all remaining space
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8F4FD',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  backButton: {
-    paddingVertical: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.darkText,
-    flex: 1,
-    textAlign: 'center',
-  },
-  editButton: {
-    paddingVertical: 8,
-  },
-  editButtonText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  headerSpacer: {
-    width: 60, // Approximate width of back button to balance the title centering
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -334,14 +268,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   deleteButton: {
-    backgroundColor: colors.error,
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.white,
+    marginTop: 0,
   },
 });

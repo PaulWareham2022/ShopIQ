@@ -74,7 +74,7 @@ export async function seedSampleInventoryItems(): Promise<void> {
     const inventoryRepo = await repositoryFactory.getInventoryItemRepository();
 
     // Check if inventory items already exist
-    const existingItems = await inventoryRepo.getAll();
+    const existingItems = await inventoryRepo.findAll();
 
     if (existingItems.length > 0) {
       console.log('Inventory items already exist, skipping seeding');

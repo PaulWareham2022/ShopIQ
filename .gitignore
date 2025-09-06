@@ -28,3 +28,7 @@ node_modules/
 /.expo
 /.expo/*
 !/.expo/README.md
+
+# Task files
+# tasks.json
+# tasks/ 

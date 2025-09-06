@@ -142,7 +142,11 @@ export const Picker: React.FC<PickerProps> = ({
           activeOpacity={1}
           onPress={handleClose}
         >
-          <View style={styles.modalContent}>
+          <TouchableOpacity
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={e => e.stopPropagation()}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label || 'Select Option'}</Text>
               <TouchableOpacity
@@ -173,7 +177,7 @@ export const Picker: React.FC<PickerProps> = ({
                 </View>
               }
             />
-          </View>
+          </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
     </View>

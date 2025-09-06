@@ -9,6 +9,7 @@ import { BaseEntity, DatabaseError, ValidationError } from '../types';
 import { CanonicalDimension } from '../types';
 import { executeSql } from '../sqlite/database';
 import { validateAndConvert } from '../utils/canonical-units';
+import { Platform } from 'react-native';
 
 // Offer entity interface (extending BaseEntity but with proper field names)
 export interface Offer extends BaseEntity {
@@ -190,6 +191,25 @@ export class OfferRepository extends BaseRepository<Offer> {
     inventoryItemId: string
   ): Promise<CanonicalDimension> {
     try {
+      // Check if we're on web platform and need to use fallback
+      if (Platform.OS === 'web') {
+        // Import the InventoryItemRepository to access the shared store
+        const { InventoryItemRepository } = await import(
+          './InventoryItemRepository'
+        );
+        const inventoryRepo = new InventoryItemRepository();
+        const item = await inventoryRepo.findById(inventoryItemId);
+
+        if (!item) {
+          throw new ValidationError(
+            `Inventory item with ID ${inventoryItemId} not found`
+          );
+        }
+
+        return item.canonicalDimension;
+      }
+
+      // Use SQL query for native platforms
       const sql = `
         SELECT canonical_dimension 
         FROM inventory_items 
@@ -274,7 +294,7 @@ export class OfferRepository extends BaseRepository<Offer> {
   async createOffer(input: OfferInput): Promise<Offer> {
     try {
       // Get the canonical dimension from the linked inventory item
-      const dimension = await getInventoryItemDimension(
+      const dimension = await this.getInventoryItemDimension(
         input.inventory_item_id
       );
 
@@ -424,7 +444,7 @@ export class OfferRepository extends BaseRepository<Offer> {
 
       if (needsRecomputation) {
         // Get dimension (may have changed if inventory_item_id changed)
-        const dimension = await getInventoryItemDimension(
+        const dimension = await this.getInventoryItemDimension(
           updatedInput.inventory_item_id
         );
 
@@ -471,38 +491,5 @@ export class OfferRepository extends BaseRepository<Offer> {
         error as Error
       );
     }
-  }
-}
-
-/**
- * Helper function to get inventory item dimension
- * (extracted to avoid "this" binding issues in private method calls)
- */
-async function getInventoryItemDimension(
-  inventoryItemId: string
-): Promise<CanonicalDimension> {
-  try {
-    const sql = `
-      SELECT canonical_dimension 
-      FROM inventory_items 
-      WHERE id = ? AND deleted_at IS NULL
-    `;
-    const result = await executeSql(sql, [inventoryItemId]);
-
-    if (result.rows.length === 0) {
-      throw new ValidationError(
-        `Inventory item with ID ${inventoryItemId} not found`
-      );
-    }
-
-    return result.rows.item(0).canonical_dimension as CanonicalDimension;
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      throw error; // Re-throw validation errors as-is
-    }
-    throw new DatabaseError(
-      'Failed to get inventory item dimension',
-      error as Error
-    );
   }
 }

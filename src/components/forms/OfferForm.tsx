@@ -743,7 +743,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               <Button
                 title={submitButtonText}
                 variant="primary"
-                onPress={() => handleSubmit()}
+                onPress={handleSubmit}
                 disabled={isSubmitting}
                 loading={isSubmitting}
                 fullWidth

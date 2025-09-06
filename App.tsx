@@ -9,7 +9,7 @@ import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
 import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
 import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
-import { OfferFormPreviewScreen } from './src/screens/offers/OfferFormPreviewScreen';
+import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
 import { InventoryItem, Supplier } from './src/storage/types';
 
 type Screen =
@@ -20,7 +20,7 @@ type Screen =
   | 'supplier-list'
   | 'supplier-detail'
   | 'supplier-add'
-  | 'offer-form-preview';
+  | 'add-offer';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -162,13 +162,15 @@ export default function App() {
 
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => setCurrentScreen('offer-form-preview')}
+          onPress={() => setCurrentScreen('add-offer')}
         >
           <View style={styles.buttonContent}>
             <Text style={styles.buttonIcon}>💰</Text>
             <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>Offer Form Preview</Text>
-              <Text style={styles.buttonSubtitle}>Preview the new form</Text>
+              <Text style={styles.buttonTitle}>Add Offer</Text>
+              <Text style={styles.buttonSubtitle}>
+                Capture new price offers
+              </Text>
             </View>
             <Text style={styles.chevron}>›</Text>
           </View>
@@ -241,10 +243,10 @@ export default function App() {
             onSupplierSaved={handleSupplierSaved}
           />
         );
-      case 'offer-form-preview':
+      case 'add-offer':
         return (
-          <OfferFormPreviewScreen
-            key="offer-form-preview"
+          <AddOfferScreen
+            key="add-offer"
             onBack={() => setCurrentScreen('home')}
           />
         );

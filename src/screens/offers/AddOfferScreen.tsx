@@ -10,13 +10,11 @@ import { InventoryItem } from '../../storage/types';
 import { Supplier } from '../../storage/types';
 import { RepositoryFactory } from '../../storage/RepositoryFactory';
 
-interface OfferFormPreviewScreenProps {
+interface AddOfferScreenProps {
   onBack: () => void;
 }
 
-export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
-  onBack,
-}) => {
+export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,20 +38,6 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
           supplierRepo.findAll(),
         ]);
 
-        // eslint-disable-next-line no-console
-        console.log(
-          'Loaded inventory items:',
-          items.map(item => ({ id: item.id, name: item.name }))
-        );
-        // eslint-disable-next-line no-console
-        console.log(
-          'Loaded suppliers:',
-          suppliersList.map(supplier => ({
-            id: supplier.id,
-            name: supplier.name,
-          }))
-        );
-
         setInventoryItems(items);
         setSuppliers(suppliersList);
       } catch (error) {
@@ -70,14 +54,6 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
 
   const handleSubmit = async (values: OfferInput) => {
     try {
-      // eslint-disable-next-line no-console
-      console.log('Form submission values:', values);
-      // eslint-disable-next-line no-console
-      console.log(
-        'Available inventory items:',
-        inventoryItems.map(item => ({ id: item.id, name: item.name }))
-      );
-
       // Get the repository factory instance (synchronous)
       const repositoryFactory = RepositoryFactory.getInstance();
 
@@ -91,27 +67,25 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
       // Use the repository's createOffer method which handles unit conversion and price computation
       const savedOffer = await offerRepo.createOffer(values);
 
-      // Show success message with computed values
-      Alert.alert(
-        'Offer Saved Successfully!',
-        `Offer has been saved with computed price metrics:\n\n` +
-          `Item: ${values.inventory_item_id}\n` +
-          `Supplier: ${values.supplier_name_snapshot || values.supplier_id}\n` +
-          `Total Price: ${values.currency} ${values.total_price}\n` +
-          `Amount: ${values.amount} ${values.amount_unit}\n` +
-          `Canonical Amount: ${savedOffer.amount_canonical.toFixed(4)}\n` +
-          `Effective Price/Unit: ${values.currency} ${savedOffer.effective_price_per_canonical.toFixed(4)}`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Navigate back after successful save
-              onBack();
-            },
-          },
-        ]
-      );
+      // Navigate back immediately for better UX
+      onBack();
+
+      // Show success message after navigation
+      setTimeout(() => {
+        Alert.alert(
+          'Offer Saved Successfully!',
+          `Offer has been saved with computed price metrics:\n\n` +
+            `Item: ${values.inventory_item_id}\n` +
+            `Supplier: ${values.supplier_name_snapshot || values.supplier_id}\n` +
+            `Total Price: ${values.currency} ${values.total_price}\n` +
+            `Amount: ${values.amount} ${values.amount_unit}\n` +
+            `Canonical Amount: ${savedOffer.amount_canonical.toFixed(4)}\n` +
+            `Effective Price/Unit: ${values.currency} ${savedOffer.effective_price_per_canonical.toFixed(4)}`,
+          [{ text: 'OK' }]
+        );
+      }, 100);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to save offer:', error);
       Alert.alert(
         'Error',
@@ -134,13 +108,13 @@ export const OfferFormPreviewScreen: React.FC<OfferFormPreviewScreenProps> = ({
 
   return (
     <Screen backgroundColor="#F8F9FA">
-      <Header title="Offer Form Preview" onBack={onBack} />
+      <Header title="Add New Offer" onBack={onBack} />
       <OfferForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         availableInventoryItems={inventoryItems}
         availableSuppliers={suppliers}
-        submitButtonText="Preview Submit"
+        submitButtonText="Save Offer"
       />
     </Screen>
   );

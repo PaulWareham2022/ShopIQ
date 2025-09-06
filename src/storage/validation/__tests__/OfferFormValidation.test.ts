@@ -241,6 +241,94 @@ describe('OfferForm Zod Validation', () => {
 
       expect(Object.keys(errors)).toHaveLength(0);
     });
+
+    it('should validate photo URI format', () => {
+      const values = {
+        inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
+        supplierId: '123e4567-e89b-12d3-a456-426614174001',
+        totalPrice: '10.99',
+        currency: 'CAD',
+        amount: '1',
+        amountUnit: 'kg',
+        observedAt: '2024-01-01T00:00:00.000Z',
+        isTaxIncluded: true,
+        shippingIncluded: false,
+        sourceType: 'manual' as const,
+        photoUri: 'not-a-valid-url',
+      };
+
+      const errors = validateForm(values);
+
+      expect(errors.photoUri).toBe('Photo URI must be valid');
+    });
+
+    it('should accept valid photo URI formats', () => {
+      const validPhotoUris = [
+        'https://example.com/photo.jpg',
+        'http://example.com/image.png',
+        'https://cdn.example.com/products/123/photo.webp',
+        'https://example.com/path/to/image.jpeg',
+      ];
+
+      validPhotoUris.forEach(photoUri => {
+        const values = {
+          inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
+          supplierId: '123e4567-e89b-12d3-a456-426614174001',
+          totalPrice: '10.99',
+          currency: 'CAD',
+          amount: '1',
+          amountUnit: 'kg',
+          observedAt: '2024-01-01T00:00:00.000Z',
+          isTaxIncluded: true,
+          shippingIncluded: false,
+          sourceType: 'manual' as const,
+          photoUri,
+        };
+
+        const errors = validateForm(values);
+        expect(errors.photoUri).toBeUndefined();
+      });
+    });
+
+    it('should handle empty photo URI', () => {
+      const values = {
+        inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
+        supplierId: '123e4567-e89b-12d3-a456-426614174001',
+        totalPrice: '10.99',
+        currency: 'CAD',
+        amount: '1',
+        amountUnit: 'kg',
+        observedAt: '2024-01-01T00:00:00.000Z',
+        isTaxIncluded: true,
+        shippingIncluded: false,
+        sourceType: 'manual' as const,
+        photoUri: '',
+      };
+
+      const errors = validateForm(values);
+
+      expect(errors.photoUri).toBeUndefined();
+    });
+
+    it('should handle undefined photo URI', () => {
+      const values = {
+        inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
+        supplierId: '123e4567-e89b-12d3-a456-426614174001',
+        totalPrice: '10.99',
+        currency: 'CAD',
+        amount: '1',
+        amountUnit: 'kg',
+        observedAt: '2024-01-01T00:00:00.000Z',
+        isTaxIncluded: true,
+        shippingIncluded: false,
+        sourceType: 'manual' as const,
+        // photoUri is undefined
+      };
+
+      const errors = validateForm(values);
+
+      expect(errors.photoUri).toBeUndefined();
+    });
   });
 
   describe('UUID validation', () => {

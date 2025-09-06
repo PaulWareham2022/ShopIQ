@@ -516,6 +516,170 @@ describe('OfferForm Auto-Fill and Linking Logic', () => {
     });
   });
 
+  describe('Photo URI field functionality', () => {
+    it('should allow entering a photo URI', async () => {
+      const { getByPlaceholderText } = render(
+        <OfferForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          availableInventoryItems={mockInventoryItems}
+          availableSuppliers={mockSuppliers}
+        />
+      );
+
+      const photoUriInput = getByPlaceholderText('Path to product photo');
+      fireEvent.changeText(photoUriInput, 'https://example.com/photo.jpg');
+
+      expect(photoUriInput.props.value).toBe('https://example.com/photo.jpg');
+    });
+
+    it('should include photo URI in form submission when provided', async () => {
+      const { getByText, getByPlaceholderText } = render(
+        <OfferForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          availableInventoryItems={mockInventoryItems}
+          availableSuppliers={mockSuppliers}
+        />
+      );
+
+      // Fill required fields
+      const inventoryPicker = getByText('Select an inventory item...');
+      fireEvent.press(inventoryPicker);
+      await waitFor(() => {
+        const testItem = getByText('Test Item');
+        fireEvent.press(testItem);
+      });
+
+      const supplierPicker = getByText('Select a supplier...');
+      fireEvent.press(supplierPicker);
+      await waitFor(() => {
+        const testSupplier = getByText('Test Supplier');
+        fireEvent.press(testSupplier);
+      });
+
+      fireEvent.changeText(getByPlaceholderText('Enter total price'), '10.99');
+      fireEvent.changeText(getByPlaceholderText('e.g., CAD, USD, EUR'), 'CAD');
+      fireEvent.changeText(getByPlaceholderText('Quantity'), '1');
+      fireEvent.changeText(getByPlaceholderText('e.g., kg, L, unit'), 'kg');
+
+      // Add photo URI
+      const photoUriInput = getByPlaceholderText('Path to product photo');
+      fireEvent.changeText(
+        photoUriInput,
+        'https://example.com/product-photo.jpg'
+      );
+
+      // Submit form
+      const submitButton = getByText('Save Offer');
+      fireEvent.press(submitButton);
+
+      // Verify photo URI is included in submission
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            photo_uri: 'https://example.com/product-photo.jpg',
+          })
+        );
+      });
+    });
+
+    it('should handle empty photo URI gracefully', async () => {
+      const { getByText, getByPlaceholderText } = render(
+        <OfferForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          availableInventoryItems={mockInventoryItems}
+          availableSuppliers={mockSuppliers}
+        />
+      );
+
+      // Fill required fields
+      const inventoryPicker = getByText('Select an inventory item...');
+      fireEvent.press(inventoryPicker);
+      await waitFor(() => {
+        const testItem = getByText('Test Item');
+        fireEvent.press(testItem);
+      });
+
+      const supplierPicker = getByText('Select a supplier...');
+      fireEvent.press(supplierPicker);
+      await waitFor(() => {
+        const testSupplier = getByText('Test Supplier');
+        fireEvent.press(testSupplier);
+      });
+
+      fireEvent.changeText(getByPlaceholderText('Enter total price'), '10.99');
+      fireEvent.changeText(getByPlaceholderText('e.g., CAD, USD, EUR'), 'CAD');
+      fireEvent.changeText(getByPlaceholderText('Quantity'), '1');
+      fireEvent.changeText(getByPlaceholderText('e.g., kg, L, unit'), 'kg');
+
+      // Leave photo URI empty
+      const photoUriInput = getByPlaceholderText('Path to product photo');
+      expect(photoUriInput.props.value).toBe('');
+
+      // Submit form
+      const submitButton = getByText('Save Offer');
+      fireEvent.press(submitButton);
+
+      // Verify form submits successfully without photo URI
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            photo_uri: undefined,
+          })
+        );
+      });
+    });
+
+    it('should validate photo URI format when provided', async () => {
+      const { getByText, getByPlaceholderText } = render(
+        <OfferForm
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
+          availableInventoryItems={mockInventoryItems}
+          availableSuppliers={mockSuppliers}
+        />
+      );
+
+      // Fill required fields
+      const inventoryPicker = getByText('Select an inventory item...');
+      fireEvent.press(inventoryPicker);
+      await waitFor(() => {
+        const testItem = getByText('Test Item');
+        fireEvent.press(testItem);
+      });
+
+      const supplierPicker = getByText('Select a supplier...');
+      fireEvent.press(supplierPicker);
+      await waitFor(() => {
+        const testSupplier = getByText('Test Supplier');
+        fireEvent.press(testSupplier);
+      });
+
+      fireEvent.changeText(getByPlaceholderText('Enter total price'), '10.99');
+      fireEvent.changeText(getByPlaceholderText('e.g., CAD, USD, EUR'), 'CAD');
+      fireEvent.changeText(getByPlaceholderText('Quantity'), '1');
+      fireEvent.changeText(getByPlaceholderText('e.g., kg, L, unit'), 'kg');
+
+      // Add invalid photo URI
+      const photoUriInput = getByPlaceholderText('Path to product photo');
+      fireEvent.changeText(photoUriInput, 'not-a-valid-url');
+
+      // Submit form
+      const submitButton = getByText('Save Offer');
+      fireEvent.press(submitButton);
+
+      // Verify validation error appears
+      await waitFor(() => {
+        expect(getByText('Photo URI must be valid')).toBeTruthy();
+      });
+
+      // Verify onSubmit was not called due to validation error
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Price computation and normalization', () => {
     beforeEach(() => {
       // Setup default mock implementations

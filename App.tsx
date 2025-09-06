@@ -10,6 +10,7 @@ import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItem
 import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
 import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
 import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
+import { OfferListScreen } from './src/screens/offers/OfferListScreen';
 import { InventoryItem, Supplier } from './src/storage/types';
 
 type Screen =
@@ -20,7 +21,8 @@ type Screen =
   | 'supplier-list'
   | 'supplier-detail'
   | 'supplier-add'
-  | 'add-offer';
+  | 'add-offer'
+  | 'offer-list';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -101,6 +103,11 @@ export default function App() {
   const handleItemSaved = () => {
     setCurrentScreen('inventory-list');
     setSelectedItem(null);
+  };
+
+  const handleViewOffers = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setCurrentScreen('offer-list');
   };
 
   // Supplier navigation handlers
@@ -207,6 +214,7 @@ export default function App() {
             itemId={selectedItem?.id}
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
+            onViewOffers={handleViewOffers}
           />
         );
       case 'inventory-add':
@@ -249,6 +257,17 @@ export default function App() {
             key="add-offer"
             onBack={() => setCurrentScreen('home')}
           />
+        );
+      case 'offer-list':
+        return selectedItem ? (
+          <OfferListScreen
+            key={`offers-${selectedItem.id}`}
+            inventoryItem={selectedItem}
+            onBack={handleBackToList}
+            onAddOffer={() => setCurrentScreen('add-offer')}
+          />
+        ) : (
+          renderHomeScreen()
         );
       default:
         return renderHomeScreen();

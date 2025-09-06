@@ -458,8 +458,8 @@
             "dependencies": [
               "8.1"
             ],
-            "details": "Implement calculation functions in the comparison engine. Integrate with data models for offers and inventory items. Write unit tests for calculation accuracy.",
-            "status": "pending",
+            "details": "Implement calculation functions in the comparison engine. Integrate with data models for offers and inventory items. Write unit tests for calculation accuracy.\n<info added on 2025-09-06T03:44:35.734Z>\nBegin implementation of dedicated price calculation utilities to support price-per-canonical-unit logic, both excluding and including shipping/tax. Enhance existing comparators with robust calculation functions that handle edge cases such as missing data, zero units, and invalid conversions. Integrate these utilities with the comparison engine and ensure comprehensive error handling and validation. Write unit tests to verify calculation accuracy across all scenarios.\n</info added on 2025-09-06T03:44:35.734Z>\n<info added on 2025-09-06T03:52:23.488Z>\nSuccessfully implemented comprehensive price calculation utilities (priceCalculations.ts) supporting price-per-canonical-unit logic with options for excluding/including shipping and tax, effective price usage, currency conversion, and equivalence factors. Robust edge case handling covers zero units, missing data, invalid conversions, NaN/Infinity values, unit conversion failures, and confidence scoring based on data completeness. Calculation utilities are fully integrated with the comparison engine, updating PricePerCanonicalComparator and TotalPriceComparator with enhanced error handling and metadata. Comprehensive unit tests (38 total) validate all calculation scenarios, batch operations, edge cases, and utility functions, with all tests passing. The system now delivers accurate, reliable price-per-canonical-unit calculations with thorough error handling and validation.\n</info added on 2025-09-06T03:52:23.488Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -469,8 +469,8 @@
             "dependencies": [
               "8.2"
             ],
-            "details": "Optimize queries for performance. Ensure compatibility with local storage schema. Test with large datasets for scalability.",
-            "status": "pending",
+            "details": "Optimize queries for performance. Ensure compatibility with local storage schema. Test with large datasets for scalability.\n<info added on 2025-09-06T12:55:22.814Z>\nSuccessfully implemented comprehensive SQLite query system for comparison engine sorting and filtering, featuring a dynamic query builder with advanced filtering, sorting, and pagination options; optimized for performance using indexes, window functions, and efficient JOINs; fully integrated with the repository pattern and comparison strategies; and validated with extensive unit and performance testing to ensure scalability, flexibility, and maintainability for large datasets.\n</info added on 2025-09-06T12:55:22.814Z>",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -481,7 +481,7 @@
               "8.2"
             ],
             "details": "Extend data models and storage schema to support historical data. Implement update and retrieval logic. Provide API for accessing historical trends.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -493,7 +493,7 @@
               "8.4"
             ],
             "details": "Integrate with UI highlighting mechanism. Support edge cases (e.g., ties, missing data). Validate with test scenarios.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -714,7 +714,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-06T03:40:32.848Z",
+      "updated": "2025-09-06T14:32:54.168Z",
       "description": "Tasks for master context"
     }
   }

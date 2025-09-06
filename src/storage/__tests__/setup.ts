@@ -146,6 +146,22 @@ export const createTestInventoryItem = (overrides: any = {}) => ({
   ...overrides,
 });
 
+// Test database setup and cleanup functions
+export const setupTestDatabase = async (): Promise<void> => {
+  // Mock database setup - in real tests this would initialize a test database
+  // For now, we'll just ensure mocks are properly configured
+  mockSQLiteDatabase.execAsync.mockResolvedValue(mockSQLiteResult);
+  mockSQLiteDatabase.getAllAsync.mockResolvedValue([]);
+  mockSQLiteDatabase.getFirstAsync.mockResolvedValue(null);
+  mockSQLiteDatabase.runAsync.mockResolvedValue(mockSQLiteResult);
+};
+
+export const cleanupTestDatabase = async (): Promise<void> => {
+  // Mock database cleanup - in real tests this would clean up test data
+  // For now, we'll just reset mocks
+  resetAllMocks();
+};
+
 beforeEach(() => {
   resetAllMocks();
 });

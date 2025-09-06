@@ -87,7 +87,7 @@ class WebDatabase {
               'offers',
               'unit_conversions',
               'bundles',
-              'bundle_items',
+              'historical_prices',
               'database_metadata',
             ];
             if (successCb) {
@@ -247,6 +247,137 @@ class WebDatabase {
                 rows: {
                   length: 1,
                   item: (_i: number) => ({ value: '1.0.0' }),
+                },
+              });
+            }
+          } else if (sql.includes('INSERT INTO offers')) {
+            // Mock offers insert
+            const tableName = 'offers';
+            if (!this.mockData.has(tableName)) {
+              this.mockData.set(tableName, []);
+            }
+            const offers = this.mockData.get(tableName)!;
+
+            // Create new offer from parameters
+            const newOffer = {
+              id: params?.[0] || `offer_${Date.now()}`,
+              inventory_item_id: params?.[1],
+              supplier_id: params?.[2],
+              supplier_name_snapshot: params?.[3],
+              supplier_url: params?.[4],
+              source_type: params?.[5],
+              source_url: params?.[6],
+              raw_capture: params?.[7],
+              observed_at: params?.[8],
+              captured_at: params?.[9],
+              total_price: params?.[10],
+              currency: params?.[11],
+              is_tax_included: params?.[12],
+              tax_rate: params?.[13],
+              shipping_cost: params?.[14],
+              min_order_amount: params?.[15],
+              free_shipping_threshold_at_capture: params?.[16],
+              shipping_included: params?.[17],
+              amount: params?.[18],
+              amount_unit: params?.[19],
+              amount_canonical: params?.[20],
+              price_per_canonical_excl_shipping: params?.[21],
+              price_per_canonical_incl_shipping: params?.[22],
+              effective_price_per_canonical: params?.[23],
+              bundle_id: params?.[24],
+              quality_rating: params?.[25],
+              notes: params?.[26],
+              photo_uri: params?.[27],
+              computed_by_version: params?.[28],
+              created_at: params?.[29],
+              updated_at: params?.[30],
+              deleted_at: null,
+            };
+            offers.push(newOffer);
+            if (successCb) {
+              successCb(mockTx, {
+                rows: { length: 0 },
+                insertId: newOffer.id,
+                rowsAffected: 1,
+              });
+            }
+          } else if (sql.includes('INSERT INTO historical_prices')) {
+            // Mock historical prices insert
+            const tableName = 'historical_prices';
+            if (!this.mockData.has(tableName)) {
+              this.mockData.set(tableName, []);
+            }
+            const historicalPrices = this.mockData.get(tableName)!;
+
+            // Create new historical price from parameters
+            const newHistoricalPrice = {
+              id: params?.[0] || `historical_price_${Date.now()}`,
+              inventory_item_id: params?.[1],
+              supplier_id: params?.[2],
+              price: params?.[3],
+              currency: params?.[4],
+              unit: params?.[5],
+              quantity: params?.[6],
+              observed_at: params?.[7],
+              source: params?.[8],
+              metadata: params?.[9],
+              created_at: params?.[10],
+              updated_at: params?.[11],
+              deleted_at: null,
+            };
+            historicalPrices.push(newHistoricalPrice);
+            if (successCb) {
+              successCb(mockTx, {
+                rows: { length: 0 },
+                insertId: newHistoricalPrice.id,
+                rowsAffected: 1,
+              });
+            }
+          } else if (sql.includes('SELECT * FROM offers')) {
+            // Mock offers query - return empty result set for now
+            if (__DEV__) {
+              console.log('[Web DB] Mock offers query:', sql, params);
+            }
+            const tableName = 'offers';
+            if (!this.mockData.has(tableName)) {
+              this.mockData.set(tableName, []);
+            }
+            const offers = this.mockData.get(tableName) || [];
+            
+            // Filter offers based on WHERE conditions
+            let filteredOffers = offers;
+            
+            // Handle inventory_item_id condition
+            if (sql.includes('inventory_item_id = ?')) {
+              const inventoryItemId = params?.[0];
+              filteredOffers = filteredOffers.filter((offer: any) => 
+                offer.inventory_item_id === inventoryItemId
+              );
+            }
+            
+            // Handle deleted_at IS NULL condition (soft delete filter)
+            if (sql.includes('deleted_at IS NULL')) {
+              filteredOffers = filteredOffers.filter((offer: any) => 
+                !offer.deleted_at
+              );
+            }
+            
+            // Handle ORDER BY clause
+            if (sql.includes('ORDER BY observed_at DESC')) {
+              filteredOffers = filteredOffers.sort((a: any, b: any) => 
+                new Date(b.observed_at).getTime() - new Date(a.observed_at).getTime()
+              );
+            } else if (sql.includes('ORDER BY observed_at ASC')) {
+              filteredOffers = filteredOffers.sort((a: any, b: any) => 
+                new Date(a.observed_at).getTime() - new Date(b.observed_at).getTime()
+              );
+            }
+            
+            if (successCb) {
+              successCb(mockTx, {
+                rows: {
+                  length: filteredOffers.length,
+                  item: (i: number) => filteredOffers[i],
                 },
               });
             }

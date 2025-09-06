@@ -11,6 +11,20 @@ import { DatabaseError, ValidationError } from '../types';
 export class SupplierRepository extends BaseRepository<Supplier> {
   protected tableName = 'suppliers';
 
+  // Override to allow ordering by supplier-specific columns
+  protected getAllowedOrderByColumns(): string[] {
+    return [
+      'id',
+      'created_at',
+      'updated_at',
+      'name',
+      'country_code',
+      'region_code',
+      'store_code',
+      'default_currency',
+    ];
+  }
+
   protected mapRowToEntity(row: any): Supplier {
     return {
       id: row.id,

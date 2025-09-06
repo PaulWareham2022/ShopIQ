@@ -27,6 +27,7 @@ import {
   PricePerUnitComparator,
   QualityAdjustedPriceComparator,
 } from './strategies/PriceComparators';
+import { HistoricalPriceComparator } from './strategies/HistoricalPriceComparator';
 
 /**
  * Main comparison engine implementation
@@ -59,6 +60,7 @@ export class ComparisonEngine implements IComparisonEngine {
       new TotalPriceComparator(),
       new PricePerUnitComparator(),
       new QualityAdjustedPriceComparator(),
+      new HistoricalPriceComparator(this.repositoryFactory),
     ];
 
     comparators.forEach(comparator => {

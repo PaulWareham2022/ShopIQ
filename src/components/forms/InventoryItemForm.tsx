@@ -14,7 +14,10 @@ import {
   isSupportedUnit,
 } from '../../storage/utils/canonical-units';
 import { CanonicalDimension } from '../../storage/types';
-import { Button, Input, Switch, UnitSelector, UnitGroup } from '../ui';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Switch } from '../ui/Switch';
+import { UnitSelector, UnitGroup } from '../ui/UnitSelector';
 
 interface InventoryItemFormProps {
   initialValues?: Partial<InventoryItem>;

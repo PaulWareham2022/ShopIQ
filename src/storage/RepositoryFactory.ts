@@ -17,7 +17,9 @@ import {
 import { SupplierRepository } from './repositories/SupplierRepository';
 import { InventoryItemRepository } from './repositories/InventoryItemRepository';
 import { OfferRepository } from './repositories/OfferRepository';
-import { Supplier, InventoryItem, Offer } from './types';
+import { EnhancedOfferRepository } from './repositories/EnhancedOfferRepository';
+import { HistoricalPriceRepository } from './repositories/HistoricalPriceRepository';
+import { Supplier, InventoryItem, Offer, HistoricalPrice } from './types';
 import { KeyValueRepository } from './repositories/base/KeyValueRepository';
 
 // Storage layer imports
@@ -137,7 +139,8 @@ export class RepositoryFactory implements IRepositoryFactory {
   // Repository instances (lazy-loaded)
   private supplierRepository: SupplierRepository | null = null;
   private inventoryItemRepository: InventoryItemRepository | null = null;
-  private offerRepository: OfferRepository | null = null;
+  private offerRepository: EnhancedOfferRepository | null = null;
+  private historicalPriceRepository: HistoricalPriceRepository | null = null;
   // TODO: Add other repositories as they are implemented
   // private unitConversionRepository: UnitConversionRepository | null = null;
   // private bundleRepository: BundleRepository | null = null;
@@ -282,7 +285,7 @@ export class RepositoryFactory implements IRepositoryFactory {
     await this.ensureInitialized();
 
     if (!this.offerRepository) {
-      this.offerRepository = new OfferRepository();
+      this.offerRepository = new EnhancedOfferRepository(this);
     }
     return this.offerRepository;
   }
@@ -301,6 +304,15 @@ export class RepositoryFactory implements IRepositoryFactory {
       'BundleRepository not yet implemented',
       'NOT_IMPLEMENTED'
     );
+  }
+
+  async getHistoricalPriceRepository(): Promise<Repository<HistoricalPrice>> {
+    await this.ensureInitialized();
+
+    if (!this.historicalPriceRepository) {
+      this.historicalPriceRepository = new HistoricalPriceRepository();
+    }
+    return this.historicalPriceRepository;
   }
 
   getKeyValueRepository(namespace: string = 'default'): IKeyValueRepository {

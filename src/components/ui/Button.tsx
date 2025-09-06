@@ -148,16 +148,12 @@ const styles = StyleSheet.create({
   // Primary variant
   buttonPrimary: {
     backgroundColor: '#007AFF',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    boxShadow: '0px 3px 6px rgba(0, 122, 255, 0.3)',
     elevation: 4,
   },
   buttonPrimaryDisabled: {
     backgroundColor: '#C7C7CC',
-    shadowColor: '#C7C7CC',
-    shadowOpacity: 0.1,
+    boxShadow: '0px 1px 2px rgba(199, 199, 204, 0.1)',
   },
 
   // Secondary variant
@@ -165,30 +161,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FBFF',
     borderWidth: 2,
     borderColor: '#E8F4FD',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
+    boxShadow: '0px 1px 3px rgba(0, 122, 255, 0.05)',
     elevation: 1,
   },
   buttonSecondaryDisabled: {
     backgroundColor: '#F8F9FA',
     borderColor: '#E8E8E8',
-    shadowOpacity: 0,
+    boxShadow: 'none',
   },
 
   // Danger variant
   buttonDanger: {
     backgroundColor: colors.error,
-    shadowColor: colors.error,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    boxShadow: '0px 3px 6px rgba(255, 59, 48, 0.3)',
     elevation: 4,
   },
   buttonDangerDisabled: {
     backgroundColor: '#FFB3B3',
-    shadowOpacity: 0.1,
+    boxShadow: '0px 1px 2px rgba(255, 179, 179, 0.1)',
   },
 
   // Ghost variant

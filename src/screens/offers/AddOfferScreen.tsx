@@ -38,8 +38,17 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
           supplierRepo.findAll(),
         ]);
 
-        setInventoryItems(items);
-        setSuppliers(suppliersList);
+        // Filter out deleted items and suppliers
+        const activeItems = items.filter(item => !item.deleted_at);
+        const activeSuppliers = suppliersList.filter(supplier => !supplier.deleted_at);
+
+        // eslint-disable-next-line no-console
+        console.log('AddOfferScreen - Loaded inventory items:', activeItems.length, 'of', items.length);
+        // eslint-disable-next-line no-console
+        console.log('AddOfferScreen - Loaded suppliers:', activeSuppliers.length, 'of', suppliersList.length);
+
+        setInventoryItems(activeItems);
+        setSuppliers(activeSuppliers);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Failed to load data:', error);
@@ -75,12 +84,12 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
         Alert.alert(
           'Offer Saved Successfully!',
           `Offer has been saved with computed price metrics:\n\n` +
-            `Item: ${values.inventory_item_id}\n` +
-            `Supplier: ${values.supplier_name_snapshot || values.supplier_id}\n` +
-            `Total Price: ${values.currency} ${values.total_price}\n` +
-            `Amount: ${values.amount} ${values.amount_unit}\n` +
-            `Canonical Amount: ${savedOffer.amount_canonical.toFixed(4)}\n` +
-            `Effective Price/Unit: ${values.currency} ${savedOffer.effective_price_per_canonical.toFixed(4)}`,
+            `Item: ${values.inventoryItemId}\n` +
+            `Supplier: ${values.supplierNameSnapshot || values.supplierId}\n` +
+            `Total Price: ${values.currency} ${values.totalPrice}\n` +
+            `Amount: ${values.amount} ${values.amountUnit}\n` +
+            `Canonical Amount: ${savedOffer?.amountCanonical?.toFixed(4) || 'N/A'}\n` +
+            `Effective Price/Unit: ${values.currency} ${savedOffer?.effectivePricePerCanonical?.toFixed(4) || 'N/A'}`,
           [{ text: 'OK' }]
         );
       }, 100);

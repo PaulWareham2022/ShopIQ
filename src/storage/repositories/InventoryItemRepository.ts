@@ -43,6 +43,22 @@ const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
 export class InventoryItemRepository extends BaseRepository<InventoryItem> {
   protected tableName = 'inventory_items';
 
+  // Override to allow ordering by inventory item-specific columns
+  protected getAllowedOrderByColumns(): string[] {
+    return [
+      'id',
+      'created_at',
+      'updated_at',
+      'name',
+      'category',
+      'canonical_dimension',
+      'canonical_unit',
+      'shelf_life_sensitive',
+      'shelf_life_days',
+      'usage_rate_per_day',
+    ];
+  }
+
   // Shared in-memory store for web fallback so multiple instances see the same data
   private static sharedItems: InventoryItem[] = [...MOCK_INVENTORY_ITEMS];
 

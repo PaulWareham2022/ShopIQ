@@ -15,6 +15,7 @@ import {
   PriceComparatorOptions,
   QualityComparatorOptions,
 } from '../types';
+import { calculatePricePerCanonical, PriceCalculationOptions } from '../priceCalculations';
 
 /**
  * Compares offers by price per canonical unit
@@ -34,47 +35,46 @@ export class PricePerCanonicalComparator extends BaseComparator {
     suppliers: Map<string, Supplier>,
     options: PriceComparatorOptions
   ): Promise<ComparisonResult> {
-    let price = offer.effectivePricePerCanonical;
+    // Use the new comprehensive price calculation utilities
+    const calculationOptions: PriceCalculationOptions = {
+      includeShipping: options.includeShipping,
+      includeTax: options.includeTax,
+      useEffectivePrice: options.useEffectivePrice,
+      applyEquivalenceFactors: options.applyEquivalenceFactors,
+      currencyRate: options.currencyRate,
+      minConfidence: 0.5,
+    };
 
-    // Apply options
-    if (!options.useEffectivePrice) {
-      if (options.includeShipping && options.includeTax) {
-        price = offer.pricePerCanonicalInclShipping;
-      } else if (options.includeTax) {
-        price = offer.pricePerCanonicalExclShipping;
-      } else {
-        // Calculate pre-tax price
-        const preTaxPrice =
-          offer.isTaxIncluded && offer.taxRate
-            ? offer.totalPrice / (1 + offer.taxRate)
-            : offer.totalPrice;
-        price = preTaxPrice / offer.amountCanonical;
-      }
+    const priceResult = calculatePricePerCanonical(offer, inventoryItem, calculationOptions);
+
+    // If calculation failed, return error result
+    if (!priceResult.success) {
+      return this.createResult(offer, Number.MAX_VALUE, {
+        scoreBreakdown: {
+          basePrice: 0,
+          shippingIncluded: 0,
+          taxIncluded: 0,
+          error: 1,
+        },
+        flags: ['calculation-failed'],
+        explanation: priceResult.errorMessage,
+        confidence: 0,
+      });
     }
 
-    // Apply equivalence factor if enabled
-    if (options.applyEquivalenceFactors !== false) {
-      price = this.applyEquivalenceFactor(price, inventoryItem);
-    }
-
-    // Apply currency conversion if needed
-    if (options.currencyRate && options.currencyRate !== 1.0) {
-      price = price * options.currencyRate;
-    }
-
-    const flags: string[] = [];
-    if (offer.shippingIncluded) flags.push('shipping-included');
-    if (offer.isTaxIncluded) flags.push('tax-included');
-    if (offer.qualityRating && offer.qualityRating >= 4)
-      flags.push('high-quality');
-
-    return this.createResult(offer, price, {
+    // Create result with enhanced metadata from calculation
+    return this.createResult(offer, priceResult.pricePerCanonical, {
       scoreBreakdown: {
-        basePrice: price,
-        shippingIncluded: options.includeShipping ? 1 : 0,
-        taxIncluded: options.includeTax ? 1 : 0,
+        basePrice: priceResult.breakdown.basePrice,
+        shippingCost: priceResult.breakdown.shippingCost,
+        taxCost: priceResult.breakdown.taxCost,
+        totalCost: priceResult.breakdown.totalCost,
+        canonicalAmount: priceResult.breakdown.canonicalAmount,
+        pricePerCanonical: priceResult.pricePerCanonical,
       },
-      flags,
+      flags: priceResult.flags,
+      explanation: `Price per ${inventoryItem.canonicalDimension} unit: ${priceResult.pricePerCanonical.toFixed(4)}`,
+      confidence: priceResult.confidence,
     });
   }
 
@@ -145,41 +145,51 @@ export class TotalPriceComparator extends BaseComparator {
     suppliers: Map<string, Supplier>,
     options: PriceComparatorOptions
   ): Promise<ComparisonResult> {
-    let totalPrice = offer.totalPrice;
+    // Use the new comprehensive price calculation utilities
+    const calculationOptions: PriceCalculationOptions = {
+      includeShipping: options.includeShipping,
+      includeTax: options.includeTax,
+      useEffectivePrice: false, // Total price doesn't use effective price
+      applyEquivalenceFactors: false, // Total price doesn't apply equivalence factors
+      currencyRate: options.currencyRate,
+      minConfidence: 0.5,
+    };
 
-    // Add shipping if not included and option is enabled
-    if (
-      options.includeShipping &&
-      !offer.shippingIncluded &&
-      offer.shippingCost
-    ) {
-      totalPrice += offer.shippingCost;
+    const priceResult = calculatePricePerCanonical(offer, inventoryItem, calculationOptions);
+
+    // If calculation failed, return error result
+    if (!priceResult.success) {
+      return this.createResult(offer, Number.MAX_VALUE, {
+        scoreBreakdown: {
+          basePrice: 0,
+          shippingCost: 0,
+          taxCost: 0,
+          totalPrice: 0,
+          error: 1,
+        },
+        flags: ['calculation-failed'],
+        explanation: priceResult.errorMessage,
+        confidence: 0,
+      });
     }
 
-    // Add tax if not included and option is enabled
-    if (options.includeTax && !offer.isTaxIncluded && offer.taxRate) {
-      totalPrice = totalPrice * (1 + offer.taxRate);
-    }
+    // For total price comparison, we use the total cost from the breakdown
+    const totalPrice = priceResult.breakdown.totalCost;
 
-    // Apply currency conversion if needed
-    if (options.currencyRate && options.currencyRate !== 1.0) {
-      totalPrice = totalPrice * options.currencyRate;
-    }
-
-    const flags: string[] = [];
-    if (offer.shippingIncluded) flags.push('shipping-included');
-    if (offer.isTaxIncluded) flags.push('tax-included');
+    const flags: string[] = [...priceResult.flags];
     if (offer.amount > 1) flags.push('bulk-quantity');
 
     return this.createResult(offer, totalPrice, {
       scoreBreakdown: {
-        basePrice: offer.totalPrice,
-        shippingCost: offer.shippingCost || 0,
-        taxCost: offer.isTaxIncluded
-          ? 0
-          : offer.totalPrice * (offer.taxRate || 0),
+        basePrice: priceResult.breakdown.basePrice,
+        shippingCost: priceResult.breakdown.shippingCost,
+        taxCost: priceResult.breakdown.taxCost,
+        totalPrice,
+        canonicalAmount: priceResult.breakdown.canonicalAmount,
       },
       flags,
+      explanation: `Total price: ${totalPrice.toFixed(2)} (${offer.amount} ${offer.amountUnit})`,
+      confidence: priceResult.confidence,
     });
   }
 

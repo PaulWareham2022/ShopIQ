@@ -215,4 +215,6 @@ Entity: Bundle (future, optional for MVP)
 - MVP scope boundaries
   - Ignore expiry math beyond a warning flag
   - Single-user, single-device; no cloud sync initially
+- Technical Documentation
+  - Database schema fixes: `.taskmaster/docs/database-schema-fixes.md` - Common issues and solutions for database table creation and validation
 </PRD>

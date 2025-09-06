@@ -3,6 +3,10 @@
  * This file defines the base types used across all repositories
  */
 
+// Import and re-export historical price types first to avoid circular imports
+import { HistoricalPrice, HistoricalPriceSource, HistoricalPriceMetadata, PriceTrend, PriceStatistics, TimePeriod, TrendDirection, HistoricalPriceQueryOptions, TrendAnalysisOptions, HistoricalPriceService, HistoricalPriceComparatorOptions, HistoricalPriceError, InsufficientHistoricalDataError, TrendAnalysisError } from './historical-prices';
+export { HistoricalPrice, HistoricalPriceSource, HistoricalPriceMetadata, PriceTrend, PriceStatistics, TimePeriod, TrendDirection, HistoricalPriceQueryOptions, TrendAnalysisOptions, HistoricalPriceService, HistoricalPriceComparatorOptions, HistoricalPriceError, InsufficientHistoricalDataError, TrendAnalysisError };
+
 // Base entity interface - all entities must have these fields
 export interface BaseEntity {
   id: string;
@@ -91,6 +95,7 @@ export interface IRepositoryFactory {
   getOfferRepository(): Promise<Repository<Offer>>;
   getUnitConversionRepository(): Promise<Repository<UnitConversion>>;
   getBundleRepository(): Promise<Repository<Bundle>>;
+  getHistoricalPriceRepository(): Promise<Repository<HistoricalPrice>>;
   getKeyValueRepository(namespace?: string): IKeyValueRepository;
 
   // Transaction support
@@ -360,3 +365,4 @@ export interface Bundle extends BaseEntity {
   /** How to split bundle price across items */
   priceAllocationMethod: PriceAllocationMethod;
 }
+

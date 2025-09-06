@@ -15,7 +15,10 @@ import {
   validateCurrencyCode,
   validateUrlPatterns,
 } from '../../storage/utils/iso-validation';
-import { Button, Input, Switch, Chip } from '../ui';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Switch } from '../ui/Switch';
+import { Chip } from '../ui/Chip';
 
 interface SupplierFormProps {
   initialValues?: Partial<Supplier>;

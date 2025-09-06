@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
-import {
-  Button,
-  Input,
-  Switch,
-  Chip,
-  Picker,
-  DatePicker,
-  PickerItem,
-} from '../ui';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Switch } from '../ui/Switch';
+import { Chip } from '../ui/Chip';
+import { Picker, PickerItem } from '../ui/Picker';
+import { DatePicker } from '../ui/DatePicker';
 import { OfferInput } from '../../storage/repositories/OfferRepository';
 import { InventoryItem } from '../../storage/types';
 import { Supplier } from '../../storage/types';
@@ -159,14 +156,22 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     propInventoryItems || []
   );
   const [suppliers, setSuppliers] = useState<Supplier[]>(propSuppliers || []);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(!propInventoryItems || !propSuppliers);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   // Fetch data if not provided as props
   useEffect(() => {
     const fetchData = async () => {
+      // eslint-disable-next-line no-console
+      console.log('OfferForm useEffect - propInventoryItems:', propInventoryItems?.length, 'propSuppliers:', propSuppliers?.length);
+      
+      // If data is provided as props, use it directly
       if (propInventoryItems && propSuppliers) {
-        // Data provided as props, no need to fetch
+        // eslint-disable-next-line no-console
+        console.log('OfferForm - Using props data directly');
+        setInventoryItems(propInventoryItems);
+        setSuppliers(propSuppliers);
+        setIsLoading(false);
         return;
       }
 
@@ -181,6 +186,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
           const inventoryRepo = await factory.getInventoryItemRepository();
           const items = await inventoryRepo.findAll();
           setInventoryItems(items.filter(item => !item.deleted_at));
+        } else {
+          setInventoryItems(propInventoryItems);
         }
 
         // Fetch suppliers if not provided
@@ -188,6 +195,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
           const supplierRepo = await factory.getSupplierRepository();
           const supplierList = await supplierRepo.findAll();
           setSuppliers(supplierList.filter(supplier => !supplier.deleted_at));
+        } else {
+          setSuppliers(propSuppliers);
         }
       } catch {
         setLoadError('Failed to load form data. Please try again.');
@@ -204,24 +213,24 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     const now = new Date().toISOString();
 
     return {
-      inventoryItemId: initialValues?.inventory_item_id || '',
-      supplierId: initialValues?.supplier_id || '',
-      supplierNameSnapshot: initialValues?.supplier_name_snapshot || '',
-      supplierUrl: initialValues?.supplier_url || '',
-      sourceType: initialValues?.source_type || 'manual',
-      sourceUrl: initialValues?.source_url || '',
-      observedAt: initialValues?.observed_at || now,
-      totalPrice: initialValues?.total_price?.toString() || '',
+      inventoryItemId: initialValues?.inventoryItemId || '',
+      supplierId: initialValues?.supplierId || '',
+      supplierNameSnapshot: initialValues?.supplierNameSnapshot || '',
+      supplierUrl: initialValues?.supplierUrl || '',
+      sourceType: initialValues?.sourceType || 'manual',
+      sourceUrl: initialValues?.sourceUrl || '',
+      observedAt: initialValues?.observedAt || now,
+      totalPrice: initialValues?.totalPrice?.toString() || '',
       currency: initialValues?.currency || '',
-      isTaxIncluded: initialValues?.is_tax_included ?? true,
-      taxRate: initialValues?.tax_rate?.toString() || '',
-      shippingCost: initialValues?.shipping_cost?.toString() || '',
-      shippingIncluded: initialValues?.shipping_included ?? false,
+      isTaxIncluded: initialValues?.isTaxIncluded ?? true,
+      taxRate: initialValues?.taxRate?.toString() || '',
+      shippingCost: initialValues?.shippingCost?.toString() || '',
+      shippingIncluded: initialValues?.shippingIncluded ?? false,
       amount: initialValues?.amount?.toString() || '',
-      amountUnit: initialValues?.amount_unit || '',
-      qualityRating: initialValues?.quality_rating?.toString() || '',
+      amountUnit: initialValues?.amountUnit || '',
+      qualityRating: initialValues?.qualityRating?.toString() || '',
       notes: initialValues?.notes || '',
-      photoUri: initialValues?.photo_uri || '',
+      photoUri: initialValues?.photoUri || '',
     };
   };
 
@@ -269,30 +278,30 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
       // Convert validated form values to OfferInput
       const offerInput: OfferInput = {
-        inventory_item_id: validatedValues.inventoryItemId,
-        supplier_id: validatedValues.supplierId,
-        supplier_name_snapshot: supplierNameSnapshot,
-        supplier_url: validatedValues.supplierUrl?.trim() || undefined,
-        source_type: validatedValues.sourceType,
-        source_url: validatedValues.sourceUrl?.trim() || undefined,
-        observed_at: validatedValues.observedAt,
-        total_price: Number(validatedValues.totalPrice),
+        inventoryItemId: validatedValues.inventoryItemId,
+        supplierId: validatedValues.supplierId,
+        supplierNameSnapshot: supplierNameSnapshot,
+        supplierUrl: validatedValues.supplierUrl?.trim() || undefined,
+        sourceType: validatedValues.sourceType,
+        sourceUrl: validatedValues.sourceUrl?.trim() || undefined,
+        observedAt: validatedValues.observedAt,
+        totalPrice: Number(validatedValues.totalPrice),
         currency: validatedValues.currency.trim().toUpperCase(),
-        is_tax_included: validatedValues.isTaxIncluded,
-        tax_rate: validatedValues.taxRate
+        isTaxIncluded: validatedValues.isTaxIncluded,
+        taxRate: validatedValues.taxRate
           ? Number(validatedValues.taxRate)
           : undefined,
-        shipping_cost: validatedValues.shippingCost
+        shippingCost: validatedValues.shippingCost
           ? Number(validatedValues.shippingCost)
           : undefined,
-        shipping_included: validatedValues.shippingIncluded,
+        shippingIncluded: validatedValues.shippingIncluded,
         amount: Number(validatedValues.amount),
-        amount_unit: validatedValues.amountUnit.trim(),
-        quality_rating: validatedValues.qualityRating
+        amountUnit: validatedValues.amountUnit.trim(),
+        qualityRating: validatedValues.qualityRating
           ? Number(validatedValues.qualityRating)
           : undefined,
         notes: validatedValues.notes?.trim() || undefined,
-        photo_uri: validatedValues.photoUri?.trim() || undefined,
+        photoUri: validatedValues.photoUri?.trim() || undefined,
       };
 
       await onSubmit(offerInput);
@@ -328,7 +337,30 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     subtitle: `${supplier.countryCode}${supplier.regionCode ? ` - ${supplier.regionCode}` : ''}`,
   }));
 
+  // Debug logging for suppliers
+  // eslint-disable-next-line no-console
+  console.log(
+    'OfferForm - Available suppliers:',
+    suppliers.map(supplier => ({ id: supplier.id, name: supplier.name }))
+  );
+  // eslint-disable-next-line no-console
+  console.log(
+    'OfferForm - Supplier picker items:',
+    supplierPickerItems.map(item => ({ id: item.id, label: item.label }))
+  );
+
   // Show loading or error state
+  if (isLoading) {
+    return (
+      <View style={styles.formWrapper}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingTitle}>Loading Form Data...</Text>
+          <Text style={styles.loadingMessage}>Please wait while we load inventory items and suppliers.</Text>
+        </View>
+      </View>
+    );
+  }
+
   if (loadError) {
     return (
       <View style={styles.formWrapper}>
@@ -407,7 +439,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                         ? errors.inventoryItemId
                         : undefined
                     }
-                    disabled={isLoading}
                     emptyText="No inventory items available. Add some items first."
                   />
                 </View>
@@ -425,7 +456,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       ? errors.supplierId
                       : undefined
                   }
-                  disabled={isLoading}
                   emptyText="No suppliers available. Add some suppliers first."
                 />
 
@@ -827,6 +857,25 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginLeft: 0,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loadingTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  loadingMessage: {
+    fontSize: 16,
+    color: colors.grayText,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   errorContainer: {
     flex: 1,

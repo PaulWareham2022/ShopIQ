@@ -27,3 +27,9 @@ export { createComparisonEngine } from './factory';
 
 // Utility functions
 export * from './utils';
+
+// Price calculation utilities
+export * from './priceCalculations';
+
+// Query builder for SQLite operations
+export * from './queryBuilder';

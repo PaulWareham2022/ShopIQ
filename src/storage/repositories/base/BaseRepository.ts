@@ -274,6 +274,10 @@ export abstract class BaseRepository<T extends BaseEntity>
         }
       }
 
+      if (__DEV__) {
+        console.log(`[BaseRepository] Executing findWhere query for ${this.tableName}:`, sql, params);
+      }
+      
       const result = await executeSql(sql, params);
       const entities: T[] = [];
 
@@ -281,8 +285,15 @@ export abstract class BaseRepository<T extends BaseEntity>
         entities.push(this.mapRowToEntity(result.rows.item(i)));
       }
 
+      if (__DEV__) {
+        console.log(`[BaseRepository] findWhere result for ${this.tableName}:`, entities.length, 'entities');
+      }
+
       return entities;
     } catch (error) {
+      if (__DEV__) {
+        console.error(`[BaseRepository] findWhere error for ${this.tableName}:`, error);
+      }
       throw new DatabaseError(
         `Failed to find entities with conditions in ${this.tableName}`,
         error as Error

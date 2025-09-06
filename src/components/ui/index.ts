@@ -21,6 +21,8 @@ export { SearchBar } from './SearchBar';
 export { EmptyState } from './EmptyState';
 export { ItemCard } from './ItemCard';
 export type { ItemCardProps } from './ItemCard';
+export { OfferCard } from './OfferCard';
+export type { OfferCardProps } from './OfferCard';
 
 // Layout Components
 export { Header } from './Header';
@@ -28,4 +30,4 @@ export { Screen } from './Screen';
 export { FloatingActionButton } from './FloatingActionButton';
 
 // Form Components (re-export from forms directory)
-export * from '../forms';
+// Note: Individual form components are exported from their own files to avoid circular dependencies

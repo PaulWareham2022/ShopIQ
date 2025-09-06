@@ -218,6 +218,47 @@ export const BUNDLES_SCHEMA = `
 `;
 
 /**
+ * HISTORICAL_PRICES TABLE
+ * Stores historical price snapshots for trend analysis
+ */
+export const HISTORICAL_PRICES_SCHEMA = `
+  CREATE TABLE IF NOT EXISTS historical_prices (
+    -- Primary identifier (UUIDv4)
+    id TEXT PRIMARY KEY NOT NULL,
+    
+    -- Foreign key relationships
+    inventory_item_id TEXT NOT NULL,
+    supplier_id TEXT, -- Optional - can be null for aggregated data
+    
+    -- Price information
+    price REAL NOT NULL CHECK (price >= 0),
+    currency TEXT NOT NULL CHECK (length(currency) = 3),
+    unit TEXT NOT NULL,
+    quantity REAL NOT NULL CHECK (quantity > 0),
+    
+    -- Timing information
+    observed_at TEXT NOT NULL, -- ISO timestamp when price was observed
+    
+    -- Source tracking
+    source TEXT NOT NULL CHECK (
+      source IN ('offer', 'manual', 'api', 'scraped', 'aggregated')
+    ),
+    
+    -- Additional metadata stored as JSON
+    metadata TEXT, -- JSON object with confidence, includesShipping, etc.
+    
+    -- Standard timestamps
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    deleted_at TEXT,
+    
+    -- Foreign key constraints
+    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id) ON DELETE CASCADE,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE SET NULL
+  );
+`;
+
+/**
  * DATABASE_METADATA TABLE
  * For schema versioning and migration tracking
  */
@@ -266,6 +307,18 @@ export const INDEXES = [
   // Bundle indexes
   'CREATE INDEX IF NOT EXISTS idx_bundles_supplier ON bundles (supplier_id);',
   'CREATE INDEX IF NOT EXISTS idx_bundles_deleted ON bundles (deleted_at);',
+
+  // Historical price indexes (critical for trend analysis)
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_inventory_item ON historical_prices (inventory_item_id);',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_supplier ON historical_prices (supplier_id);',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_observed_at ON historical_prices (observed_at);',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_source ON historical_prices (source);',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_deleted ON historical_prices (deleted_at);',
+  
+  // Compound indexes for efficient trend queries
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_item_time ON historical_prices (inventory_item_id, observed_at) WHERE deleted_at IS NULL;',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_item_supplier_time ON historical_prices (inventory_item_id, supplier_id, observed_at) WHERE deleted_at IS NULL;',
+  'CREATE INDEX IF NOT EXISTS idx_historical_prices_price ON historical_prices (price) WHERE deleted_at IS NULL;',
 ];
 
 /**
@@ -306,6 +359,13 @@ export const TRIGGERS = [
    BEGIN
      UPDATE bundles SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
+
+  // Historical prices update trigger
+  `CREATE TRIGGER IF NOT EXISTS trg_historical_prices_updated_at
+   AFTER UPDATE ON historical_prices
+   BEGIN
+     UPDATE historical_prices SET updated_at = datetime('now') WHERE id = NEW.id;
+   END;`,
 ];
 
 /**
@@ -316,6 +376,7 @@ export const ALL_SCHEMAS = [
   INVENTORY_ITEMS_SCHEMA,
   BUNDLES_SCHEMA,
   OFFERS_SCHEMA,
+  HISTORICAL_PRICES_SCHEMA,
   UNIT_CONVERSIONS_SCHEMA,
   DATABASE_METADATA_SCHEMA,
 ];
@@ -329,20 +390,35 @@ export const createAllSchemas = async (): Promise<void> => {
 
   const schemas = [...ALL_SCHEMAS, ...INDEXES, ...TRIGGERS];
 
-  for (const schema of schemas) {
-    try {
-      if (typeof db.execSync === 'function') {
-        // Native platform - use synchronous API
+  if (typeof db.execSync === 'function') {
+    // Native platform - use synchronous API
+    for (const schema of schemas) {
+      try {
         db.execSync(schema);
-      } else {
-        // Web platform - use promise-based API
-        await new Promise<void>((resolve, reject) => {
-          db.transaction((tx: any) => tx.executeSql(schema), reject, resolve);
-        });
+      } catch (error) {
+        console.error('Failed to execute schema:', schema, error);
+        throw error;
       }
-    } catch (error) {
-      console.error('Failed to execute schema:', schema, error);
-      throw error;
+    }
+  } else {
+    // Web platform - execute schemas one by one
+    for (const schema of schemas) {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          db.transaction((tx: any) => {
+            tx.executeSql(schema);
+          }, (error: any) => {
+            console.error('Transaction failed for schema:', schema, error);
+            reject(error);
+          }, () => {
+            console.log('Schema executed successfully:', schema.substring(0, 50) + '...');
+            resolve();
+          });
+        });
+      } catch (error) {
+        console.error('Failed to execute schema:', schema, error);
+        throw error;
+      }
     }
   }
 
@@ -422,8 +498,14 @@ export const validateSchema = async (): Promise<boolean> => {
     'offers',
     'unit_conversions',
     'bundles',
+    'historical_prices',
     'database_metadata',
   ];
+
+  // Add a small delay for web platform to ensure all async operations are complete
+  if (typeof db.getAllSync !== 'function') {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
   const sql =
     "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
@@ -456,6 +538,11 @@ export const validateSchema = async (): Promise<boolean> => {
           );
         }, reject);
       });
+    }
+
+    if (__DEV__) {
+      console.log('Found tables:', existingTables);
+      console.log('Required tables:', requiredTables);
     }
 
     // Check if all required tables exist

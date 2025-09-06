@@ -12,11 +12,12 @@ interface InventoryItemDetailScreenProps {
   itemId?: string;
   onBack: () => void;
   onItemSaved: () => void;
+  onViewOffers?: (item: InventoryItem) => void;
 }
 
 export const InventoryItemDetailScreen: React.FC<
   InventoryItemDetailScreenProps
-> = ({ itemId, onBack, onItemSaved }) => {
+> = ({ itemId, onBack, onItemSaved, onViewOffers }) => {
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [isEditing, setIsEditing] = useState(!itemId); // New item if no ID provided
   const [loading, setLoading] = useState(!!itemId); // Only load if editing existing item
@@ -201,6 +202,14 @@ export const InventoryItemDetailScreen: React.FC<
         </View>
 
         <View style={styles.actionButtons}>
+          {onViewOffers && item && (
+            <Button
+              title="View Offers"
+              variant="primary"
+              onPress={() => onViewOffers(item)}
+              style={styles.viewOffersButton}
+            />
+          )}
           <Button
             title="Delete Item"
             variant="danger"
@@ -258,6 +267,9 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     marginTop: 20,
+  },
+  viewOffersButton: {
+    marginBottom: 12,
   },
   deleteButton: {
     marginTop: 0,

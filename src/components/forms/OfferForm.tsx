@@ -255,6 +255,18 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       const supplierNameSnapshot =
         selectedSupplier?.name || validatedValues.supplierNameSnapshot;
 
+      // Debug logging for form submission
+      // eslint-disable-next-line no-console
+      console.log(
+        'OfferForm - Form submission - inventoryItemId:',
+        validatedValues.inventoryItemId
+      );
+      // eslint-disable-next-line no-console
+      console.log(
+        'OfferForm - Form submission - selected inventory item:',
+        inventoryItems.find(item => item.id === validatedValues.inventoryItemId)
+      );
+
       // Convert validated form values to OfferInput
       const offerInput: OfferInput = {
         inventory_item_id: validatedValues.inventoryItemId,
@@ -297,6 +309,18 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     label: item.name,
     subtitle: item.category || undefined,
   }));
+
+  // Debug logging for inventory items
+  // eslint-disable-next-line no-console
+  console.log(
+    'OfferForm - Available inventory items:',
+    inventoryItems.map(item => ({ id: item.id, name: item.name }))
+  );
+  // eslint-disable-next-line no-console
+  console.log(
+    'OfferForm - Picker items:',
+    inventoryPickerItems.map(item => ({ id: item.id, label: item.label }))
+  );
 
   const supplierPickerItems: PickerItem[] = suppliers.map(supplier => ({
     id: supplier.id,

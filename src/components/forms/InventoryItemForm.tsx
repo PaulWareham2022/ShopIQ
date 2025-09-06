@@ -189,7 +189,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
           >
             <View style={styles.form}>
               {/* Item Name */}
-              <View style={styles.fieldContainer}>
+              <View style={[styles.fieldContainer, styles.firstFieldContainer]}>
                 <Text style={styles.label}>Item Name *</Text>
                 <TextInput
                   style={[
@@ -545,6 +545,9 @@ const styles = StyleSheet.create({
   fieldContainer: {
     marginBottom: 16,
     paddingHorizontal: 20,
+  },
+  firstFieldContainer: {
+    marginTop: 10, // 10px padding between header and first field
   },
   label: {
     fontSize: 14,

@@ -148,6 +148,7 @@ export const InventoryItemDetailScreen: React.FC<
           <Text style={styles.title}>
             {itemId ? 'Edit Item' : 'Add New Item'}
           </Text>
+          <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.formContainer}>
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 30,
     paddingBottom: 20,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
@@ -283,6 +284,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.primary,
     fontWeight: '600',
+  },
+  headerSpacer: {
+    width: 60, // Approximate width of back button to balance the title centering
   },
   loadingContainer: {
     flex: 1,

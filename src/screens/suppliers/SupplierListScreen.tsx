@@ -40,22 +40,34 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
     }
   }, [repository]);
 
-  const filterSuppliers = useCallback(() => {
-    if (!searchQuery.trim()) {
-      setFilteredSuppliers(suppliers);
-      return;
-    }
+  const filterSuppliers = useCallback(
+    (query?: string) => {
+      const searchTerm = query !== undefined ? query : searchQuery;
+      if (!searchTerm.trim()) {
+        setFilteredSuppliers(suppliers);
+        return;
+      }
 
-    const filtered = suppliers.filter(
-      supplier =>
-        supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (supplier.notes &&
-          supplier.notes.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (supplier.storeCode &&
-          supplier.storeCode.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-    setFilteredSuppliers(filtered);
-  }, [suppliers, searchQuery]);
+      const filtered = suppliers.filter(
+        supplier =>
+          supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (supplier.notes &&
+            supplier.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (supplier.storeCode &&
+            supplier.storeCode.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredSuppliers(filtered);
+    },
+    [suppliers, searchQuery]
+  );
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      filterSuppliers(query);
+    },
+    [filterSuppliers]
+  );
 
   useEffect(() => {
     loadSuppliers();
@@ -160,6 +172,7 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
         placeholder="Search suppliers..."
         value={searchQuery}
         onChangeText={setSearchQuery}
+        onSearch={handleSearch}
       />
 
       <FlatList

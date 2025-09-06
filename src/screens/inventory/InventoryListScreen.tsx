@@ -41,20 +41,32 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
     }
   }, [repository]);
 
-  const filterItems = useCallback(() => {
-    if (!searchQuery.trim()) {
-      setFilteredItems(items);
-      return;
-    }
+  const filterItems = useCallback(
+    (query?: string) => {
+      const searchTerm = query !== undefined ? query : searchQuery;
+      if (!searchTerm.trim()) {
+        setFilteredItems(items);
+        return;
+      }
 
-    const filtered = items.filter(
-      item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.notes &&
-          item.notes.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-    setFilteredItems(filtered);
-  }, [items, searchQuery]);
+      const filtered = items.filter(
+        item =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (item.notes &&
+            item.notes.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredItems(filtered);
+    },
+    [items, searchQuery]
+  );
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      filterItems(query);
+    },
+    [filterItems]
+  );
 
   useEffect(() => {
     loadItems();
@@ -159,6 +171,7 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
         placeholder="Search items..."
         value={searchQuery}
         onChangeText={setSearchQuery}
+        onSearch={handleSearch}
       />
 
       <FlatList

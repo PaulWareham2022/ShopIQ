@@ -7,6 +7,7 @@ import { BaseRepository } from './base/BaseRepository';
 import { InventoryItem, DatabaseError } from '../types';
 import { executeSql } from '../sqlite/database';
 import { Platform } from 'react-native';
+import { generateUUID } from '../utils/uuid';
 
 // Local helper to safely parse JSON strings
 function safeParseJson<T = any>(value: string): T | undefined {
@@ -20,7 +21,7 @@ function safeParseJson<T = any>(value: string): T | undefined {
 // Mock data for web testing (seed)
 const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
   {
-    id: '1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'Apples',
     canonicalDimension: 'mass' as const,
     canonicalUnit: 'kg',
@@ -29,7 +30,7 @@ const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
     updated_at: new Date().toISOString(),
   },
   {
-    id: '2',
+    id: '123e4567-e89b-12d3-a456-426614174001',
     name: 'Milk',
     canonicalDimension: 'volume' as const,
     canonicalUnit: 'L',
@@ -73,7 +74,7 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
     if (this.isWebFallback()) {
       const newItem: InventoryItem = {
         ...entity,
-        id: Date.now().toString(),
+        id: generateUUID(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

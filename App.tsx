@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { initializeDatabase } from './src/storage/sqlite/database';
 import { seedSampleSuppliers } from './src/storage/seed-suppliers';
+import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
@@ -42,8 +43,22 @@ export default function App() {
           await seedSampleSuppliers();
         } catch (error) {
           if (__DEV__) {
+            // eslint-disable-next-line no-console
             console.log(
               'Sample suppliers already exist or seeding failed:',
+              error
+            );
+          }
+        }
+
+        // Seed sample inventory items for testing
+        try {
+          await seedSampleInventoryItems();
+        } catch (error) {
+          if (__DEV__) {
+            // eslint-disable-next-line no-console
+            console.log(
+              'Sample inventory items already exist or seeding failed:',
               error
             );
           }

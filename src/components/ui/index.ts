@@ -24,6 +24,24 @@ export type { ItemCardProps } from './ItemCard';
 export { OfferCard } from './OfferCard';
 export type { OfferCardProps } from './OfferCard';
 
+// Comparison Components
+export { ComparisonItemCard } from './ComparisonItemCard';
+export type { ComparisonItemCardProps } from './ComparisonItemCard';
+export { ComparisonList } from './ComparisonList';
+export type { ComparisonListProps } from './ComparisonList';
+export { ComparisonHeader } from './ComparisonHeader';
+export type { ComparisonHeaderProps } from './ComparisonHeader';
+export { PriceTrendIndicator } from './PriceTrendIndicator';
+export type {
+  PriceTrendIndicatorProps,
+  PriceTrendData,
+} from './PriceTrendIndicator';
+export { BestOfferBadge, StandaloneBestOfferBadge } from './BestOfferBadge';
+export type {
+  BestOfferBadgeProps,
+  StandaloneBestOfferBadgeProps,
+} from './BestOfferBadge';
+
 // Layout Components
 export { Header } from './Header';
 export { Screen } from './Screen';

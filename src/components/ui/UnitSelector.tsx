@@ -23,7 +23,7 @@ const DEFAULT_UNIT_GROUPS: UnitGroup[] = [
   { variant: 'weight', units: ['kg', 'g', 'lb', 'oz'] },
   { variant: 'volume', units: ['L', 'ml', 'gal', 'fl oz'] },
   { variant: 'count', units: ['unit', 'piece', 'dozen', 'pack'] },
-  { variant: 'length', units: ['m', 'cm', 'ft', 'in'] },
+  { variant: 'length', units: ['m', 'cm', 'ft', 'in', 'inches'] },
   { variant: 'area', units: ['m²', 'cm²', 'ft²', 'in²'] },
 ];
 
@@ -39,7 +39,7 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
 }) => {
   // Get all predefined units for checking if current value is custom
   const allPredefinedUnits = unitGroups.flatMap(group => group.units);
-  const isCustomUnit = !allPredefinedUnits.includes(value);
+  const isCustomUnit = value.length > 0 && !allPredefinedUnits.includes(value);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -68,11 +68,19 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
       </View>
 
       <Input
-        value={isCustomUnit ? value : ''}
+        value={value}
         onChangeText={onValueChange}
         placeholder={customInputPlaceholder}
-        inputStyle={styles.customInput}
+        inputStyle={[
+          styles.customInput,
+          !isCustomUnit && styles.predefinedUnitInput,
+        ]}
         autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="default"
+        textContentType="none"
+        spellCheck={false}
+        clearButtonMode="while-editing"
         error={error}
       />
     </View>
@@ -98,5 +106,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 10,
+  },
+  predefinedUnitInput: {
+    backgroundColor: '#F5F5F5',
+    fontStyle: 'normal',
+    color: '#666',
   },
 });

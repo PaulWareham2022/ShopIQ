@@ -9,12 +9,10 @@ import { BaseComparator } from '../BaseComparator';
 import {
   ComparisonResult,
   ValidationResult,
-  Offer,
-  InventoryItem,
-  Supplier,
   PriceComparatorOptions,
   QualityComparatorOptions,
 } from '../types';
+import { Offer, InventoryItem, Supplier } from '../../types';
 import { calculatePricePerCanonical, PriceCalculationOptions } from '../priceCalculations';
 
 /**
@@ -40,7 +38,7 @@ export class PricePerCanonicalComparator extends BaseComparator {
       includeShipping: options.includeShipping,
       includeTax: options.includeTax,
       useEffectivePrice: options.useEffectivePrice,
-      applyEquivalenceFactors: options.applyEquivalenceFactors,
+      // applyEquivalenceFactors: options.applyEquivalenceFactors, // Not available in options
       currencyRate: options.currencyRate,
       minConfidence: 0.5,
     };
@@ -122,7 +120,7 @@ export class PricePerCanonicalComparator extends BaseComparator {
       includeTax: true,
       useEffectivePrice: true,
       useCanonicalUnit: true,
-      applyEquivalenceFactors: true,
+      // applyEquivalenceFactors: true, // Not available in options
     };
   }
 }
@@ -231,7 +229,7 @@ export class TotalPriceComparator extends BaseComparator {
       includeTax: true,
       useEffectivePrice: false, // Not applicable for total price
       useCanonicalUnit: false, // Not applicable for total price
-      applyEquivalenceFactors: false, // Not applicable for total price
+      // applyEquivalenceFactors: false, // Not applicable for total price - not available in options
     };
   }
 }
@@ -289,7 +287,6 @@ export class PricePerUnitComparator extends BaseComparator {
       scoreBreakdown: {
         basePrice: offer.totalPrice,
         amount: offer.amount,
-        unit: offer.amountUnit,
         pricePerUnit: finalPrice,
       },
       flags,
@@ -334,7 +331,7 @@ export class PricePerUnitComparator extends BaseComparator {
       includeTax: true,
       useEffectivePrice: false, // Not applicable for per-unit pricing
       useCanonicalUnit: false, // Explicitly not using canonical units
-      applyEquivalenceFactors: false, // Not applicable for per-unit pricing
+      // applyEquivalenceFactors: false, // Not applicable for per-unit pricing - not available in options
     };
   }
 }
@@ -368,14 +365,14 @@ export class QualityAdjustedPriceComparator extends BaseComparator {
     ) {
       const qualityScore = offer.qualityRating / 5.0; // Normalize to 0-1
       const qualityAdjustment =
-        (1 - qualityScore) * options.qualityAdjustmentFactor;
+        (1 - qualityScore) * (options.qualityAdjustmentFactor || 0.1);
       adjustedPrice = adjustedPrice * (1 - qualityAdjustment);
     }
 
-    // Apply equivalence factor if enabled
-    if (options.applyEquivalenceFactors !== false) {
-      adjustedPrice = this.applyEquivalenceFactor(adjustedPrice, inventoryItem);
-    }
+    // Apply equivalence factor if enabled (commented out as not available in options)
+    // if (options.applyEquivalenceFactors !== false) {
+    adjustedPrice = this.applyEquivalenceFactor(adjustedPrice, inventoryItem);
+    // }
 
     const flags: string[] = [];
     if (offer.qualityRating) {
@@ -390,7 +387,7 @@ export class QualityAdjustedPriceComparator extends BaseComparator {
         basePrice: offer.effectivePricePerCanonical,
         qualityRating: offer.qualityRating || 0,
         qualityAdjustment: offer.qualityRating
-          ? (1 - offer.qualityRating / 5.0) * options.qualityAdjustmentFactor
+          ? (1 - offer.qualityRating / 5.0) * (options.qualityAdjustmentFactor || 0.1)
           : 0,
         adjustedPrice,
       },
@@ -426,7 +423,7 @@ export class QualityAdjustedPriceComparator extends BaseComparator {
     }
 
     // Warn about high adjustment factors
-    if (normalizedOptions.qualityAdjustmentFactor > 0.5) {
+    if ((normalizedOptions.qualityAdjustmentFactor || 0.1) > 0.5) {
       warnings.push(
         'High quality adjustment factor may result in unrealistic price adjustments'
       );
@@ -447,7 +444,7 @@ export class QualityAdjustedPriceComparator extends BaseComparator {
       qualityAdjustmentFactor: 0.1,
       preferHigher: true,
       minQualityRating: 1,
-      applyEquivalenceFactors: true,
+      // applyEquivalenceFactors: true, // Not available in options
     };
   }
 }

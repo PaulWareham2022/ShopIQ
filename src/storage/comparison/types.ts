@@ -34,6 +34,30 @@ export interface ComparisonResult {
 
     /** Confidence level in the comparison (0-1) */
     confidence?: number;
+
+    /** Historical price trend data (for HistoricalPriceComparator) */
+    trend?: {
+      direction: 'up' | 'down' | 'stable';
+      strength: number;
+      confidence: number;
+    };
+
+    /** Price statistics (for HistoricalPriceComparator) */
+    statistics?: {
+      min: number;
+      max: number;
+      average: number;
+      median: number;
+      standardDeviation: number;
+      volatility: number;
+    };
+
+    /** Best historical price (for HistoricalPriceComparator) */
+    bestHistoricalPrice?: {
+      price: number;
+      date: string;
+      supplier: string;
+    };
   };
 }
 

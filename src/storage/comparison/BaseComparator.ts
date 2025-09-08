@@ -9,11 +9,9 @@ import {
   Comparator,
   ComparisonResult,
   ValidationResult,
-  Offer,
-  InventoryItem,
-  Supplier,
   ComparisonError,
 } from './types';
+import { Offer, InventoryItem, Supplier } from '../types';
 
 /**
  * Abstract base class for all comparison strategies

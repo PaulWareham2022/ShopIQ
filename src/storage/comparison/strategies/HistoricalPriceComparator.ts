@@ -9,11 +9,9 @@ import { BaseComparator } from '../BaseComparator';
 import {
   ComparisonResult,
   ValidationResult,
-  Offer,
-  InventoryItem,
-  Supplier,
 } from '../types';
-import { HistoricalPriceComparatorOptions } from '../types/historical-prices';
+import { Offer, InventoryItem, Supplier } from '../../types';
+import { HistoricalPriceComparatorOptions } from '../../types/historical-prices';
 import { HistoricalPriceService } from '../../services/HistoricalPriceService';
 import { RepositoryFactory } from '../../RepositoryFactory';
 
@@ -295,7 +293,7 @@ export class HistoricalPriceComparator extends BaseComparator {
   /**
    * Generate human-readable explanation
    */
-  private generateExplanation(
+  protected generateExplanation(
     offer: Offer,
     metadata: any,
     options: HistoricalPriceComparatorOptions

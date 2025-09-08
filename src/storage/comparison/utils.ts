@@ -240,7 +240,7 @@ export function validateComparisonConfig(config: ComparisonConfig): {
   // Check global options
   if (config.globalOptions) {
     if (
-      config.globalOptions.maxResults &&
+      config.globalOptions.maxResults !== undefined &&
       config.globalOptions.maxResults < 1
     ) {
       errors.push('maxResults must be at least 1');
@@ -299,15 +299,23 @@ export function mergeComparisonConfigs(
 ): ComparisonConfig {
   return {
     primaryStrategy: overrides.primaryStrategy || base.primaryStrategy,
-    strategyOptions: { ...base.strategyOptions, ...overrides.strategyOptions },
+    strategyOptions: overrides.strategyOptions 
+      ? { ...base.strategyOptions, ...overrides.strategyOptions }
+      : base.strategyOptions,
     secondaryStrategies:
       overrides.secondaryStrategies || base.secondaryStrategies,
-    globalOptions: { ...base.globalOptions, ...overrides.globalOptions },
-    contextOverrides: {
-      ...base.contextOverrides,
-      ...overrides.contextOverrides,
-    },
-    cacheConfig: { ...base.cacheConfig, ...overrides.cacheConfig },
+    globalOptions: overrides.globalOptions 
+      ? { ...base.globalOptions, ...overrides.globalOptions }
+      : base.globalOptions,
+    contextOverrides: overrides.contextOverrides
+      ? {
+          ...base.contextOverrides,
+          ...overrides.contextOverrides,
+        }
+      : base.contextOverrides,
+    cacheConfig: base.cacheConfig && overrides.cacheConfig 
+      ? { ...base.cacheConfig, ...overrides.cacheConfig }
+      : overrides.cacheConfig || base.cacheConfig,
   };
 }
 

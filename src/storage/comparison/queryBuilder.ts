@@ -677,5 +677,4 @@ export class ComparisonQueryExecutor {
 // EXPORTS
 // =============================================================================
 
-export { ComparisonQueryBuilder, ComparisonQueryExecutor };
-export type { QueryOptions, QueryFilters, PaginationOptions, SortOptions, QueryResult, QueryResultMetadata };
+// Classes and types are already exported at their declarations above

@@ -205,7 +205,7 @@ export class ComparisonEngine implements IComparisonEngine {
             comparedAt: new Date().toISOString(),
           },
         });
-      } else {
+      } else if (result) {
         results.set(id, result);
       }
     });
@@ -353,7 +353,7 @@ export class ComparisonEngine implements IComparisonEngine {
     };
 
     return await offerRepo.findWhere(
-      { inventory_item_id: inventoryItemId },
+      { inventoryItemId: inventoryItemId },
       options
     );
   }
@@ -470,7 +470,9 @@ export class ComparisonEngine implements IComparisonEngine {
     // Implement simple LRU cache
     if (this.cache.size >= this.cacheConfig.maxSize) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey) {
+        this.cache.delete(firstKey);
+      }
     }
 
     this.cache.set(key, results);

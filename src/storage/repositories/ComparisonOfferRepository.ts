@@ -6,7 +6,8 @@
  * computed price-per-unit and other comparator criteria.
  */
 
-import { OfferRepository, Offer } from './OfferRepository';
+import { OfferRepository } from './OfferRepository';
+import { Offer } from '../types';
 import { ComparisonQueryBuilder, ComparisonQueryExecutor, QueryOptions, QueryResult } from '../comparison/queryBuilder';
 import { ComparisonConfig } from '../comparison/types';
 import { executeSql } from '../sqlite/database';

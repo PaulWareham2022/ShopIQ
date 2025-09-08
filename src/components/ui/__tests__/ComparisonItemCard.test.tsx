@@ -23,7 +23,7 @@ const mockOffer: Offer = {
   pricePerCanonicalExclShipping: 0.052,
   pricePerCanonicalInclShipping: 0.052,
   effectivePricePerCanonical: 0.052,
-  createdAt: '2024-01-15T10:00:00Z',
+  created_at: '2024-01-15T10:00:00Z',
   updatedAt: '2024-01-15T10:00:00Z',
 };
 

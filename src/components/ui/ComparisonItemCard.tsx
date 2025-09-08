@@ -36,6 +36,9 @@ export interface ComparisonItemCardProps {
   /** Show price trend information */
   showPriceTrend?: boolean;
 
+  /** The canonical unit for price display */
+  canonicalUnit?: string;
+
   /** Test ID for testing */
   testID?: string;
 }
@@ -49,6 +52,7 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
   containerStyle,
   showComparisonDetails = false,
   showPriceTrend = true,
+  canonicalUnit,
   testID,
 }) => {
   const { offer, metadata } = comparisonResult;
@@ -67,8 +71,16 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
     if (typeof price !== 'number' || isNaN(price)) {
       return `${currency} 0.00`;
     }
+    
+    // Handle very small numbers that would round to 0.00
+    if (price < 0.01 && price > 0) {
+      // For prices less than 1 cent, show more decimal places
+      return `${currency} ${price.toFixed(6)}`;
+    }
+    
     return `${currency} ${price.toFixed(2)}`;
   };
+
 
   // Format amount with unit
   const formatAmount = (amount: number, unit: string): string => {
@@ -259,21 +271,25 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
       </View>
 
       {/* Price per canonical unit - prominently displayed */}
-      {offer.effectivePricePerCanonical && (
-        <View style={styles.pricePerUnitRow}>
-          <Text style={styles.pricePerUnitLabel}>
-            Price per {offer.amountUnit}:
-          </Text>
-          <Text
-            style={[
-              styles.pricePerUnitValue,
-              isBestOffer ? styles.pricePerUnitValueBest : undefined,
-            ]}
-          >
-            {formatPrice(offer.effectivePricePerCanonical, offer.currency)}
-          </Text>
-        </View>
-      )}
+      <View style={styles.pricePerUnitRow}>
+        <Text style={styles.pricePerUnitLabel}>
+          Price per {canonicalUnit || offer.amountUnit}:
+        </Text>
+        <Text
+          style={[
+            styles.pricePerUnitValue,
+            isBestOffer ? styles.pricePerUnitValueBest : undefined,
+          ]}
+        >
+          {formatPrice(
+            offer.effectivePricePerCanonical || 
+            offer.pricePerCanonicalInclShipping || 
+            offer.pricePerCanonicalExclShipping || 
+            (offer.totalPrice / offer.amount), 
+            offer.currency
+          )}
+        </Text>
+      </View>
 
       {/* Comparison score */}
       {showComparisonDetails && (

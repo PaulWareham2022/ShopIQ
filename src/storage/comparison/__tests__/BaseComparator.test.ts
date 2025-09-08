@@ -6,7 +6,7 @@
  */
 
 import { BaseComparator } from '../BaseComparator';
-import { ComparisonResult, ValidationResult, ComparisonError } from '../types';
+import { ComparisonResult, ValidationResult } from '../types';
 import { Offer, InventoryItem, Supplier } from '../../types';
 
 // Create a concrete implementation for testing
@@ -18,10 +18,10 @@ class TestComparator extends BaseComparator {
 
   protected async performComparison(
     offer: Offer,
-    allOffers: Offer[],
-    inventoryItem: InventoryItem,
-    suppliers: Map<string, Supplier>,
-    options: Record<string, any>
+    _allOffers: Offer[],
+    _inventoryItem: InventoryItem,
+    _suppliers: Map<string, Supplier>,
+    _options: Record<string, any>
   ): Promise<ComparisonResult> {
     // Simple test implementation that returns the effective price as score
     return this.createResult(offer, offer.effectivePricePerCanonical, {
@@ -40,7 +40,10 @@ class TestComparator extends BaseComparator {
 
     const errors: string[] = [];
 
-    if (normalizedOptions.testOption !== undefined && typeof normalizedOptions.testOption !== 'boolean') {
+    if (
+      normalizedOptions.testOption !== undefined &&
+      typeof normalizedOptions.testOption !== 'boolean'
+    ) {
       errors.push('testOption must be a boolean');
     }
 
@@ -59,7 +62,9 @@ class TestComparator extends BaseComparator {
 }
 
 // Mock data
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -121,9 +126,7 @@ describe('BaseComparator', () => {
       createMockOffer({ id: 'offer-1', effectivePricePerCanonical: 10.0 }),
       createMockOffer({ id: 'offer-2', effectivePricePerCanonical: 15.0 }),
     ];
-    mockSuppliers = new Map([
-      ['supplier-1', createMockSupplier()],
-    ]);
+    mockSuppliers = new Map([['supplier-1', createMockSupplier()]]);
   });
 
   describe('compare method', () => {
@@ -140,7 +143,9 @@ describe('BaseComparator', () => {
       expect(result.offer).toBe(mockOffers[0]);
       expect(result.score).toBe(10.0);
       expect(result.metadata?.flags).toContain('test-comparator');
-      expect(result.metadata?.explanation).toContain('Test Supplier offer: USD 10.0000 per 10 kg (score: 10.0000)');
+      expect(result.metadata?.explanation).toContain(
+        'Test Supplier offer: USD 10.0000 per 10 kg (score: 10.0000)'
+      );
       expect(result.metadata?.confidence).toBeCloseTo(0.95, 2);
     });
 
@@ -194,7 +199,7 @@ describe('BaseComparator', () => {
 
     it('should ensure offer is in allOffers array', async () => {
       const differentOffer = createMockOffer({ id: 'different-offer' });
-      
+
       await expect(
         comparator.compare(
           differentOffer,
@@ -274,7 +279,9 @@ describe('BaseComparator', () => {
     describe('isOfferStale', () => {
       it('should detect stale offers', () => {
         const staleOffer = createMockOffer({
-          observedAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), // 35 days ago
+          observedAt: new Date(
+            Date.now() - 35 * 24 * 60 * 60 * 1000
+          ).toISOString(), // 35 days ago
         });
 
         const isStale = (comparator as any).isOfferStale(staleOffer, 30);
@@ -283,7 +290,9 @@ describe('BaseComparator', () => {
 
       it('should detect fresh offers', () => {
         const freshOffer = createMockOffer({
-          observedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+          observedAt: new Date(
+            Date.now() - 10 * 24 * 60 * 60 * 1000
+          ).toISOString(), // 10 days ago
         });
 
         const isStale = (comparator as any).isOfferStale(freshOffer, 30);
@@ -292,7 +301,9 @@ describe('BaseComparator', () => {
 
       it('should use custom max age', () => {
         const offer = createMockOffer({
-          observedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+          observedAt: new Date(
+            Date.now() - 5 * 24 * 60 * 60 * 1000
+          ).toISOString(), // 5 days ago
         });
 
         const isStale = (comparator as any).isOfferStale(offer, 3); // 3 days max age
@@ -302,7 +313,9 @@ describe('BaseComparator', () => {
 
     describe('getSupplierName', () => {
       it('should return supplier name from snapshot', () => {
-        const offer = createMockOffer({ supplierNameSnapshot: 'Custom Supplier' });
+        const offer = createMockOffer({
+          supplierNameSnapshot: 'Custom Supplier',
+        });
         const name = (comparator as any).getSupplierName(offer);
         expect(name).toBe('Custom Supplier');
       });
@@ -328,7 +341,10 @@ describe('BaseComparator', () => {
 
     describe('getSupplier', () => {
       it('should return supplier from map', () => {
-        const supplier = (comparator as any).getSupplier(mockOffers[0], mockSuppliers);
+        const supplier = (comparator as any).getSupplier(
+          mockOffers[0],
+          mockSuppliers
+        );
         expect(supplier).toBe(mockSuppliers.get('supplier-1'));
       });
 
@@ -341,20 +357,35 @@ describe('BaseComparator', () => {
 
     describe('applyEquivalenceFactor', () => {
       it('should apply equivalence factor when not 1.0', () => {
-        const inventoryItem = createMockInventoryItem({ equivalenceFactor: 2.0 });
-        const adjustedPrice = (comparator as any).applyEquivalenceFactor(10.0, inventoryItem);
+        const inventoryItem = createMockInventoryItem({
+          equivalenceFactor: 2.0,
+        });
+        const adjustedPrice = (comparator as any).applyEquivalenceFactor(
+          10.0,
+          inventoryItem
+        );
         expect(adjustedPrice).toBe(5.0); // 10 / 2.0
       });
 
       it('should not adjust price when equivalence factor is 1.0', () => {
-        const inventoryItem = createMockInventoryItem({ equivalenceFactor: 1.0 });
-        const adjustedPrice = (comparator as any).applyEquivalenceFactor(10.0, inventoryItem);
+        const inventoryItem = createMockInventoryItem({
+          equivalenceFactor: 1.0,
+        });
+        const adjustedPrice = (comparator as any).applyEquivalenceFactor(
+          10.0,
+          inventoryItem
+        );
         expect(adjustedPrice).toBe(10.0);
       });
 
       it('should not adjust price when equivalence factor is undefined', () => {
-        const inventoryItem = createMockInventoryItem({ equivalenceFactor: undefined });
-        const adjustedPrice = (comparator as any).applyEquivalenceFactor(10.0, inventoryItem);
+        const inventoryItem = createMockInventoryItem({
+          equivalenceFactor: undefined,
+        });
+        const adjustedPrice = (comparator as any).applyEquivalenceFactor(
+          10.0,
+          inventoryItem
+        );
         expect(adjustedPrice).toBe(10.0);
       });
     });
@@ -420,7 +451,9 @@ describe('BaseComparator', () => {
       const lowQualityOffer = createMockOffer({
         qualityRating: undefined,
         supplierUrl: undefined,
-        observedAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), // Stale
+        observedAt: new Date(
+          Date.now() - 40 * 24 * 60 * 60 * 1000
+        ).toISOString(), // Stale
       });
 
       const result = await comparator.compare(

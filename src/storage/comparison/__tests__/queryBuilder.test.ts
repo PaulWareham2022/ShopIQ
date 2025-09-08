@@ -5,7 +5,11 @@
  * including sorting, filtering, and dynamic query generation.
  */
 
-import { ComparisonQueryBuilder, ComparisonQueryExecutor, QueryOptions } from '../queryBuilder';
+import {
+  ComparisonQueryBuilder,
+  ComparisonQueryExecutor,
+  QueryOptions,
+} from '../queryBuilder';
 import { ComparisonConfig } from '../types';
 
 describe('ComparisonQueryBuilder', () => {
@@ -29,14 +33,16 @@ describe('ComparisonQueryBuilder', () => {
         config,
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('SELECT');
       expect(query).toContain('FROM offers o');
       expect(query).toContain('INNER JOIN inventory_items i');
       expect(query).toContain('INNER JOIN suppliers s');
       expect(query).toContain('WHERE o.deleted_at IS NULL');
-      expect(query).toContain('ORDER BY o.price_per_canonical_incl_shipping ASC');
+      expect(query).toContain(
+        'ORDER BY o.price_per_canonical_incl_shipping ASC'
+      );
       expect(parameters).toEqual([]);
     });
 
@@ -52,7 +58,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.inventory_item_id IN (?, ?)');
       expect(parameters).toEqual(['item1', 'item2']);
@@ -70,7 +76,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.supplier_id IN (?)');
       expect(parameters).toEqual(['supplier1']);
@@ -91,7 +97,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.observed_at >= ?');
       expect(query).toContain('o.observed_at <= ?');
@@ -113,7 +119,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.effective_price_per_canonical >= ?');
       expect(query).toContain('o.effective_price_per_canonical <= ?');
@@ -135,7 +141,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.quality_rating >= ?');
       expect(query).toContain('o.quality_rating <= ?');
@@ -154,7 +160,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.currency IN (?, ?)');
       expect(parameters).toEqual(['USD', 'EUR']);
@@ -172,7 +178,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('o.source_type IN (?, ?)');
       expect(parameters).toEqual(['manual', 'url']);
@@ -191,7 +197,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).toContain('LIMIT 10 OFFSET 20');
       expect(parameters).toEqual([]);
@@ -212,9 +218,11 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
-      expect(query).toContain('ORDER BY o.effective_price_per_canonical DESC, o.observed_at ASC');
+      expect(query).toContain(
+        'ORDER BY o.effective_price_per_canonical DESC, o.observed_at ASC'
+      );
     });
 
     it('should include deleted records when specified', () => {
@@ -229,7 +237,7 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildOffersQuery(options);
+      const { query } = queryBuilder.buildOffersQuery(options);
 
       expect(query).not.toContain('o.deleted_at IS NULL');
       expect(parameters).toEqual([]);
@@ -286,7 +294,8 @@ describe('ComparisonQueryBuilder', () => {
         config,
       };
 
-      const { query, parameters } = queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
+      const { query, parameters } =
+        queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
 
       expect(query).toContain('FROM inventory_items i');
       expect(query).toContain('LEFT JOIN');
@@ -306,7 +315,8 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
+      const { query, parameters } =
+        queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
 
       // The actual implementation might not apply filters as expected
       expect(query).toContain('FROM inventory_items i');
@@ -324,12 +334,21 @@ describe('ComparisonQueryBuilder', () => {
         config,
       };
 
-      const { query, parameters } = queryBuilder.buildPriceTrendQuery('item1', options);
+      const { query, parameters } = queryBuilder.buildPriceTrendQuery(
+        'item1',
+        options
+      );
 
       expect(query).toContain('DATE(o.observed_at) as date');
-      expect(query).toContain('MIN(o.effective_price_per_canonical) as min_price');
-      expect(query).toContain('MAX(o.effective_price_per_canonical) as max_price');
-      expect(query).toContain('AVG(o.effective_price_per_canonical) as avg_price');
+      expect(query).toContain(
+        'MIN(o.effective_price_per_canonical) as min_price'
+      );
+      expect(query).toContain(
+        'MAX(o.effective_price_per_canonical) as max_price'
+      );
+      expect(query).toContain(
+        'AVG(o.effective_price_per_canonical) as avg_price'
+      );
       expect(query).toContain('COUNT(*) as offer_count');
       expect(query).toContain('WHERE o.inventory_item_id = ?');
       expect(query).toContain('GROUP BY DATE(o.observed_at)');
@@ -352,7 +371,10 @@ describe('ComparisonQueryBuilder', () => {
         },
       };
 
-      const { query, parameters } = queryBuilder.buildPriceTrendQuery('item1', options);
+      const { query, parameters } = queryBuilder.buildPriceTrendQuery(
+        'item1',
+        options
+      );
 
       // The actual implementation does apply date filters
       expect(query).toContain('WHERE o.inventory_item_id = ?');
@@ -375,7 +397,9 @@ describe('ComparisonQueryBuilder', () => {
 
       const { query } = queryBuilder.buildOffersQuery(options);
 
-      expect(query).toContain('ORDER BY o.price_per_canonical_excl_shipping ASC');
+      expect(query).toContain(
+        'ORDER BY o.price_per_canonical_excl_shipping ASC'
+      );
     });
 
     it('should use price per canonical including shipping when specified', () => {
@@ -392,7 +416,9 @@ describe('ComparisonQueryBuilder', () => {
 
       const { query } = queryBuilder.buildOffersQuery(options);
 
-      expect(query).toContain('ORDER BY o.price_per_canonical_incl_shipping ASC');
+      expect(query).toContain(
+        'ORDER BY o.price_per_canonical_incl_shipping ASC'
+      );
     });
 
     it('should use total price ordering for totalPrice strategy', () => {
@@ -426,7 +452,9 @@ describe('ComparisonQueryBuilder', () => {
 
       const { query } = queryBuilder.buildOffersQuery(options);
 
-      expect(query).toContain('ORDER BY (o.total_price + COALESCE(o.shipping_cost, 0)) ASC');
+      expect(query).toContain(
+        'ORDER BY (o.total_price + COALESCE(o.shipping_cost, 0)) ASC'
+      );
     });
 
     it('should use price per unit ordering for pricePerUnit strategy', () => {
@@ -457,7 +485,9 @@ describe('ComparisonQueryBuilder', () => {
 
       const { query } = queryBuilder.buildOffersQuery(options);
 
-      expect(query).toContain('ORDER BY (o.effective_price_per_canonical * (1 - COALESCE(o.quality_rating, 3) * 0.1)) ASC');
+      expect(query).toContain(
+        'ORDER BY (o.effective_price_per_canonical * (1 - COALESCE(o.quality_rating, 3) * 0.1)) ASC'
+      );
     });
   });
 });
@@ -504,9 +534,9 @@ describe('ComparisonQueryExecutor', () => {
         parameters: [],
       });
 
-      await expect(queryExecutor.executeQuery(queryFn, mockExecuteFn)).rejects.toThrow(
-        'Query execution failed: Database connection failed'
-      );
+      await expect(
+        queryExecutor.executeQuery(queryFn, mockExecuteFn)
+      ).rejects.toThrow('Query execution failed: Database connection failed');
     });
   });
 
@@ -523,7 +553,10 @@ describe('ComparisonQueryExecutor', () => {
         config,
       };
 
-      const result = await queryExecutor.executeOffersQuery(options, mockExecuteFn);
+      const result = await queryExecutor.executeOffersQuery(
+        options,
+        mockExecuteFn
+      );
 
       expect(result.results).toEqual(mockResults);
       expect(mockExecuteFn).toHaveBeenCalledWith(
@@ -546,7 +579,10 @@ describe('ComparisonQueryExecutor', () => {
         config,
       };
 
-      const result = await queryExecutor.executeBestOffersQuery(options, mockExecuteFn);
+      const result = await queryExecutor.executeBestOffersQuery(
+        options,
+        mockExecuteFn
+      );
 
       expect(result.results).toEqual(mockResults);
       expect(mockExecuteFn).toHaveBeenCalledWith(
@@ -569,7 +605,11 @@ describe('ComparisonQueryExecutor', () => {
         config,
       };
 
-      const result = await queryExecutor.executeInventoryItemsWithBestOffersQuery(options, mockExecuteFn);
+      const result =
+        await queryExecutor.executeInventoryItemsWithBestOffersQuery(
+          options,
+          mockExecuteFn
+        );
 
       expect(result.results).toEqual(mockResults);
       expect(mockExecuteFn).toHaveBeenCalledWith(
@@ -594,7 +634,11 @@ describe('ComparisonQueryExecutor', () => {
         config,
       };
 
-      const result = await queryExecutor.executePriceTrendQuery('item1', options, mockExecuteFn);
+      const result = await queryExecutor.executePriceTrendQuery(
+        'item1',
+        options,
+        mockExecuteFn
+      );
 
       expect(result.results).toEqual(mockResults);
       expect(mockExecuteFn).toHaveBeenCalledWith(

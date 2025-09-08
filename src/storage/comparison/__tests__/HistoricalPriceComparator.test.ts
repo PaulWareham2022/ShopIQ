@@ -21,7 +21,9 @@ jest.mock('../../services/HistoricalPriceService', () => ({
 import { HistoricalPriceService } from '../../services/HistoricalPriceService';
 
 // Mock data
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -80,20 +82,22 @@ describe('HistoricalPriceComparator', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockRepositoryFactory = {} as RepositoryFactory;
     comparator = new HistoricalPriceComparator(mockRepositoryFactory);
-    
+
     // Get the mocked service instance
     mockHistoricalPriceService = {
       getPriceTrend: jest.fn(),
       getPriceStatistics: jest.fn(),
       getBestHistoricalPrice: jest.fn(),
     };
-    
+
     // Mock the service constructor to return our mock
-    (HistoricalPriceService as jest.Mock).mockImplementation(() => mockHistoricalPriceService);
-    
+    (HistoricalPriceService as jest.Mock).mockImplementation(
+      () => mockHistoricalPriceService
+    );
+
     mockInventoryItem = createMockInventoryItem();
     mockOffers = [createMockOffer()];
     mockSuppliers = new Map([['supplier-1', createMockSupplier()]]);
@@ -128,9 +132,15 @@ describe('HistoricalPriceComparator', () => {
         observedAt: '2024-01-01T00:00:00Z',
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
-      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(mockBestHistoricalPrice);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
+      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(
+        mockBestHistoricalPrice
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -148,20 +158,19 @@ describe('HistoricalPriceComparator', () => {
         }
       );
 
-      expect(mockHistoricalPriceService.getPriceTrend).toHaveBeenCalledWith('item-1', {
-        period: '30d',
-        supplierId: 'supplier-1',
-      });
-      expect(mockHistoricalPriceService.getPriceStatistics).toHaveBeenCalledWith(
+      expect(mockHistoricalPriceService.getPriceTrend).toHaveBeenCalledWith(
         'item-1',
-        '30d',
-        'supplier-1'
+        {
+          period: '30d',
+          supplierId: 'supplier-1',
+        }
       );
-      expect(mockHistoricalPriceService.getBestHistoricalPrice).toHaveBeenCalledWith(
-        'item-1',
-        '30d',
-        'supplier-1'
-      );
+      expect(
+        mockHistoricalPriceService.getPriceStatistics
+      ).toHaveBeenCalledWith('item-1', '30d', 'supplier-1');
+      expect(
+        mockHistoricalPriceService.getBestHistoricalPrice
+      ).toHaveBeenCalledWith('item-1', '30d', 'supplier-1');
 
       expect(result.score).toBeDefined();
       expect(result.metadata?.trend).toEqual({
@@ -192,8 +201,12 @@ describe('HistoricalPriceComparator', () => {
         count: 15,
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
       mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(null);
 
       const result = await comparator.compare(
@@ -226,8 +239,12 @@ describe('HistoricalPriceComparator', () => {
         count: 12,
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
       mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(null);
 
       const result = await comparator.compare(
@@ -260,8 +277,12 @@ describe('HistoricalPriceComparator', () => {
         count: 8,
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
       mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(null);
 
       const result = await comparator.compare(
@@ -293,8 +314,12 @@ describe('HistoricalPriceComparator', () => {
         count: 20,
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
       mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(null);
 
       const result = await comparator.compare(
@@ -331,9 +356,15 @@ describe('HistoricalPriceComparator', () => {
         observedAt: '2024-01-01T00:00:00Z',
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
-      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(mockBestHistoricalPrice);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
+      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(
+        mockBestHistoricalPrice
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -372,9 +403,15 @@ describe('HistoricalPriceComparator', () => {
         observedAt: '2024-01-01T00:00:00Z',
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
-      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(mockBestHistoricalPrice);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
+      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(
+        mockBestHistoricalPrice
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -390,7 +427,9 @@ describe('HistoricalPriceComparator', () => {
     });
 
     it('should fall back to basic comparison when historical data fails', async () => {
-      mockHistoricalPriceService.getPriceTrend.mockRejectedValue(new Error('Service unavailable'));
+      mockHistoricalPriceService.getPriceTrend.mockRejectedValue(
+        new Error('Service unavailable')
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -404,7 +443,9 @@ describe('HistoricalPriceComparator', () => {
       expect(result.metadata?.flags).toContain('no-historical-data');
       expect(result.metadata?.flags).toContain('fallback-comparison');
       expect(result.metadata?.confidence).toBeCloseTo(0.95, 2);
-      expect(result.metadata?.explanation).toContain('Current price: 10.0000 per kg');
+      expect(result.metadata?.explanation).toContain(
+        'Current price: 10.0000 per kg'
+      );
     });
 
     it('should handle missing historical data gracefully', async () => {
@@ -450,7 +491,9 @@ describe('HistoricalPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('historicalPeriod must be one of: 1d, 7d, 30d, 90d, 1y, all');
+      expect(result.error).toContain(
+        'historicalPeriod must be one of: 1d, 7d, 30d, 90d, 1y, all'
+      );
     });
 
     it('should reject invalid trend weight', () => {
@@ -468,7 +511,9 @@ describe('HistoricalPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('currentPriceWeight must be between 0 and 1');
+      expect(result.error).toContain(
+        'currentPriceWeight must be between 0 and 1'
+      );
     });
 
     it('should warn when weights do not sum to 1.0', () => {
@@ -478,7 +523,9 @@ describe('HistoricalPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain('trendWeight and currentPriceWeight should sum to 1.0');
+      expect(result.warnings).toContain(
+        'trendWeight and currentPriceWeight should sum to 1.0'
+      );
     });
 
     it('should reject invalid volatility threshold', () => {
@@ -496,7 +543,9 @@ describe('HistoricalPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('minHistoricalDataPoints must be at least 1');
+      expect(result.error).toContain(
+        'minHistoricalDataPoints must be at least 1'
+      );
     });
   });
 
@@ -531,8 +580,12 @@ describe('HistoricalPriceComparator', () => {
         count: 10,
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
       mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(null);
 
       const result = await comparator.compare(
@@ -572,9 +625,15 @@ describe('HistoricalPriceComparator', () => {
         observedAt: '2024-01-01T00:00:00Z',
       };
 
-      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(mockPriceTrend);
-      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(mockPriceStatistics);
-      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(mockBestHistoricalPrice);
+      mockHistoricalPriceService.getPriceTrend.mockResolvedValue(
+        mockPriceTrend
+      );
+      mockHistoricalPriceService.getPriceStatistics.mockResolvedValue(
+        mockPriceStatistics
+      );
+      mockHistoricalPriceService.getBestHistoricalPrice.mockResolvedValue(
+        mockBestHistoricalPrice
+      );
 
       const result = await comparator.compare(
         mockOffers[0],

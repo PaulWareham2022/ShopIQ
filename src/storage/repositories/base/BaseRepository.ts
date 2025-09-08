@@ -58,6 +58,11 @@ export abstract class BaseRepository<T extends BaseEntity>
     return normalizedDirection;
   }
 
+  // Helper method to convert camelCase to snake_case
+  private camelToSnakeCase(str: string): string {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+  }
+
   /**
    * Validate timestamp fields in an entity
    * @param entity Entity to validate
@@ -240,7 +245,9 @@ export abstract class BaseRepository<T extends BaseEntity>
 
       // Build WHERE conditions
       Object.entries(conditions).forEach(([key, value]) => {
-        whereConditions.push(`${key} = ?`);
+        // Convert camelCase to snake_case for database columns
+        const dbColumn = this.camelToSnakeCase(key);
+        whereConditions.push(`${dbColumn} = ?`);
         params.push(value);
       });
 
@@ -309,7 +316,9 @@ export abstract class BaseRepository<T extends BaseEntity>
 
       if (conditions) {
         Object.entries(conditions).forEach(([key, value]) => {
-          whereConditions.push(`${key} = ?`);
+          // Convert camelCase to snake_case for database columns
+          const dbColumn = this.camelToSnakeCase(key);
+          whereConditions.push(`${dbColumn} = ?`);
           params.push(value);
         });
       }

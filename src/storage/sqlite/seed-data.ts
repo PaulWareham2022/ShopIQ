@@ -44,7 +44,7 @@ export const getUnitConversionInsertStatements = () => {
   const conversions = getUnitConversionsForInsert();
   return conversions.map(conversion => ({
     sql: `
-      INSERT OR REPLACE INTO unit_conversions (
+      INSERT INTO unit_conversions (
         id, from_unit, to_unit, factor, dimension, created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
@@ -80,7 +80,7 @@ export const getBatchUnitConversionSQL = () => {
 
   return {
     sql: `
-      INSERT OR REPLACE INTO unit_conversions (
+      INSERT INTO unit_conversions (
         id, from_unit, to_unit, factor, dimension, created_at, updated_at
       ) VALUES ${placeholders}
     `,

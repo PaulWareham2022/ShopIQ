@@ -244,10 +244,14 @@ describe('ComparisonOfferRepository', () => {
         primaryStrategy: 'pricePerCanonical',
       };
 
-      const result = await repository.findByInventoryItemWithComparison('item1', config, {
-        limit: 10,
-        offset: 0,
-      });
+      const result = await repository.findByInventoryItemWithComparison(
+        'item1',
+        config,
+        {
+          limit: 10,
+          offset: 0,
+        }
+      );
 
       expect(result.results).toHaveLength(1);
       expect(result.results[0].inventoryItemId).toBe('item1');
@@ -290,7 +294,10 @@ describe('ComparisonOfferRepository', () => {
         primaryStrategy: 'pricePerCanonical',
       };
 
-      const result = await repository.findBestOfferForItemWithComparison('item1', config);
+      const result = await repository.findBestOfferForItemWithComparison(
+        'item1',
+        config
+      );
 
       expect(result).not.toBeNull();
       expect(result?.id).toBe('1');
@@ -309,7 +316,10 @@ describe('ComparisonOfferRepository', () => {
         primaryStrategy: 'pricePerCanonical',
       };
 
-      const result = await repository.findBestOfferForItemWithComparison('item1', config);
+      const result = await repository.findBestOfferForItemWithComparison(
+        'item1',
+        config
+      );
 
       expect(result).toBeNull();
     });

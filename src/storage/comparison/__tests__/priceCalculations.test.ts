@@ -18,13 +18,15 @@ import {
   PriceCalculationOptions,
   PriceCalculationResult,
 } from '../priceCalculations';
-import { Offer, InventoryItem, CanonicalDimension } from '../../types';
+import { Offer, InventoryItem } from '../../types';
 
 // =============================================================================
 // TEST DATA SETUP
 // =============================================================================
 
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -72,7 +74,11 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = {};
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(true);
     expect(result.errors).toHaveLength(0);
@@ -82,7 +88,11 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = {};
 
-    const result = validatePriceCalculationInputs(null as any, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      null as any,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain('Offer is required');
@@ -103,10 +113,16 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = {};
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Offer total price must be a positive finite number');
+    expect(result.errors).toContain(
+      'Offer total price must be a positive finite number'
+    );
   });
 
   it('should reject invalid amount', () => {
@@ -114,10 +130,16 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = {};
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Offer amount must be a positive finite number');
+    expect(result.errors).toContain(
+      'Offer amount must be a positive finite number'
+    );
   });
 
   it('should reject missing amount unit', () => {
@@ -125,7 +147,11 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = {};
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain('Offer amount unit is required');
@@ -136,10 +162,16 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { currencyRate: -1.0 };
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Currency rate must be a positive finite number');
+    expect(result.errors).toContain(
+      'Currency rate must be a positive finite number'
+    );
   });
 
   it('should warn about invalid shipping cost', () => {
@@ -147,10 +179,16 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { includeShipping: true };
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(true);
-    expect(result.warnings).toContain('Shipping cost is not a valid positive number');
+    expect(result.warnings).toContain(
+      'Shipping cost is not a valid positive number'
+    );
   });
 
   it('should warn about invalid tax rate', () => {
@@ -158,10 +196,16 @@ describe('validatePriceCalculationInputs', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { includeTax: true };
 
-    const result = validatePriceCalculationInputs(offer, inventoryItem, options);
+    const result = validatePriceCalculationInputs(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.isValid).toBe(true);
-    expect(result.warnings).toContain('Tax rate is not a valid positive number');
+    expect(result.warnings).toContain(
+      'Tax rate is not a valid positive number'
+    );
   });
 });
 
@@ -219,7 +263,11 @@ describe('calculatePricePerCanonicalExcluding', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { currencyRate: 1.5 };
 
-    const result = calculatePricePerCanonicalExcluding(offer, inventoryItem, options);
+    const result = calculatePricePerCanonicalExcluding(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.success).toBe(true);
     expect(result.pricePerCanonical).toBeCloseTo(0.15, 10); // (100 / 1000) * 1.5
@@ -234,7 +282,11 @@ describe('calculatePricePerCanonicalExcluding', () => {
     const inventoryItem = createMockInventoryItem({ equivalenceFactor: 2.0 });
     const options: PriceCalculationOptions = { applyEquivalenceFactors: true };
 
-    const result = calculatePricePerCanonicalExcluding(offer, inventoryItem, options);
+    const result = calculatePricePerCanonicalExcluding(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.success).toBe(true);
     expect(result.pricePerCanonical).toBe(0.2); // (100 / 1000) * 2.0
@@ -408,7 +460,11 @@ describe('calculatePricePerCanonicalEffective', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { useEffectivePrice: false };
 
-    const result = calculatePricePerCanonicalEffective(offer, inventoryItem, options);
+    const result = calculatePricePerCanonicalEffective(
+      offer,
+      inventoryItem,
+      options
+    );
 
     expect(result.success).toBe(true);
     expect(result.pricePerCanonical).toBe(0.1); // Falls back to including calculation
@@ -479,20 +535,20 @@ describe('calculatePricePerCanonical', () => {
 describe('calculatePricesForOffers', () => {
   it('should calculate prices for multiple offers', () => {
     const offers = [
-      createMockOffer({ 
-        id: 'offer-1', 
-        totalPrice: 100.0, 
-        amount: 1000.0, 
+      createMockOffer({
+        id: 'offer-1',
+        totalPrice: 100.0,
+        amount: 1000.0,
         amountUnit: 'g',
         amountCanonical: 1000.0,
         pricePerCanonicalExclShipping: 0.1,
         pricePerCanonicalInclShipping: 0.1,
         effectivePricePerCanonical: 0.1,
       }),
-      createMockOffer({ 
-        id: 'offer-2', 
-        totalPrice: 200.0, 
-        amount: 2000.0, 
+      createMockOffer({
+        id: 'offer-2',
+        totalPrice: 200.0,
+        amount: 2000.0,
         amountUnit: 'g',
         amountCanonical: 2000.0,
         pricePerCanonicalExclShipping: 0.1,
@@ -511,7 +567,12 @@ describe('calculatePricesForOffers', () => {
 
   it('should handle mixed success and failure', () => {
     const offers = [
-      createMockOffer({ id: 'offer-1', totalPrice: 100.0, amount: 1000.0, amountUnit: 'g' }),
+      createMockOffer({
+        id: 'offer-1',
+        totalPrice: 100.0,
+        amount: 1000.0,
+        amountUnit: 'g',
+      }),
       createMockOffer({ id: 'offer-2', totalPrice: 100.0, amount: 0 }), // Invalid
     ];
     const inventoryItem = createMockInventoryItem();
@@ -527,12 +588,20 @@ describe('calculatePricesForOffers', () => {
 describe('filterOffersByCalculation', () => {
   it('should filter offers by calculation success and confidence', () => {
     const offers = [
-      createMockOffer({ id: 'offer-1', totalPrice: 100.0, amount: 1000.0, amountUnit: 'g' }),
+      createMockOffer({
+        id: 'offer-1',
+        totalPrice: 100.0,
+        amount: 1000.0,
+        amountUnit: 'g',
+      }),
       createMockOffer({ id: 'offer-2', totalPrice: 100.0, amount: 0 }), // Invalid
     ];
     const inventoryItem = createMockInventoryItem();
 
-    const { validOffers, invalidOffers } = filterOffersByCalculation(offers, inventoryItem);
+    const { validOffers, invalidOffers } = filterOffersByCalculation(
+      offers,
+      inventoryItem
+    );
 
     expect(validOffers).toHaveLength(1);
     expect(validOffers[0].id).toBe('offer-1');
@@ -553,7 +622,11 @@ describe('filterOffersByCalculation', () => {
     const inventoryItem = createMockInventoryItem();
     const options: PriceCalculationOptions = { minConfidence: 0.95 };
 
-    const { validOffers, invalidOffers } = filterOffersByCalculation(offers, inventoryItem, options);
+    const { validOffers, invalidOffers } = filterOffersByCalculation(
+      offers,
+      inventoryItem,
+      options
+    );
 
     expect(validOffers).toHaveLength(0);
     expect(invalidOffers).toHaveLength(1);
@@ -667,7 +740,9 @@ describe('Edge Cases', () => {
     const result = calculatePricePerCanonical(offer, inventoryItem);
 
     expect(result.success).toBe(false);
-    expect(result.errorMessage).toContain('Offer amount must be a positive finite number');
+    expect(result.errorMessage).toContain(
+      'Offer amount must be a positive finite number'
+    );
   });
 
   it('should handle very small amounts', () => {
@@ -708,7 +783,9 @@ describe('Edge Cases', () => {
     const result = calculatePricePerCanonical(offer, inventoryItem);
 
     expect(result.success).toBe(false);
-    expect(result.errorMessage).toContain('Offer total price must be a positive finite number');
+    expect(result.errorMessage).toContain(
+      'Offer total price must be a positive finite number'
+    );
   });
 
   it('should handle Infinity values gracefully', () => {
@@ -721,6 +798,8 @@ describe('Edge Cases', () => {
     const result = calculatePricePerCanonical(offer, inventoryItem);
 
     expect(result.success).toBe(false);
-    expect(result.errorMessage).toContain('Offer total price must be a positive finite number');
+    expect(result.errorMessage).toContain(
+      'Offer total price must be a positive finite number'
+    );
   });
 });

@@ -17,11 +17,17 @@ import {
   getStrategyDescription,
   isStrategySuitable,
 } from '../utils';
-import { ComparisonResult, ItemComparisonResults, ComparisonConfig } from '../types';
+import {
+  ComparisonResult,
+  ItemComparisonResults,
+  ComparisonConfig,
+} from '../types';
 import { Offer, InventoryItem } from '../../types';
 
 // Mock data
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -59,7 +65,9 @@ const createMockOffer = (overrides: Partial<Offer> = {}): Offer => ({
   ...overrides,
 });
 
-const createMockComparisonResult = (overrides: Partial<ComparisonResult> = {}): ComparisonResult => ({
+const createMockComparisonResult = (
+  overrides: Partial<ComparisonResult> = {}
+): ComparisonResult => ({
   offer: createMockOffer(),
   score: 10.0,
   metadata: {
@@ -75,14 +83,28 @@ describe('formatComparisonResults', () => {
     const inventoryItem = createMockInventoryItem();
     const results = [
       createMockComparisonResult({
-        offer: createMockOffer({ id: 'offer-1', supplierNameSnapshot: 'Supplier A' }),
+        offer: createMockOffer({
+          id: 'offer-1',
+          supplierNameSnapshot: 'Supplier A',
+        }),
         score: 8.0,
-        metadata: { flags: ['best-price'], explanation: 'Best price', confidence: 0.95 },
+        metadata: {
+          flags: ['best-price'],
+          explanation: 'Best price',
+          confidence: 0.95,
+        },
       }),
       createMockComparisonResult({
-        offer: createMockOffer({ id: 'offer-2', supplierNameSnapshot: 'Supplier B' }),
+        offer: createMockOffer({
+          id: 'offer-2',
+          supplierNameSnapshot: 'Supplier B',
+        }),
         score: 12.0,
-        metadata: { flags: ['high-quality'], explanation: 'High quality', confidence: 0.8 },
+        metadata: {
+          flags: ['high-quality'],
+          explanation: 'High quality',
+          confidence: 0.8,
+        },
       }),
     ];
 
@@ -111,8 +133,12 @@ describe('formatComparisonResults', () => {
     expect(formatted).toContain('Price: USD 8.0000');
     expect(formatted).toContain('Confidence: 95.0%');
     expect(formatted).toContain('All Offers (sorted by score):');
-    expect(formatted).toContain('1. Supplier A: USD 8.0000 (flags: best-price)');
-    expect(formatted).toContain('2. Supplier B: USD 12.0000 (flags: high-quality)');
+    expect(formatted).toContain(
+      '1. Supplier A: USD 8.0000 (flags: best-price)'
+    );
+    expect(formatted).toContain(
+      '2. Supplier B: USD 12.0000 (flags: high-quality)'
+    );
   });
 
   it('should handle empty results', () => {
@@ -206,17 +232,29 @@ describe('calculatePriceDifference', () => {
 describe('filterComparisonResults', () => {
   const results = [
     createMockComparisonResult({
-      offer: createMockOffer({ id: 'offer-1', supplierId: 'supplier-1', qualityRating: 5 }),
+      offer: createMockOffer({
+        id: 'offer-1',
+        supplierId: 'supplier-1',
+        qualityRating: 5,
+      }),
       score: 8.0,
       metadata: { confidence: 0.9, flags: ['best-price'] },
     }),
     createMockComparisonResult({
-      offer: createMockOffer({ id: 'offer-2', supplierId: 'supplier-2', qualityRating: 3 }),
+      offer: createMockOffer({
+        id: 'offer-2',
+        supplierId: 'supplier-2',
+        qualityRating: 3,
+      }),
       score: 12.0,
       metadata: { confidence: 0.7, flags: ['high-quality'] },
     }),
     createMockComparisonResult({
-      offer: createMockOffer({ id: 'offer-3', supplierId: 'supplier-1', qualityRating: 2 }),
+      offer: createMockOffer({
+        id: 'offer-3',
+        supplierId: 'supplier-1',
+        qualityRating: 2,
+      }),
       score: 15.0,
       metadata: { confidence: 0.6, flags: ['low-quality'] },
     }),
@@ -244,21 +282,29 @@ describe('filterComparisonResults', () => {
   });
 
   it('should filter by included flags', () => {
-    const filtered = filterComparisonResults(results, { includeFlags: ['best-price'] });
+    const filtered = filterComparisonResults(results, {
+      includeFlags: ['best-price'],
+    });
 
     expect(filtered).toHaveLength(1);
     expect(filtered[0].offer.id).toBe('offer-1');
   });
 
   it('should filter by excluded flags', () => {
-    const filtered = filterComparisonResults(results, { excludeFlags: ['low-quality'] });
+    const filtered = filterComparisonResults(results, {
+      excludeFlags: ['low-quality'],
+    });
 
     expect(filtered).toHaveLength(2);
-    expect(filtered.every(r => !r.metadata?.flags?.includes('low-quality'))).toBe(true);
+    expect(
+      filtered.every(r => !r.metadata?.flags?.includes('low-quality'))
+    ).toBe(true);
   });
 
   it('should filter by suppliers', () => {
-    const filtered = filterComparisonResults(results, { suppliers: ['supplier-1'] });
+    const filtered = filterComparisonResults(results, {
+      suppliers: ['supplier-1'],
+    });
 
     expect(filtered).toHaveLength(2);
     expect(filtered.every(r => r.offer.supplierId === 'supplier-1')).toBe(true);
@@ -329,9 +375,18 @@ describe('calculateComparisonStatistics', () => {
   it('should calculate statistics correctly', () => {
     const results = [
       createMockComparisonResult({ score: 8.0, metadata: { confidence: 0.9 } }),
-      createMockComparisonResult({ score: 10.0, metadata: { confidence: 0.8 } }),
-      createMockComparisonResult({ score: 12.0, metadata: { confidence: 0.7 } }),
-      createMockComparisonResult({ score: 14.0, metadata: { confidence: 0.6 } }),
+      createMockComparisonResult({
+        score: 10.0,
+        metadata: { confidence: 0.8 },
+      }),
+      createMockComparisonResult({
+        score: 12.0,
+        metadata: { confidence: 0.7 },
+      }),
+      createMockComparisonResult({
+        score: 14.0,
+        metadata: { confidence: 0.6 },
+      }),
     ];
 
     const stats = calculateComparisonStatistics(results);
@@ -361,7 +416,10 @@ describe('calculateComparisonStatistics', () => {
 
   it('should handle single result', () => {
     const results = [
-      createMockComparisonResult({ score: 10.0, metadata: { confidence: 0.8 } }),
+      createMockComparisonResult({
+        score: 10.0,
+        metadata: { confidence: 0.8 },
+      }),
     ];
 
     const stats = calculateComparisonStatistics(results);
@@ -378,7 +436,10 @@ describe('calculateComparisonStatistics', () => {
 
   it('should handle missing confidence values', () => {
     const results = [
-      createMockComparisonResult({ score: 10.0, metadata: { confidence: 0.8 } }),
+      createMockComparisonResult({
+        score: 10.0,
+        metadata: { confidence: 0.8 },
+      }),
       createMockComparisonResult({ score: 12.0, metadata: {} }), // No confidence
     ];
 
@@ -451,7 +512,9 @@ describe('validateComparisonConfig', () => {
     const result = validateComparisonConfig(config);
 
     expect(result.isValid).toBe(true);
-    expect(result.warnings).toContain('Total weight of secondary strategies exceeds 1.0');
+    expect(result.warnings).toContain(
+      'Total weight of secondary strategies exceeds 1.0'
+    );
   });
 });
 
@@ -508,10 +571,14 @@ describe('mergeComparisonConfigs', () => {
 
 describe('getStrategyDescription', () => {
   it('should return correct descriptions for known strategies', () => {
-    expect(getStrategyDescription('pricePerCanonical')).toContain('canonical unit');
+    expect(getStrategyDescription('pricePerCanonical')).toContain(
+      'canonical unit'
+    );
     expect(getStrategyDescription('totalPrice')).toContain('total price');
     expect(getStrategyDescription('pricePerUnit')).toContain('display unit');
-    expect(getStrategyDescription('qualityAdjustedPrice')).toContain('quality rating');
+    expect(getStrategyDescription('qualityAdjustedPrice')).toContain(
+      'quality rating'
+    );
   });
 
   it('should return unknown for unknown strategy', () => {
@@ -543,6 +610,8 @@ describe('isStrategySuitable', () => {
   });
 
   it('should return false for unknown use case', () => {
-    expect(isStrategySuitable('pricePerCanonical', 'unknown' as any)).toBe(false);
+    expect(isStrategySuitable('pricePerCanonical', 'unknown' as any)).toBe(
+      false
+    );
   });
 });

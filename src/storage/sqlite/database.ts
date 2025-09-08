@@ -343,36 +343,40 @@ class WebDatabase {
               this.mockData.set(tableName, []);
             }
             const offers = this.mockData.get(tableName) || [];
-            
+
             // Filter offers based on WHERE conditions
             let filteredOffers = offers;
-            
+
             // Handle inventory_item_id condition
             if (sql.includes('inventory_item_id = ?')) {
               const inventoryItemId = params?.[0];
-              filteredOffers = filteredOffers.filter((offer: any) => 
-                offer.inventory_item_id === inventoryItemId
+              filteredOffers = filteredOffers.filter(
+                (offer: any) => offer.inventory_item_id === inventoryItemId
               );
             }
-            
+
             // Handle deleted_at IS NULL condition (soft delete filter)
             if (sql.includes('deleted_at IS NULL')) {
-              filteredOffers = filteredOffers.filter((offer: any) => 
-                !offer.deleted_at
+              filteredOffers = filteredOffers.filter(
+                (offer: any) => !offer.deleted_at
               );
             }
-            
+
             // Handle ORDER BY clause
             if (sql.includes('ORDER BY observed_at DESC')) {
-              filteredOffers = filteredOffers.sort((a: any, b: any) => 
-                new Date(b.observed_at).getTime() - new Date(a.observed_at).getTime()
+              filteredOffers = filteredOffers.sort(
+                (a: any, b: any) =>
+                  new Date(b.observed_at).getTime() -
+                  new Date(a.observed_at).getTime()
               );
             } else if (sql.includes('ORDER BY observed_at ASC')) {
-              filteredOffers = filteredOffers.sort((a: any, b: any) => 
-                new Date(a.observed_at).getTime() - new Date(b.observed_at).getTime()
+              filteredOffers = filteredOffers.sort(
+                (a: any, b: any) =>
+                  new Date(a.observed_at).getTime() -
+                  new Date(b.observed_at).getTime()
               );
             }
-            
+
             if (successCb) {
               successCb(mockTx, {
                 rows: {
@@ -483,7 +487,8 @@ export const initializeDatabase = async (): Promise<void> => {
     }
 
     // Populate unit conversion data
-    await seedUnitConversions();
+    // Temporarily disabled to investigate seeding issues
+    // await seedUnitConversions();
 
     if (__DEV__) {
       console.log(
@@ -501,9 +506,30 @@ export const initializeDatabase = async (): Promise<void> => {
 /**
  * Seed the unit_conversions table with default conversion data
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const seedUnitConversions = async (): Promise<void> => {
   try {
-    const { sql, params } = getBatchUnitConversionSQL();
+    // Check if unit conversions already exist
+    const existingCount = db.getAllSync(
+      'SELECT COUNT(*) as count FROM unit_conversions'
+    );
+    if (__DEV__) {
+      console.log('Unit conversions check:', existingCount);
+    }
+    if (
+      existingCount &&
+      existingCount.length > 0 &&
+      existingCount[0].count > 0
+    ) {
+      if (__DEV__) {
+        console.log(
+          `Unit conversions already exist (${existingCount[0].count} records), skipping seed`
+        );
+      }
+      return;
+    }
+
+    const { params } = getBatchUnitConversionSQL();
 
     // Split params into groups of 7 (one for each conversion)
     const conversions = [];
@@ -511,27 +537,40 @@ const seedUnitConversions = async (): Promise<void> => {
       conversions.push(params.slice(i, i + 7));
     }
 
-    if (Platform.OS === 'web') {
-      // Web platform - insert each conversion individually
-      for (const conversionParams of conversions) {
-        await new Promise<void>((resolve, reject) => {
-          db.transaction((tx: any) => {
-            tx.executeSql(
-              'INSERT OR REPLACE INTO unit_conversions (id, from_unit, to_unit, factor, dimension, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              conversionParams,
-              resolve,
-              (_: any, error: any) => {
-                reject(error);
-                return false;
-              }
-            );
-          }, reject);
-        });
-      }
-    } else {
-      // Native platform - use batch insert for better performance
-      for (const valueSet of conversions) {
-        db.runSync(sql, valueSet);
+    // Insert each conversion individually for better error handling
+    for (const conversionParams of conversions) {
+      try {
+        if (Platform.OS === 'web') {
+          // Web platform - use transaction
+          await new Promise<void>((resolve, reject) => {
+            db.transaction((tx: any) => {
+              tx.executeSql(
+                'INSERT OR IGNORE INTO unit_conversions (id, from_unit, to_unit, factor, dimension, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                conversionParams,
+                resolve,
+                (_: any, error: any) => {
+                  reject(error);
+                  return false;
+                }
+              );
+            }, reject);
+          });
+        } else {
+          // Native platform - use individual insert with IGNORE
+          db.runSync(
+            'INSERT OR IGNORE INTO unit_conversions (id, from_unit, to_unit, factor, dimension, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            conversionParams
+          );
+        }
+      } catch (insertError) {
+        // Log individual insert errors but continue with other conversions
+        if (__DEV__) {
+          console.warn(
+            'Failed to insert unit conversion:',
+            conversionParams[0],
+            insertError
+          );
+        }
       }
     }
 

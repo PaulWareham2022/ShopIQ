@@ -21,7 +21,9 @@ jest.mock('../priceCalculations', () => ({
 import { calculatePricePerCanonical } from '../priceCalculations';
 
 // Mock data
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -73,7 +75,6 @@ const createMockSupplier = (overrides: Partial<Supplier> = {}): Supplier => ({
 describe('PricePerCanonicalComparator', () => {
   let comparator: PricePerCanonicalComparator;
   let mockInventoryItem: InventoryItem;
-  let mockOffers: Offer[];
   let mockSuppliers: Map<string, Supplier>;
 
   beforeEach(() => {
@@ -110,7 +111,9 @@ describe('PricePerCanonicalComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -133,7 +136,9 @@ describe('PricePerCanonicalComparator', () => {
       expect(result.score).toBe(0.01);
       expect(result.metadata?.flags).toContain('shipping-included');
       expect(result.metadata?.confidence).toBeCloseTo(0.95, 2);
-      expect(result.metadata?.explanation).toContain('Test Supplier offer: USD 10.0000 per 10 kg (score: 0.0100)');
+      expect(result.metadata?.explanation).toContain(
+        'Test Supplier offer: USD 10.0000 per 10 kg (score: 0.0100)'
+      );
     });
 
     it('should handle calculation failure', async () => {
@@ -153,7 +158,9 @@ describe('PricePerCanonicalComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -165,7 +172,9 @@ describe('PricePerCanonicalComparator', () => {
 
       expect(result.score).toBe(Number.MAX_VALUE);
       expect(result.metadata?.flags).toContain('calculation-failed');
-      expect(result.metadata?.explanation).toContain('Test Supplier offer: USD 10.0000 per 10 kg');
+      expect(result.metadata?.explanation).toContain(
+        'Test Supplier offer: USD 10.0000 per 10 kg'
+      );
       expect(result.metadata?.confidence).toBeCloseTo(0.95, 2);
     });
 
@@ -185,7 +194,9 @@ describe('PricePerCanonicalComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       await comparator.compare(
         mockOffers[0],
@@ -277,7 +288,6 @@ describe('PricePerCanonicalComparator', () => {
 describe('TotalPriceComparator', () => {
   let comparator: TotalPriceComparator;
   let mockInventoryItem: InventoryItem;
-  let mockOffers: Offer[];
   let mockSuppliers: Map<string, Supplier>;
 
   beforeEach(() => {
@@ -292,7 +302,9 @@ describe('TotalPriceComparator', () => {
     it('should have correct properties', () => {
       expect(comparator.id).toBe('totalPrice');
       expect(comparator.name).toBe('Total Price');
-      expect(comparator.description).toContain('total price regardless of quantity');
+      expect(comparator.description).toContain(
+        'total price regardless of quantity'
+      );
       expect(comparator.version).toBe('1.0.0');
     });
   });
@@ -314,7 +326,9 @@ describe('TotalPriceComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -326,7 +340,9 @@ describe('TotalPriceComparator', () => {
 
       expect(result.score).toBe(115.0); // Uses totalCost, not pricePerCanonical
       expect(result.metadata?.scoreBreakdown?.totalPrice).toBe(115.0);
-      expect(result.metadata?.explanation).toContain('Test Supplier offer: USD 10.0000 per 10 kg');
+      expect(result.metadata?.explanation).toContain(
+        'Test Supplier offer: USD 10.0000 per 10 kg'
+      );
     });
 
     it('should add bulk quantity flag for large amounts', async () => {
@@ -345,7 +361,9 @@ describe('TotalPriceComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       const bulkOffer = createMockOffer({ amount: 100.0 }); // Large amount
       const result = await comparator.compare(
@@ -376,7 +394,9 @@ describe('TotalPriceComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       const result = await comparator.compare(
         mockOffers[0],
@@ -406,7 +426,9 @@ describe('TotalPriceComparator', () => {
         },
       };
 
-      (calculatePricePerCanonical as jest.Mock).mockReturnValue(mockPriceResult);
+      (calculatePricePerCanonical as jest.Mock).mockReturnValue(
+        mockPriceResult
+      );
 
       await comparator.compare(
         mockOffers[0],
@@ -445,7 +467,6 @@ describe('TotalPriceComparator', () => {
 describe('PricePerUnitComparator', () => {
   let comparator: PricePerUnitComparator;
   let mockInventoryItem: InventoryItem;
-  let mockOffers: Offer[];
   let mockSuppliers: Map<string, Supplier>;
 
   beforeEach(() => {
@@ -488,8 +509,13 @@ describe('PricePerUnitComparator', () => {
       // Expected: (100 + 10 + 11) / 10 = 12.1
       // 100 base + 10 shipping + 11 tax (10% of 110) = 121 total
       expect(result.score).toBeCloseTo(12.1, 2);
-      expect(result.metadata?.scoreBreakdown?.pricePerUnit).toBeCloseTo(12.1, 2);
-      expect(result.metadata?.explanation).toContain('Test Supplier offer: USD 10.0000 per 10 kg (score: 12.1000)');
+      expect(result.metadata?.scoreBreakdown?.pricePerUnit).toBeCloseTo(
+        12.1,
+        2
+      );
+      expect(result.metadata?.explanation).toContain(
+        'Test Supplier offer: USD 10.0000 per 10 kg (score: 12.1000)'
+      );
     });
 
     it('should handle shipping already included', async () => {
@@ -598,7 +624,6 @@ describe('PricePerUnitComparator', () => {
 describe('QualityAdjustedPriceComparator', () => {
   let comparator: QualityAdjustedPriceComparator;
   let mockInventoryItem: InventoryItem;
-  let mockOffers: Offer[];
   let mockSuppliers: Map<string, Supplier>;
 
   beforeEach(() => {
@@ -691,7 +716,9 @@ describe('QualityAdjustedPriceComparator', () => {
         [offer],
         inventoryItem,
         mockSuppliers,
-        { /* applyEquivalenceFactors: true */ } // Not available in options
+        {
+          /* applyEquivalenceFactors: true */
+        } // Not available in options
       );
 
       // First apply quality adjustment, then equivalence factor
@@ -713,7 +740,9 @@ describe('QualityAdjustedPriceComparator', () => {
         [offer],
         inventoryItem,
         mockSuppliers,
-        { /* applyEquivalenceFactors: false */ } // Not available in options
+        {
+          /* applyEquivalenceFactors: false */
+        } // Not available in options
       );
 
       // Quality adjustment: (1 - 4/5) * 0.1 = 0.02
@@ -738,7 +767,10 @@ describe('QualityAdjustedPriceComparator', () => {
 
       expect(result.metadata?.scoreBreakdown?.basePrice).toBe(10.0);
       expect(result.metadata?.scoreBreakdown?.qualityRating).toBe(3);
-      expect(result.metadata?.scoreBreakdown?.qualityAdjustment).toBeCloseTo(0.04, 2); // (1 - 3/5) * 0.1
+      expect(result.metadata?.scoreBreakdown?.qualityAdjustment).toBeCloseTo(
+        0.04,
+        2
+      ); // (1 - 3/5) * 0.1
       expect(result.metadata?.scoreBreakdown?.adjustedPrice).toBe(9.6);
     });
   });
@@ -759,7 +791,9 @@ describe('QualityAdjustedPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('qualityAdjustmentFactor must be a number between 0 and 1');
+      expect(result.error).toContain(
+        'qualityAdjustmentFactor must be a number between 0 and 1'
+      );
     });
 
     it('should reject invalid minimum quality rating', () => {
@@ -768,7 +802,9 @@ describe('QualityAdjustedPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('minQualityRating must be a number between 1 and 5');
+      expect(result.error).toContain(
+        'minQualityRating must be a number between 1 and 5'
+      );
     });
 
     it('should warn about high adjustment factors', () => {
@@ -777,7 +813,9 @@ describe('QualityAdjustedPriceComparator', () => {
       });
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toContain('High quality adjustment factor may result in unrealistic price adjustments');
+      expect(result.warnings).toContain(
+        'High quality adjustment factor may result in unrealistic price adjustments'
+      );
     });
   });
 

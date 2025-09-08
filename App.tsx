@@ -7,6 +7,7 @@ import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
+import { InventoryComparisonScreen } from './src/screens/inventory/InventoryComparisonScreen';
 import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
 import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
 import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
@@ -18,6 +19,7 @@ type Screen =
   | 'inventory-list'
   | 'inventory-detail'
   | 'inventory-add'
+  | 'inventory-comparison'
   | 'supplier-list'
   | 'supplier-detail'
   | 'supplier-add'
@@ -108,6 +110,11 @@ export default function App() {
   const handleViewOffers = (item: InventoryItem) => {
     setSelectedItem(item);
     setCurrentScreen('offer-list');
+  };
+
+  const handleViewComparison = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setCurrentScreen('inventory-comparison');
   };
 
   // Supplier navigation handlers
@@ -215,6 +222,7 @@ export default function App() {
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
             onViewOffers={handleViewOffers}
+            onViewComparison={handleViewComparison}
           />
         );
       case 'inventory-add':
@@ -257,6 +265,17 @@ export default function App() {
             key="add-offer"
             onBack={() => setCurrentScreen('home')}
           />
+        );
+      case 'inventory-comparison':
+        return selectedItem ? (
+          <InventoryComparisonScreen
+            key={`comparison-${selectedItem.id}`}
+            inventoryItem={selectedItem}
+            onBack={handleBackToList}
+            onAddOffer={() => setCurrentScreen('add-offer')}
+          />
+        ) : (
+          renderHomeScreen()
         );
       case 'offer-list':
         return selectedItem ? (

@@ -6,8 +6,12 @@
  * Supports dynamic query generation based on user configuration.
  */
 
-import { ComparisonConfig, GlobalComparisonOptions, PriceComparatorOptions } from './types';
-import { Offer, InventoryItem, Supplier } from '../types';
+import {
+  ComparisonConfig,
+  GlobalComparisonOptions,
+  PriceComparatorOptions,
+} from './types';
+import { Offer } from '../types';
 
 // =============================================================================
 // TYPES AND INTERFACES
@@ -19,19 +23,19 @@ import { Offer, InventoryItem, Supplier } from '../types';
 export interface QueryOptions {
   /** Comparison configuration */
   config: ComparisonConfig;
-  
+
   /** Global options */
   globalOptions?: GlobalComparisonOptions;
-  
+
   /** Strategy-specific options */
   strategyOptions?: Record<string, any>;
-  
+
   /** Additional filters */
   filters?: QueryFilters;
-  
+
   /** Pagination options */
   pagination?: PaginationOptions;
-  
+
   /** Sort options */
   sort?: SortOptions;
 }
@@ -42,34 +46,34 @@ export interface QueryOptions {
 export interface QueryFilters {
   /** Filter by inventory item IDs */
   inventoryItemIds?: string[];
-  
+
   /** Filter by supplier IDs */
   supplierIds?: string[];
-  
+
   /** Filter by date range */
   dateRange?: {
     start: string;
     end: string;
   };
-  
+
   /** Filter by price range */
   priceRange?: {
     min: number;
     max: number;
   };
-  
+
   /** Filter by quality rating */
   qualityRange?: {
     min: number;
     max: number;
   };
-  
+
   /** Filter by currency */
   currencies?: string[];
-  
+
   /** Filter by source type */
   sourceTypes?: ('manual' | 'url' | 'ocr' | 'api')[];
-  
+
   /** Include soft-deleted records */
   includeDeleted?: boolean;
 }
@@ -80,7 +84,7 @@ export interface QueryFilters {
 export interface PaginationOptions {
   /** Number of results per page */
   limit?: number;
-  
+
   /** Offset for pagination */
   offset?: number;
 }
@@ -91,13 +95,13 @@ export interface PaginationOptions {
 export interface SortOptions {
   /** Field to sort by */
   field: string;
-  
+
   /** Sort direction */
   direction: 'ASC' | 'DESC';
-  
+
   /** Secondary sort field */
   secondaryField?: string;
-  
+
   /** Secondary sort direction */
   secondaryDirection?: 'ASC' | 'DESC';
 }
@@ -108,16 +112,16 @@ export interface SortOptions {
 export interface QueryResultMetadata {
   /** Total number of results (before pagination) */
   totalCount: number;
-  
+
   /** Number of results returned */
   returnedCount: number;
-  
+
   /** Query execution time in milliseconds */
   executionTimeMs: number;
-  
+
   /** Query used */
   query: string;
-  
+
   /** Parameters used */
   parameters: any[];
 }
@@ -128,7 +132,7 @@ export interface QueryResultMetadata {
 export interface QueryResult<T> {
   /** The actual results */
   results: T[];
-  
+
   /** Result metadata */
   metadata: QueryResultMetadata;
 }
@@ -151,9 +155,12 @@ export class ComparisonQueryBuilder {
   /**
    * Build a query for finding offers sorted by comparison criteria
    */
-  buildOffersQuery(options: QueryOptions): { query: string; parameters: any[] } {
+  buildOffersQuery(options: QueryOptions): {
+    query: string;
+    parameters: any[];
+  } {
     this.reset();
-    
+
     // Start with base query
     this.baseQuery = `
       SELECT 
@@ -187,19 +194,22 @@ export class ComparisonQueryBuilder {
     this.addLimitClause(options.pagination);
 
     const finalQuery = `${this.baseQuery}${this.getWhereClause()}${this.orderByClause}${this.limitClause}`;
-    
+
     return {
       query: finalQuery,
-      parameters: this.parameters
+      parameters: this.parameters,
     };
   }
 
   /**
    * Build a query for finding best offers per inventory item
    */
-  buildBestOffersQuery(options: QueryOptions): { query: string; parameters: any[] } {
+  buildBestOffersQuery(options: QueryOptions): {
+    query: string;
+    parameters: any[];
+  } {
     this.reset();
-    
+
     // Use window function to get best offer per inventory item
     this.baseQuery = `
       WITH ranked_offers AS (
@@ -238,19 +248,22 @@ export class ComparisonQueryBuilder {
     this.addLimitClause(options.pagination);
 
     const finalQuery = `${this.baseQuery}${this.limitClause}`;
-    
+
     return {
       query: finalQuery,
-      parameters: this.parameters
+      parameters: this.parameters,
     };
   }
 
   /**
    * Build a query for finding inventory items with their best offers
    */
-  buildInventoryItemsWithBestOffersQuery(options: QueryOptions): { query: string; parameters: any[] } {
+  buildInventoryItemsWithBestOffersQuery(options: QueryOptions): {
+    query: string;
+    parameters: any[];
+  } {
     this.reset();
-    
+
     this.baseQuery = `
       SELECT 
         i.*,
@@ -287,7 +300,10 @@ export class ComparisonQueryBuilder {
 
     // Add inventory item filters
     if (options.filters?.inventoryItemIds) {
-      this.addCondition(`i.id IN (${this.createPlaceholders(options.filters.inventoryItemIds)})`, options.filters.inventoryItemIds);
+      this.addCondition(
+        `i.id IN (${this.createPlaceholders(options.filters.inventoryItemIds)})`,
+        options.filters.inventoryItemIds
+      );
     }
 
     // Add ORDER BY clause
@@ -297,19 +313,22 @@ export class ComparisonQueryBuilder {
     this.addLimitClause(options.pagination);
 
     const finalQuery = `${this.baseQuery}${this.orderByClause}${this.limitClause}`;
-    
+
     return {
       query: finalQuery,
-      parameters: this.parameters
+      parameters: this.parameters,
     };
   }
 
   /**
    * Build a query for price trend analysis
    */
-  buildPriceTrendQuery(inventoryItemId: string, options: QueryOptions): { query: string; parameters: any[] } {
+  buildPriceTrendQuery(
+    inventoryItemId: string,
+    options: QueryOptions
+  ): { query: string; parameters: any[] } {
     this.reset();
-    
+
     this.baseQuery = `
       SELECT 
         DATE(o.observed_at) as date,
@@ -345,10 +364,10 @@ export class ComparisonQueryBuilder {
     this.addLimitClause(options.pagination);
 
     const finalQuery = `${this.baseQuery}${this.limitClause}`;
-    
+
     return {
       query: finalQuery,
-      parameters: this.parameters
+      parameters: this.parameters,
     };
   }
 
@@ -389,13 +408,19 @@ export class ComparisonQueryBuilder {
 
   private addInventoryItemFilter(inventoryItemIds?: string[]): void {
     if (inventoryItemIds && inventoryItemIds.length > 0) {
-      this.addCondition(`o.inventory_item_id IN (${this.createPlaceholders(inventoryItemIds)})`, ...inventoryItemIds);
+      this.addCondition(
+        `o.inventory_item_id IN (${this.createPlaceholders(inventoryItemIds)})`,
+        ...inventoryItemIds
+      );
     }
   }
 
   private addSupplierFilter(supplierIds?: string[]): void {
     if (supplierIds && supplierIds.length > 0) {
-      this.addCondition(`o.supplier_id IN (${this.createPlaceholders(supplierIds)})`, ...supplierIds);
+      this.addCondition(
+        `o.supplier_id IN (${this.createPlaceholders(supplierIds)})`,
+        ...supplierIds
+      );
     }
   }
 
@@ -413,15 +438,24 @@ export class ComparisonQueryBuilder {
   private addPriceRangeFilter(priceRange?: { min: number; max: number }): void {
     if (priceRange) {
       if (priceRange.min !== undefined) {
-        this.addCondition('o.effective_price_per_canonical >= ?', priceRange.min);
+        this.addCondition(
+          'o.effective_price_per_canonical >= ?',
+          priceRange.min
+        );
       }
       if (priceRange.max !== undefined) {
-        this.addCondition('o.effective_price_per_canonical <= ?', priceRange.max);
+        this.addCondition(
+          'o.effective_price_per_canonical <= ?',
+          priceRange.max
+        );
       }
     }
   }
 
-  private addQualityRangeFilter(qualityRange?: { min: number; max: number }): void {
+  private addQualityRangeFilter(qualityRange?: {
+    min: number;
+    max: number;
+  }): void {
     if (qualityRange) {
       if (qualityRange.min !== undefined) {
         this.addCondition('o.quality_rating >= ?', qualityRange.min);
@@ -434,13 +468,21 @@ export class ComparisonQueryBuilder {
 
   private addCurrencyFilter(currencies?: string[]): void {
     if (currencies && currencies.length > 0) {
-      this.addCondition(`o.currency IN (${this.createPlaceholders(currencies)})`, ...currencies);
+      this.addCondition(
+        `o.currency IN (${this.createPlaceholders(currencies)})`,
+        ...currencies
+      );
     }
   }
 
-  private addSourceTypeFilter(sourceTypes?: ('manual' | 'url' | 'ocr' | 'api')[]): void {
+  private addSourceTypeFilter(
+    sourceTypes?: ('manual' | 'url' | 'ocr' | 'api')[]
+  ): void {
     if (sourceTypes && sourceTypes.length > 0) {
-      this.addCondition(`o.source_type IN (${this.createPlaceholders(sourceTypes)})`, ...sourceTypes);
+      this.addCondition(
+        `o.source_type IN (${this.createPlaceholders(sourceTypes)})`,
+        ...sourceTypes
+      );
     }
   }
 
@@ -449,20 +491,21 @@ export class ComparisonQueryBuilder {
     const direction = options.sort?.direction || 'ASC';
     const secondaryField = options.sort?.secondaryField || 'o.observed_at';
     const secondaryDirection = options.sort?.secondaryDirection || 'DESC';
-    
+
     this.orderByClause = ` ORDER BY ${orderExpression} ${direction}, ${secondaryField} ${secondaryDirection}`;
   }
 
   private addInventoryItemsOrderByClause(options: QueryOptions): void {
     const orderExpression = this.getOrderByExpression(options);
     const direction = options.sort?.direction || 'ASC';
-    
+
     this.orderByClause = ` ORDER BY ${orderExpression} ${direction}, i.name ASC`;
   }
 
   private getOrderByExpression(options: QueryOptions): string {
     const strategy = options.config.primaryStrategy;
-    const strategyOptions = options.strategyOptions || options.config.strategyOptions || {};
+    const strategyOptions =
+      options.strategyOptions || options.config.strategyOptions || {};
 
     switch (strategy) {
       case 'pricePerCanonical':
@@ -479,7 +522,9 @@ export class ComparisonQueryBuilder {
     }
   }
 
-  private getPricePerCanonicalOrderExpression(options: PriceComparatorOptions): string {
+  private getPricePerCanonicalOrderExpression(
+    options: PriceComparatorOptions
+  ): string {
     if (options.includeShipping === false) {
       return 'o.price_per_canonical_excl_shipping';
     } else if (options.includeShipping === true) {
@@ -489,7 +534,9 @@ export class ComparisonQueryBuilder {
     }
   }
 
-  private getTotalPriceOrderExpression(options: PriceComparatorOptions): string {
+  private getTotalPriceOrderExpression(
+    options: PriceComparatorOptions
+  ): string {
     if (options.includeShipping === false) {
       return 'o.total_price';
     } else if (options.includeShipping === true) {
@@ -499,7 +546,9 @@ export class ComparisonQueryBuilder {
     }
   }
 
-  private getPricePerUnitOrderExpression(options: PriceComparatorOptions): string {
+  private getPricePerUnitOrderExpression(
+    options: PriceComparatorOptions
+  ): string {
     if (options.includeShipping === false) {
       return '(o.total_price / o.amount)';
     } else if (options.includeShipping === true) {
@@ -540,7 +589,10 @@ export class ComparisonQueryBuilder {
     return '';
   }
 
-  private getDateRangeWhereClause(dateRange?: { start: string; end: string }): string {
+  private getDateRangeWhereClause(dateRange?: {
+    start: string;
+    end: string;
+  }): string {
     let clause = '';
     if (dateRange?.start) {
       clause += ` AND o.observed_at >= '${dateRange.start}'`;
@@ -551,7 +603,10 @@ export class ComparisonQueryBuilder {
     return clause;
   }
 
-  private getPriceRangeWhereClause(priceRange?: { min: number; max: number }): string {
+  private getPriceRangeWhereClause(priceRange?: {
+    min: number;
+    max: number;
+  }): string {
     let clause = '';
     if (priceRange?.min !== undefined) {
       clause += ` AND o.effective_price_per_canonical >= ${priceRange.min}`;
@@ -562,7 +617,10 @@ export class ComparisonQueryBuilder {
     return clause;
   }
 
-  private getQualityRangeWhereClause(qualityRange?: { min: number; max: number }): string {
+  private getQualityRangeWhereClause(qualityRange?: {
+    min: number;
+    max: number;
+  }): string {
     let clause = '';
     if (qualityRange?.min !== undefined) {
       clause += ` AND o.quality_rating >= ${qualityRange.min}`;
@@ -580,7 +638,9 @@ export class ComparisonQueryBuilder {
     return '';
   }
 
-  private getSourceTypeWhereClause(sourceTypes?: ('manual' | 'url' | 'ocr' | 'api')[]): string {
+  private getSourceTypeWhereClause(
+    sourceTypes?: ('manual' | 'url' | 'ocr' | 'api')[]
+  ): string {
     if (sourceTypes && sourceTypes.length > 0) {
       return ` AND o.source_type IN (${sourceTypes.map(t => `'${t}'`).join(', ')})`;
     }
@@ -610,13 +670,13 @@ export class ComparisonQueryExecutor {
     executeFn: (query: string, params: any[]) => Promise<T[]>
   ): Promise<QueryResult<T>> {
     const startTime = Date.now();
-    
+
     const { query, parameters } = queryFn();
-    
+
     try {
       const results = await executeFn(query, parameters);
       const executionTime = Date.now() - startTime;
-      
+
       return {
         results,
         metadata: {
@@ -624,18 +684,23 @@ export class ComparisonQueryExecutor {
           returnedCount: results.length,
           executionTimeMs: executionTime,
           query,
-          parameters
-        }
+          parameters,
+        },
       };
     } catch (error) {
-      throw new Error(`Query execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Query execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   /**
    * Execute offers query
    */
-  async executeOffersQuery(options: QueryOptions, executeFn: (query: string, params: any[]) => Promise<Offer[]>): Promise<QueryResult<Offer>> {
+  async executeOffersQuery(
+    options: QueryOptions,
+    executeFn: (query: string, params: any[]) => Promise<Offer[]>
+  ): Promise<QueryResult<Offer>> {
     return this.executeQuery(
       () => this.queryBuilder.buildOffersQuery(options),
       executeFn
@@ -645,7 +710,10 @@ export class ComparisonQueryExecutor {
   /**
    * Execute best offers query
    */
-  async executeBestOffersQuery(options: QueryOptions, executeFn: (query: string, params: any[]) => Promise<Offer[]>): Promise<QueryResult<Offer>> {
+  async executeBestOffersQuery(
+    options: QueryOptions,
+    executeFn: (query: string, params: any[]) => Promise<Offer[]>
+  ): Promise<QueryResult<Offer>> {
     return this.executeQuery(
       () => this.queryBuilder.buildBestOffersQuery(options),
       executeFn
@@ -655,7 +723,10 @@ export class ComparisonQueryExecutor {
   /**
    * Execute inventory items with best offers query
    */
-  async executeInventoryItemsWithBestOffersQuery(options: QueryOptions, executeFn: (query: string, params: any[]) => Promise<any[]>): Promise<QueryResult<any>> {
+  async executeInventoryItemsWithBestOffersQuery(
+    options: QueryOptions,
+    executeFn: (query: string, params: any[]) => Promise<any[]>
+  ): Promise<QueryResult<any>> {
     return this.executeQuery(
       () => this.queryBuilder.buildInventoryItemsWithBestOffersQuery(options),
       executeFn
@@ -665,7 +736,11 @@ export class ComparisonQueryExecutor {
   /**
    * Execute price trend query
    */
-  async executePriceTrendQuery(inventoryItemId: string, options: QueryOptions, executeFn: (query: string, params: any[]) => Promise<any[]>): Promise<QueryResult<any>> {
+  async executePriceTrendQuery(
+    inventoryItemId: string,
+    options: QueryOptions,
+    executeFn: (query: string, params: any[]) => Promise<any[]>
+  ): Promise<QueryResult<any>> {
     return this.executeQuery(
       () => this.queryBuilder.buildPriceTrendQuery(inventoryItemId, options),
       executeFn

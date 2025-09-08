@@ -15,7 +15,7 @@ const SAMPLE_INVENTORY_ITEMS: Omit<
   {
     name: 'Apples',
     canonicalDimension: 'mass' as const,
-    canonicalUnit: 'kg',
+    canonicalUnit: 'g',
     shelfLifeSensitive: true,
     shelfLifeDays: 14,
     usageRatePerDay: 0.5,
@@ -25,7 +25,7 @@ const SAMPLE_INVENTORY_ITEMS: Omit<
   {
     name: 'Milk',
     canonicalDimension: 'volume' as const,
-    canonicalUnit: 'L',
+    canonicalUnit: 'ml',
     shelfLifeSensitive: true,
     shelfLifeDays: 7,
     usageRatePerDay: 0.25,
@@ -45,7 +45,7 @@ const SAMPLE_INVENTORY_ITEMS: Omit<
   {
     name: 'Rice',
     canonicalDimension: 'mass' as const,
-    canonicalUnit: 'kg',
+    canonicalUnit: 'g',
     shelfLifeSensitive: false,
     usageRatePerDay: 0.2,
     equivalenceFactor: 1.0,

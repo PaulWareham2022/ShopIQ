@@ -13,11 +13,12 @@ interface InventoryItemDetailScreenProps {
   onBack: () => void;
   onItemSaved: () => void;
   onViewOffers?: (item: InventoryItem) => void;
+  onViewComparison?: (item: InventoryItem) => void;
 }
 
 export const InventoryItemDetailScreen: React.FC<
   InventoryItemDetailScreenProps
-> = ({ itemId, onBack, onItemSaved, onViewOffers }) => {
+> = ({ itemId, onBack, onItemSaved, onViewOffers, onViewComparison }) => {
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [isEditing, setIsEditing] = useState(!itemId); // New item if no ID provided
   const [loading, setLoading] = useState(!!itemId); // Only load if editing existing item
@@ -202,10 +203,18 @@ export const InventoryItemDetailScreen: React.FC<
         </View>
 
         <View style={styles.actionButtons}>
+          {onViewComparison && item && (
+            <Button
+              title="Compare Offers"
+              variant="primary"
+              onPress={() => onViewComparison(item)}
+              style={styles.viewOffersButton}
+            />
+          )}
           {onViewOffers && item && (
             <Button
-              title="View Offers"
-              variant="primary"
+              title="View All Offers"
+              variant="secondary"
               onPress={() => onViewOffers(item)}
               style={styles.viewOffersButton}
             />

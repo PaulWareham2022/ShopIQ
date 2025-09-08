@@ -40,7 +40,7 @@ describe('Comparison Engine Factory', () => {
     it('should create engine with all available strategies', () => {
       const engine = createComparisonEngine(mockRepositoryFactory);
       const strategies = engine.getAvailableStrategies();
-      
+
       expect(strategies).toHaveLength(5);
       expect(strategies.map(s => s.id)).toContain('pricePerCanonical');
       expect(strategies.map(s => s.id)).toContain('totalPrice');
@@ -83,34 +83,50 @@ describe('Comparison Engine Factory', () => {
 
   describe('ComparisonEnginePresets', () => {
     it('should create engine for price comparison', () => {
-      const engine = ComparisonEnginePresets.forPriceComparison(mockRepositoryFactory);
+      const engine = ComparisonEnginePresets.forPriceComparison(
+        mockRepositoryFactory
+      );
       expect(engine).toBeDefined();
       expect(engine).toHaveProperty('compareOffers');
     });
 
     it('should create engine for quality comparison', () => {
-      const engine = ComparisonEnginePresets.forQualityComparison(mockRepositoryFactory);
+      const engine = ComparisonEnginePresets.forQualityComparison(
+        mockRepositoryFactory
+      );
       expect(engine).toBeDefined();
       expect(engine).toHaveProperty('compareOffers');
     });
 
     it('should create engine for bulk purchasing', () => {
-      const engine = ComparisonEnginePresets.forBulkPurchasing(mockRepositoryFactory);
+      const engine = ComparisonEnginePresets.forBulkPurchasing(
+        mockRepositoryFactory
+      );
       expect(engine).toBeDefined();
       expect(engine).toHaveProperty('compareOffers');
     });
 
     it('should create engine for recent prices', () => {
-      const engine = ComparisonEnginePresets.forRecentPrices(mockRepositoryFactory);
+      const engine = ComparisonEnginePresets.forRecentPrices(
+        mockRepositoryFactory
+      );
       expect(engine).toBeDefined();
       expect(engine).toHaveProperty('compareOffers');
     });
 
     it('should create different instances for each preset', () => {
-      const priceEngine = ComparisonEnginePresets.forPriceComparison(mockRepositoryFactory);
-      const qualityEngine = ComparisonEnginePresets.forQualityComparison(mockRepositoryFactory);
-      const bulkEngine = ComparisonEnginePresets.forBulkPurchasing(mockRepositoryFactory);
-      const recentEngine = ComparisonEnginePresets.forRecentPrices(mockRepositoryFactory);
+      const priceEngine = ComparisonEnginePresets.forPriceComparison(
+        mockRepositoryFactory
+      );
+      const qualityEngine = ComparisonEnginePresets.forQualityComparison(
+        mockRepositoryFactory
+      );
+      const bulkEngine = ComparisonEnginePresets.forBulkPurchasing(
+        mockRepositoryFactory
+      );
+      const recentEngine = ComparisonEnginePresets.forRecentPrices(
+        mockRepositoryFactory
+      );
 
       expect(priceEngine).not.toBe(qualityEngine);
       expect(qualityEngine).not.toBe(bulkEngine);
@@ -138,7 +154,7 @@ describe('Comparison Engine Factory', () => {
 
     it('should create engines that can get default configurations', () => {
       const engine = createComparisonEngine(mockRepositoryFactory);
-      
+
       const defaultConfig = engine.getDefaultConfig('pricePerCanonical');
       expect(defaultConfig).toHaveProperty('primaryStrategy');
       expect(defaultConfig).toHaveProperty('strategyOptions');
@@ -147,10 +163,10 @@ describe('Comparison Engine Factory', () => {
 
     it('should throw error for unknown strategy in getDefaultConfig', () => {
       const engine = createComparisonEngine(mockRepositoryFactory);
-      
+
       expect(() => {
         engine.getDefaultConfig('unknownStrategy');
-      }).toThrow('Comparison strategy \'unknownStrategy\' not found');
+      }).toThrow("Comparison strategy 'unknownStrategy' not found");
     });
   });
 

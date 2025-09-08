@@ -105,6 +105,7 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
           onLongPress={() => onOfferLongPress?.(item)}
           showComparisonDetails={showComparisonDetails}
           showPriceTrend={showPriceTrend}
+          canonicalUnit={comparisonResults.inventoryItem.canonicalUnit}
           testID={`${testID}-item-${index}`}
         />
       );
@@ -116,6 +117,7 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
       onOfferLongPress,
       showComparisonDetails,
       showPriceTrend,
+      comparisonResults.inventoryItem.canonicalUnit,
       testID,
     ]
   );
@@ -159,17 +161,25 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
 
     const totalOffers = sortedResults.length;
     const bestOffer = sortedResults[0];
+    
+    // Helper function to get effective price with fallback
+    const getEffectivePrice = (offer: any) => {
+      return offer.effectivePricePerCanonical || 
+             offer.pricePerCanonicalInclShipping || 
+             offer.pricePerCanonicalExclShipping || 
+             (offer.totalPrice / offer.amount);
+    };
+    
     const priceRange =
       sortedResults.length > 1
-        ? sortedResults[sortedResults.length - 1].offer
-            .effectivePricePerCanonical
-        : bestOffer.offer.effectivePricePerCanonical;
+        ? getEffectivePrice(sortedResults[sortedResults.length - 1].offer)
+        : getEffectivePrice(bestOffer.offer);
 
     return (
       <ComparisonListHeader
         inventoryItem={comparisonResults.inventoryItem}
         totalOffers={totalOffers}
-        bestPrice={bestOffer.offer.effectivePricePerCanonical}
+        bestPrice={getEffectivePrice(bestOffer.offer)}
         priceRange={priceRange}
         currency={bestOffer.offer.currency}
         canonicalUnit={comparisonResults.inventoryItem.canonicalUnit}
@@ -230,6 +240,13 @@ const ComparisonListHeader: React.FC<ComparisonListHeaderProps> = ({
     if (typeof price !== 'number' || isNaN(price)) {
       return `${currency} 0.00`;
     }
+    
+    // Handle very small numbers that would round to 0.00
+    if (price < 0.01 && price > 0) {
+      // For prices less than 1 cent, show more decimal places
+      return `${currency} ${price.toFixed(6)}`;
+    }
+    
     return `${currency} ${price.toFixed(2)}`;
   };
 

@@ -14,10 +14,16 @@ import {
   detectPriceAnomalies,
   predictFuturePrice,
 } from '../trendAnalysis';
-import { HistoricalPrice, TrendAnalysisOptions, TimePeriod } from '../../types/historical-prices';
+import {
+  HistoricalPrice,
+  TrendAnalysisOptions,
+  TimePeriod,
+} from '../../types/historical-prices';
 
 // Mock data
-const createMockHistoricalPrice = (overrides: Partial<HistoricalPrice> = {}): HistoricalPrice => ({
+const createMockHistoricalPrice = (
+  overrides: Partial<HistoricalPrice> = {}
+): HistoricalPrice => ({
   id: 'price-1',
   inventoryItemId: 'item-1',
   supplierId: 'supplier-1',
@@ -111,7 +117,10 @@ describe('calculatePriceStatistics', () => {
 });
 
 describe('analyzePriceTrend', () => {
-  const createTrendPrices = (prices: number[], daysAgo: number = 30): HistoricalPrice[] => {
+  const createTrendPrices = (
+    prices: number[],
+    daysAgo: number = 30
+  ): HistoricalPrice[] => {
     return prices.map((price, index) => {
       const date = new Date();
       date.setDate(date.getDate() - (daysAgo - index));
@@ -193,9 +202,18 @@ describe('analyzePriceTrend', () => {
 
   it('should sort prices by observation date', () => {
     const prices = [
-      createMockHistoricalPrice({ price: 12.0, observedAt: '2024-01-03T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 10.0, observedAt: '2024-01-01T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 11.0, observedAt: '2024-01-02T00:00:00Z' }),
+      createMockHistoricalPrice({
+        price: 12.0,
+        observedAt: '2024-01-03T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 10.0,
+        observedAt: '2024-01-01T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 11.0,
+        observedAt: '2024-01-02T00:00:00Z',
+      }),
     ];
     const options: TrendAnalysisOptions = {
       period: '30d',
@@ -236,45 +254,47 @@ describe('getTimePeriodBoundaries', () => {
 
   it('should calculate 1 day boundaries', () => {
     const boundaries = getTimePeriodBoundaries('1d');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     expect(boundaries.startDate).toEqual(new Date('2024-01-14T12:00:00Z'));
   });
 
   it('should calculate 7 day boundaries', () => {
     const boundaries = getTimePeriodBoundaries('7d');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     expect(boundaries.startDate).toEqual(new Date('2024-01-08T12:00:00Z'));
   });
 
   it('should calculate 30 day boundaries', () => {
     const boundaries = getTimePeriodBoundaries('30d');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     expect(boundaries.startDate).toEqual(new Date('2023-12-16T12:00:00Z'));
   });
 
   it('should calculate 90 day boundaries', () => {
     const boundaries = getTimePeriodBoundaries('90d');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     // Allow for timezone differences - just check it's approximately the right date
     const expectedDate = new Date('2023-10-17T12:00:00Z');
-    const timeDiff = Math.abs(boundaries.startDate.getTime() - expectedDate.getTime());
+    const timeDiff = Math.abs(
+      boundaries.startDate.getTime() - expectedDate.getTime()
+    );
     expect(timeDiff).toBeLessThan(24 * 60 * 60 * 1000); // Within 24 hours
   });
 
   it('should calculate 1 year boundaries', () => {
     const boundaries = getTimePeriodBoundaries('1y');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     expect(boundaries.startDate).toEqual(new Date('2023-01-15T12:00:00Z'));
   });
 
   it('should calculate all time boundaries', () => {
     const boundaries = getTimePeriodBoundaries('all');
-    
+
     expect(boundaries.endDate).toEqual(new Date('2024-01-15T12:00:00Z'));
     expect(boundaries.startDate).toEqual(new Date('2000-01-15T12:00:00Z'));
   });
@@ -289,17 +309,17 @@ describe('getTimePeriodBoundaries', () => {
 describe('filterPricesByPeriod', () => {
   it('should filter prices by time period', () => {
     const prices = [
-      createMockHistoricalPrice({ 
-        price: 10.0, 
-        observedAt: '2024-01-01T00:00:00Z' // Old
+      createMockHistoricalPrice({
+        price: 10.0,
+        observedAt: '2024-01-01T00:00:00Z', // Old
       }),
-      createMockHistoricalPrice({ 
-        price: 12.0, 
-        observedAt: '2024-01-10T00:00:00Z' // Recent
+      createMockHistoricalPrice({
+        price: 12.0,
+        observedAt: '2024-01-10T00:00:00Z', // Recent
       }),
-      createMockHistoricalPrice({ 
-        price: 11.0, 
-        observedAt: '2024-01-15T00:00:00Z' // Very recent
+      createMockHistoricalPrice({
+        price: 11.0,
+        observedAt: '2024-01-15T00:00:00Z', // Very recent
       }),
     ];
 
@@ -318,9 +338,9 @@ describe('filterPricesByPeriod', () => {
 
   it('should return empty array when no prices in period', () => {
     const prices = [
-      createMockHistoricalPrice({ 
-        price: 10.0, 
-        observedAt: '2023-01-01T00:00:00Z' // Very old
+      createMockHistoricalPrice({
+        price: 10.0,
+        observedAt: '2023-01-01T00:00:00Z', // Very old
       }),
     ];
 
@@ -338,11 +358,26 @@ describe('filterPricesByPeriod', () => {
 describe('smoothPrices', () => {
   it('should smooth prices using moving average', () => {
     const prices = [
-      createMockHistoricalPrice({ price: 10.0, observedAt: '2024-01-01T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 12.0, observedAt: '2024-01-02T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 8.0, observedAt: '2024-01-03T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 14.0, observedAt: '2024-01-04T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 11.0, observedAt: '2024-01-05T00:00:00Z' }),
+      createMockHistoricalPrice({
+        price: 10.0,
+        observedAt: '2024-01-01T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 12.0,
+        observedAt: '2024-01-02T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 8.0,
+        observedAt: '2024-01-03T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 14.0,
+        observedAt: '2024-01-04T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 11.0,
+        observedAt: '2024-01-05T00:00:00Z',
+      }),
     ];
 
     const smoothed = smoothPrices(prices, 3);
@@ -376,9 +411,18 @@ describe('smoothPrices', () => {
 
   it('should sort prices by observation date', () => {
     const prices = [
-      createMockHistoricalPrice({ price: 14.0, observedAt: '2024-01-04T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 10.0, observedAt: '2024-01-01T00:00:00Z' }),
-      createMockHistoricalPrice({ price: 12.0, observedAt: '2024-01-02T00:00:00Z' }),
+      createMockHistoricalPrice({
+        price: 14.0,
+        observedAt: '2024-01-04T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 10.0,
+        observedAt: '2024-01-01T00:00:00Z',
+      }),
+      createMockHistoricalPrice({
+        price: 12.0,
+        observedAt: '2024-01-02T00:00:00Z',
+      }),
     ];
 
     const smoothed = smoothPrices(prices, 3);
@@ -431,7 +475,7 @@ describe('detectPriceAnomalies', () => {
       createMockHistoricalPrice({ price: 11.0 }),
       createMockHistoricalPrice({ price: 12.0 }),
       createMockHistoricalPrice({ price: 25.0 }), // High anomaly
-      createMockHistoricalPrice({ price: 2.0 }),  // Low anomaly
+      createMockHistoricalPrice({ price: 2.0 }), // Low anomaly
       createMockHistoricalPrice({ price: 11.5 }),
     ];
 

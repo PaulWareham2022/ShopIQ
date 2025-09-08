@@ -7,7 +7,7 @@
 
 import { ComparisonEngine } from '../ComparisonEngine';
 import { RepositoryFactory } from '../../RepositoryFactory';
-import { ComparisonConfig, ItemComparisonResults, StrategyInfo } from '../types';
+import { ComparisonConfig } from '../types';
 import { Offer, InventoryItem, Supplier } from '../../types';
 
 // Mock the repository factory and its methods
@@ -31,7 +31,9 @@ const mockSupplierRepo = {
 };
 
 // Mock data
-const createMockInventoryItem = (overrides: Partial<InventoryItem> = {}): InventoryItem => ({
+const createMockInventoryItem = (
+  overrides: Partial<InventoryItem> = {}
+): InventoryItem => ({
   id: 'item-1',
   name: 'Test Item',
   canonicalDimension: 'mass',
@@ -85,11 +87,17 @@ describe('ComparisonEngine', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup mock repository factory
-    (mockRepositoryFactory.getInventoryItemRepository as jest.Mock).mockResolvedValue(mockInventoryRepo);
-    (mockRepositoryFactory.getOfferRepository as jest.Mock).mockResolvedValue(mockOfferRepo);
-    (mockRepositoryFactory.getSupplierRepository as jest.Mock).mockResolvedValue(mockSupplierRepo);
+    (
+      mockRepositoryFactory.getInventoryItemRepository as jest.Mock
+    ).mockResolvedValue(mockInventoryRepo);
+    (mockRepositoryFactory.getOfferRepository as jest.Mock).mockResolvedValue(
+      mockOfferRepo
+    );
+    (
+      mockRepositoryFactory.getSupplierRepository as jest.Mock
+    ).mockResolvedValue(mockSupplierRepo);
 
     comparisonEngine = new ComparisonEngine(mockRepositoryFactory);
   });
@@ -102,7 +110,7 @@ describe('ComparisonEngine', () => {
     it('should initialize all available comparators', () => {
       const strategies = comparisonEngine.getAvailableStrategies();
       expect(strategies).toHaveLength(5); // 4 price comparators + 1 historical
-      
+
       const strategyIds = strategies.map(s => s.id);
       expect(strategyIds).toContain('pricePerCanonical');
       expect(strategyIds).toContain('totalPrice');
@@ -115,7 +123,7 @@ describe('ComparisonEngine', () => {
   describe('getAvailableStrategies', () => {
     it('should return strategy information for all comparators', () => {
       const strategies = comparisonEngine.getAvailableStrategies();
-      
+
       strategies.forEach(strategy => {
         expect(strategy).toHaveProperty('id');
         expect(strategy).toHaveProperty('name');
@@ -129,11 +137,15 @@ describe('ComparisonEngine', () => {
 
     it('should include price per canonical strategy', () => {
       const strategies = comparisonEngine.getAvailableStrategies();
-      const pricePerCanonical = strategies.find(s => s.id === 'pricePerCanonical');
-      
+      const pricePerCanonical = strategies.find(
+        s => s.id === 'pricePerCanonical'
+      );
+
       expect(pricePerCanonical).toBeDefined();
       expect(pricePerCanonical?.name).toBe('Price Per Canonical Unit');
-      expect(pricePerCanonical?.description).toContain('price per canonical unit');
+      expect(pricePerCanonical?.description).toContain(
+        'price per canonical unit'
+      );
     });
   });
 
@@ -175,21 +187,23 @@ describe('ComparisonEngine', () => {
 
       const result = comparisonEngine.validateConfig(config);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("Primary strategy 'unknownStrategy' not found");
+      expect(result.error).toContain(
+        "Primary strategy 'unknownStrategy' not found"
+      );
     });
 
     it('should reject invalid secondary strategies', () => {
       const config: ComparisonConfig = {
         primaryStrategy: 'pricePerCanonical',
-        secondaryStrategies: [
-          { strategy: 'unknownStrategy', weight: 0.5 },
-        ],
+        secondaryStrategies: [{ strategy: 'unknownStrategy', weight: 0.5 }],
         strategyOptions: {},
       };
 
       const result = comparisonEngine.validateConfig(config);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain("Secondary strategy 'unknownStrategy' at index 0 not found");
+      expect(result.error).toContain(
+        "Secondary strategy 'unknownStrategy' at index 0 not found"
+      );
     });
 
     it('should reject invalid secondary strategy weights', () => {
@@ -203,7 +217,9 @@ describe('ComparisonEngine', () => {
 
       const result = comparisonEngine.validateConfig(config);
       expect(result.isValid).toBe(false);
-      expect(result.error).toContain('Secondary strategy weight at index 0 must be between 0 and 1');
+      expect(result.error).toContain(
+        'Secondary strategy weight at index 0 must be between 0 and 1'
+      );
     });
 
     it('should reject invalid global options', () => {
@@ -238,7 +254,7 @@ describe('ComparisonEngine', () => {
   describe('getDefaultConfig', () => {
     it('should return default configuration for price per canonical strategy', () => {
       const config = comparisonEngine.getDefaultConfig('pricePerCanonical');
-      
+
       expect(config.primaryStrategy).toBe('pricePerCanonical');
       expect(config.strategyOptions).toBeDefined();
       expect(config.globalOptions).toBeDefined();
@@ -248,7 +264,7 @@ describe('ComparisonEngine', () => {
 
     it('should return default configuration for total price strategy', () => {
       const config = comparisonEngine.getDefaultConfig('totalPrice');
-      
+
       expect(config.primaryStrategy).toBe('totalPrice');
       expect(config.strategyOptions).toBeDefined();
     });
@@ -256,19 +272,25 @@ describe('ComparisonEngine', () => {
     it('should throw error for unknown strategy', () => {
       expect(() => {
         comparisonEngine.getDefaultConfig('unknownStrategy');
-      }).toThrow('Comparison strategy \'unknownStrategy\' not found');
+      }).toThrow("Comparison strategy 'unknownStrategy' not found");
     });
   });
 
   describe('compareOffers', () => {
     const mockInventoryItem = createMockInventoryItem();
     const mockOffers = [
-      createMockOffer({ id: 'offer-1', totalPrice: 100.0, effectivePricePerCanonical: 10.0 }),
-      createMockOffer({ id: 'offer-2', totalPrice: 200.0, effectivePricePerCanonical: 20.0 }),
+      createMockOffer({
+        id: 'offer-1',
+        totalPrice: 100.0,
+        effectivePricePerCanonical: 10.0,
+      }),
+      createMockOffer({
+        id: 'offer-2',
+        totalPrice: 200.0,
+        effectivePricePerCanonical: 20.0,
+      }),
     ];
-    const mockSuppliers = new Map([
-      ['supplier-1', createMockSupplier()],
-    ]);
+    // const mockSuppliers = new Map([['supplier-1', createMockSupplier()]]);
 
     beforeEach(() => {
       mockInventoryRepo.findById.mockResolvedValue(mockInventoryItem);
@@ -333,7 +355,7 @@ describe('ComparisonEngine', () => {
 
       await expect(
         comparisonEngine.compareOffers('item-1', config)
-      ).rejects.toThrow('Primary strategy \'unknownStrategy\' not found');
+      ).rejects.toThrow("Primary strategy 'unknownStrategy' not found");
     });
 
     it('should use cache for repeated requests', async () => {
@@ -344,7 +366,7 @@ describe('ComparisonEngine', () => {
 
       // First call
       const result1 = await comparisonEngine.compareOffers('item-1', config);
-      
+
       // Second call should use cache
       const result2 = await comparisonEngine.compareOffers('item-1', config);
 
@@ -366,7 +388,9 @@ describe('ComparisonEngine', () => {
       const result = await comparisonEngine.compareOffers('item-1', config);
 
       expect(result.results).toHaveLength(2);
-      expect(result.results[0].score).toBeLessThanOrEqual(result.results[1].score);
+      expect(result.results[0].score).toBeLessThanOrEqual(
+        result.results[1].score
+      );
       expect(result.bestOffer).toBe(result.results[0]);
     });
 
@@ -382,7 +406,9 @@ describe('ComparisonEngine', () => {
       const result = await comparisonEngine.compareOffers('item-1', config);
 
       expect(result.results).toHaveLength(2);
-      expect(result.results[0].score).toBeGreaterThanOrEqual(result.results[1].score);
+      expect(result.results[0].score).toBeGreaterThanOrEqual(
+        result.results[1].score
+      );
       expect(result.bestOffer).toBe(result.results[0]);
     });
   });
@@ -390,8 +416,12 @@ describe('ComparisonEngine', () => {
   describe('compareMultipleItems', () => {
     const mockInventoryItem1 = createMockInventoryItem({ id: 'item-1' });
     const mockInventoryItem2 = createMockInventoryItem({ id: 'item-2' });
-    const mockOffers1 = [createMockOffer({ id: 'offer-1', inventoryItemId: 'item-1' })];
-    const mockOffers2 = [createMockOffer({ id: 'offer-2', inventoryItemId: 'item-2' })];
+    const mockOffers1 = [
+      createMockOffer({ id: 'offer-1', inventoryItemId: 'item-1' }),
+    ];
+    const mockOffers2 = [
+      createMockOffer({ id: 'offer-2', inventoryItemId: 'item-2' }),
+    ];
 
     beforeEach(() => {
       mockInventoryRepo.findById
@@ -409,15 +439,18 @@ describe('ComparisonEngine', () => {
         strategyOptions: {},
       };
 
-      const results = await comparisonEngine.compareMultipleItems(['item-1', 'item-2'], config);
+      const results = await comparisonEngine.compareMultipleItems(
+        ['item-1', 'item-2'],
+        config
+      );
 
       expect(results.size).toBe(2);
       expect(results.has('item-1')).toBe(true);
       expect(results.has('item-2')).toBe(true);
-      
+
       const result1 = results.get('item-1')!;
       const result2 = results.get('item-2')!;
-      
+
       expect(result1.inventoryItem.id).toBe('item-1');
       expect(result2.inventoryItem.id).toBe('item-2');
     });
@@ -432,7 +465,10 @@ describe('ComparisonEngine', () => {
         strategyOptions: {},
       };
 
-      const results = await comparisonEngine.compareMultipleItems(['item-1', 'item-2'], config);
+      const results = await comparisonEngine.compareMultipleItems(
+        ['item-1', 'item-2'],
+        config
+      );
 
       expect(results.size).toBe(2);
       expect(results.get('item-1')?.results).toHaveLength(1);
@@ -442,17 +478,17 @@ describe('ComparisonEngine', () => {
 
     it('should process items in parallel', async () => {
       const startTime = Date.now();
-      
+
       const config: ComparisonConfig = {
         primaryStrategy: 'pricePerCanonical',
         strategyOptions: {},
       };
 
       await comparisonEngine.compareMultipleItems(['item-1', 'item-2'], config);
-      
+
       const endTime = Date.now();
       const executionTime = endTime - startTime;
-      
+
       // Should complete quickly due to parallel processing
       expect(executionTime).toBeLessThan(1000);
     });
@@ -460,7 +496,9 @@ describe('ComparisonEngine', () => {
 
   describe('error handling', () => {
     it('should handle repository errors gracefully', async () => {
-      mockInventoryRepo.findById.mockRejectedValue(new Error('Database connection failed'));
+      mockInventoryRepo.findById.mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       const config: ComparisonConfig = {
         primaryStrategy: 'pricePerCanonical',
@@ -486,7 +524,9 @@ describe('ComparisonEngine', () => {
 
       await expect(
         comparisonEngine.compareOffers('item-1', config)
-      ).rejects.toThrow('Primary strategy options: includeShipping must be a boolean');
+      ).rejects.toThrow(
+        'Primary strategy options: includeShipping must be a boolean'
+      );
     });
   });
 
@@ -501,7 +541,7 @@ describe('ComparisonEngine', () => {
       // The exact TTL behavior is implementation-dependent
       const result1 = await comparisonEngine.compareOffers('item-1', config);
       expect(result1).toBeDefined();
-      
+
       const result2 = await comparisonEngine.compareOffers('item-1', config);
       expect(result2).toBeDefined();
     });
@@ -514,10 +554,14 @@ describe('ComparisonEngine', () => {
 
       // Make many requests to test cache size limit
       for (let i = 0; i < 10; i++) {
-        mockInventoryRepo.findById.mockResolvedValue(createMockInventoryItem({ id: 'item-1' }));
-        mockOfferRepo.findWhere.mockResolvedValue([createMockOffer({ id: `offer-${i}`, inventoryItemId: 'item-1' })]);
+        mockInventoryRepo.findById.mockResolvedValue(
+          createMockInventoryItem({ id: 'item-1' })
+        );
+        mockOfferRepo.findWhere.mockResolvedValue([
+          createMockOffer({ id: `offer-${i}`, inventoryItemId: 'item-1' }),
+        ]);
         mockSupplierRepo.findAll.mockResolvedValue([createMockSupplier()]);
-        
+
         await comparisonEngine.compareOffers('item-1', config);
       }
 

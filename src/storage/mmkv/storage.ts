@@ -1,39 +1,109 @@
 import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
-// Helper function to generate secure encryption key (currently unused for Expo Go compatibility)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function generateOrRetrieveEncryptionKey(
-  keyId: string
-): Promise<string | undefined> {
-  try {
-    // Try to use react-native-keychain for secure key storage
-    const Keychain = require('react-native-keychain');
+// SecureStore wrapper for native platforms
+class SecureStoreWrapper {
+  private prefix: string;
 
-    // First, try to retrieve existing key
+  constructor(prefix: string) {
+    this.prefix = prefix;
+  }
+
+  private getKey(key: string): string {
+    return `${this.prefix}_${key}`;
+  }
+
+  async set(key: string, value: string | number | boolean): Promise<void> {
     try {
-      const credentials = await Keychain.getInternetCredentials(keyId);
-      if (credentials && credentials.password) {
-        return credentials.password;
+      await SecureStore.setItemAsync(this.getKey(key), String(value));
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`SecureStore set failed for key ${key}:`, error);
       }
-    } catch {
-      // Key doesn't exist, we'll generate a new one
     }
+  }
 
-    // Generate a new 256-bit key
-    const crypto = require('crypto');
-    const key = crypto.randomBytes(32).toString('hex');
+  async getString(key: string): Promise<string | undefined> {
+    try {
+      const result = await SecureStore.getItemAsync(this.getKey(key));
+      return result || undefined;
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`SecureStore getString failed for key ${key}:`, error);
+      }
+      return undefined;
+    }
+  }
 
-    // Store the key securely
-    await Keychain.setInternetCredentials(keyId, 'mmkv', key);
+  async getNumber(key: string): Promise<number | undefined> {
+    try {
+      const result = await this.getString(key);
+      return result ? Number(result) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
 
-    return key;
-  } catch (error) {
-    // If secure keychain is not available, log warning and continue without encryption
+  async getBoolean(key: string): Promise<boolean | undefined> {
+    try {
+      const result = await this.getString(key);
+      return result === 'true' ? true : result === 'false' ? false : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    try {
+      await SecureStore.deleteItemAsync(this.getKey(key));
+    } catch (error) {
+      if (__DEV__) {
+        console.warn(`SecureStore delete failed for key ${key}:`, error);
+      }
+    }
+  }
+
+  async contains(key: string): Promise<boolean> {
+    try {
+      const result = await SecureStore.getItemAsync(this.getKey(key));
+      return result !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  async getAllKeys(): Promise<string[]> {
+    // SecureStore doesn't support listing all keys, so we'll return empty array
+    // This is a limitation but rarely used in practice
     if (__DEV__) {
       console.warn(
-        'Failed to generate/retrieve encryption key, continuing without encryption:',
-        error
+        'SecureStore getAllKeys not supported - returning empty array'
       );
+    }
+    return [];
+  }
+
+  async clearAll(): Promise<void> {
+    if (__DEV__) {
+      console.warn(
+        'SecureStore clearAll not supported - manual key deletion required'
+      );
+    }
+  }
+
+  // JSON helpers
+  async setObject<T>(key: string, value: T): Promise<void> {
+    await this.set(key, JSON.stringify(value));
+  }
+
+  async getObject<T>(key: string): Promise<T | undefined> {
+    try {
+      const jsonString = await this.getString(key);
+      if (jsonString) {
+        return JSON.parse(jsonString) as T;
+      }
+    } catch {
+      // Silently handle JSON parse errors
     }
     return undefined;
   }
@@ -129,16 +199,16 @@ class WebStorage {
   }
 }
 
-// Storage interface for type safety
+// Storage interface for type safety (supports both sync and async operations)
 export interface StorageInterface {
-  set(key: string, value: string | number | boolean): void;
-  getString(key: string): string | undefined;
-  getNumber(key: string): number | undefined;
-  getBoolean(key: string): boolean | undefined;
-  delete(key: string): void;
-  contains(key: string): boolean;
-  getAllKeys(): string[];
-  clearAll(): void;
+  set(key: string, value: string | number | boolean): void | Promise<void>;
+  getString(key: string): string | undefined | Promise<string | undefined>;
+  getNumber(key: string): number | undefined | Promise<number | undefined>;
+  getBoolean(key: string): boolean | undefined | Promise<boolean | undefined>;
+  delete(key: string): void | Promise<void>;
+  contains(key: string): boolean | Promise<boolean>;
+  getAllKeys(): string[] | Promise<string[]>;
+  clearAll(): void | Promise<void>;
 }
 
 // Wrapper class for MMKV with type safety
@@ -210,13 +280,11 @@ if (Platform.OS === 'web') {
   cacheStorage = new WebStorage('cache-storage');
   userPreferencesStorage = new WebStorage('user-preferences');
 } else {
-  // Native platforms - temporarily use web storage for Expo Go compatibility
-  console.warn(
-    '🔧 Using web storage fallback on native platform for Expo Go compatibility'
-  );
-  appStorage = new WebStorage('app-storage');
-  cacheStorage = new WebStorage('cache-storage');
-  userPreferencesStorage = new WebStorage('user-preferences');
+  // Native platforms - use Expo SecureStore (works in both Expo Go and development builds)
+  console.log('🔐 Using Expo SecureStore for native platform storage');
+  appStorage = new SecureStoreWrapper('app-storage');
+  cacheStorage = new SecureStoreWrapper('cache-storage');
+  userPreferencesStorage = new SecureStoreWrapper('user-preferences');
 }
 
 // Export wrapped instances

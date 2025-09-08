@@ -156,15 +156,22 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     propInventoryItems || []
   );
   const [suppliers, setSuppliers] = useState<Supplier[]>(propSuppliers || []);
-  const [isLoading, setIsLoading] = useState(!propInventoryItems || !propSuppliers);
+  const [isLoading, setIsLoading] = useState(
+    !propInventoryItems || !propSuppliers
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
 
   // Fetch data if not provided as props
   useEffect(() => {
     const fetchData = async () => {
       // eslint-disable-next-line no-console
-      console.log('OfferForm useEffect - propInventoryItems:', propInventoryItems?.length, 'propSuppliers:', propSuppliers?.length);
-      
+      console.log(
+        'OfferForm useEffect - propInventoryItems:',
+        propInventoryItems?.length,
+        'propSuppliers:',
+        propSuppliers?.length
+      );
+
       // If data is provided as props, use it directly
       if (propInventoryItems && propSuppliers) {
         // eslint-disable-next-line no-console
@@ -355,7 +362,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       <View style={styles.formWrapper}>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingTitle}>Loading Form Data...</Text>
-          <Text style={styles.loadingMessage}>Please wait while we load inventory items and suppliers.</Text>
+          <Text style={styles.loadingMessage}>
+            Please wait while we load inventory items and suppliers.
+          </Text>
         </View>
       </View>
     );
@@ -552,6 +561,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       onChangeText={handleChange('amountUnit')}
                       onBlur={handleBlur('amountUnit')}
                       placeholder="e.g., kg, L, unit"
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       error={
                         errors.amountUnit && touched.amountUnit
                           ? errors.amountUnit

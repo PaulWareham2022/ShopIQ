@@ -42,7 +42,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-dev-client"
+      "expo-dev-client",
+      "expo-secure-store"
     ],
     "web": {
       "favicon": "./assets/favicon.png",

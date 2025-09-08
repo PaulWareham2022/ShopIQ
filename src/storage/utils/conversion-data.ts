@@ -21,13 +21,21 @@ export interface UnitConversionData {
  * MASS CONVERSIONS - All convert to grams (g) as canonical unit
  */
 const MASS_CONVERSIONS: UnitConversionData[] = [
-  // Metric mass units
-  { fromUnit: 'kg', toUnit: 'g', factor: 1000, dimension: 'mass' },
+  // Canonical unit MUST be first to ensure proper selection
   { fromUnit: 'g', toUnit: 'g', factor: 1, dimension: 'mass' },
+
+  // Metric mass units (including case variations)
+  { fromUnit: 'kg', toUnit: 'g', factor: 1000, dimension: 'mass' },
+  { fromUnit: 'Kg', toUnit: 'g', factor: 1000, dimension: 'mass' }, // Uppercase variant
+  { fromUnit: 'KG', toUnit: 'g', factor: 1000, dimension: 'mass' }, // All caps variant
   { fromUnit: 'mg', toUnit: 'g', factor: 0.001, dimension: 'mass' },
+  { fromUnit: 'Mg', toUnit: 'g', factor: 0.001, dimension: 'mass' }, // Uppercase variant
+  { fromUnit: 'MG', toUnit: 'g', factor: 0.001, dimension: 'mass' }, // All caps variant
   { fromUnit: 'μg', toUnit: 'g', factor: 0.000001, dimension: 'mass' },
   { fromUnit: 'mcg', toUnit: 'g', factor: 0.000001, dimension: 'mass' }, // Alternative notation for μg
+  { fromUnit: 'MCG', toUnit: 'g', factor: 0.000001, dimension: 'mass' }, // Uppercase variant
   { fromUnit: 't', toUnit: 'g', factor: 1000000, dimension: 'mass' }, // Metric ton
+  { fromUnit: 'T', toUnit: 'g', factor: 1000000, dimension: 'mass' }, // Uppercase variant
 
   // Imperial mass units
   { fromUnit: 'lb', toUnit: 'g', factor: 453.592, dimension: 'mass' },
@@ -40,15 +48,27 @@ const MASS_CONVERSIONS: UnitConversionData[] = [
  * VOLUME CONVERSIONS - All convert to milliliters (ml) as canonical unit
  */
 const VOLUME_CONVERSIONS: UnitConversionData[] = [
-  // Metric volume units
+  // Canonical unit MUST be first to ensure proper selection
+  { fromUnit: 'ml', toUnit: 'ml', factor: 1, dimension: 'volume' },
+
+  // Metric volume units (including case variations)
   { fromUnit: 'l', toUnit: 'ml', factor: 1000, dimension: 'volume' },
   { fromUnit: 'L', toUnit: 'ml', factor: 1000, dimension: 'volume' },
-  { fromUnit: 'ml', toUnit: 'ml', factor: 1, dimension: 'volume' },
+  { fromUnit: 'liter', toUnit: 'ml', factor: 1000, dimension: 'volume' },
+  { fromUnit: 'Liter', toUnit: 'ml', factor: 1000, dimension: 'volume' },
+  { fromUnit: 'litre', toUnit: 'ml', factor: 1000, dimension: 'volume' },
+  { fromUnit: 'Litre', toUnit: 'ml', factor: 1000, dimension: 'volume' },
   { fromUnit: 'mL', toUnit: 'ml', factor: 1, dimension: 'volume' },
+  { fromUnit: 'Ml', toUnit: 'ml', factor: 1, dimension: 'volume' }, // Auto-capitalized variant
+  { fromUnit: 'ML', toUnit: 'ml', factor: 1, dimension: 'volume' },
   { fromUnit: 'cl', toUnit: 'ml', factor: 10, dimension: 'volume' },
   { fromUnit: 'cL', toUnit: 'ml', factor: 10, dimension: 'volume' },
+  { fromUnit: 'Cl', toUnit: 'ml', factor: 10, dimension: 'volume' }, // Auto-capitalized variant
+  { fromUnit: 'CL', toUnit: 'ml', factor: 10, dimension: 'volume' },
   { fromUnit: 'dl', toUnit: 'ml', factor: 100, dimension: 'volume' },
   { fromUnit: 'dL', toUnit: 'ml', factor: 100, dimension: 'volume' },
+  { fromUnit: 'Dl', toUnit: 'ml', factor: 100, dimension: 'volume' }, // Auto-capitalized variant
+  { fromUnit: 'DL', toUnit: 'ml', factor: 100, dimension: 'volume' },
 
   // Imperial volume units
   { fromUnit: 'gal', toUnit: 'ml', factor: 3785.41, dimension: 'volume' }, // US Gallon

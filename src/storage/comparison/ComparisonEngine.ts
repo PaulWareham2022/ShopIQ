@@ -352,7 +352,10 @@ export class ComparisonEngine implements IComparisonEngine {
       orderDirection: 'DESC' as const,
     };
 
-    return await offerRepo.findWhere({ inventoryItemId }, options);
+    return await offerRepo.findWhere(
+      { inventory_item_id: inventoryItemId },
+      options
+    );
   }
 
   /**

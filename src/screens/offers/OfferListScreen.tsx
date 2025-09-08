@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Alert, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Text } from 'react-native';
 import { colors } from '../../constants/colors';
 import { InventoryItem, Offer, ComparisonResult } from '../../storage/types';
 import { RepositoryFactory } from '../../storage/RepositoryFactory';
-import { ComparisonEngine, ComparisonConfig, ItemComparisonResults } from '../../storage/comparison';
+import {
+  ComparisonEngine,
+  ComparisonConfig,
+  ItemComparisonResults,
+} from '../../storage/comparison';
 import {
   Screen,
   Header,
@@ -16,13 +20,13 @@ import {
 interface OfferListScreenProps {
   /** The inventory item to show offers for */
   inventoryItem: InventoryItem;
-  
+
   /** Callback when back button is pressed */
   onBack: () => void;
-  
+
   /** Callback when add offer button is pressed */
   onAddOffer: () => void;
-  
+
   /** Callback when an offer is pressed */
   onOfferPress?: (offer: Offer) => void;
 }
@@ -35,12 +39,13 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
 }) => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [filteredOffers, setFilteredOffers] = useState<Offer[]>([]);
-  const [comparisonResults, setComparisonResults] = useState<ItemComparisonResults | null>(null);
+  const [comparisonResults, setComparisonResults] =
+    useState<ItemComparisonResults | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Comparison configuration
   const [comparisonConfig] = useState<ComparisonConfig>({
     primaryStrategy: 'pricePerCanonical',
@@ -64,23 +69,24 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
     try {
       setLoading(true);
       setError(null);
-      
+
       const repositoryFactory = RepositoryFactory.getInstance();
       await repositoryFactory.initialize();
-      
+
       const offerRepo = await repositoryFactory.getOfferRepository();
       const allOffers = await offerRepo.findWhere(
         { inventory_item_id: inventoryItem.id },
-        { 
+        {
           includeDeleted: false,
           orderBy: 'observed_at',
           orderDirection: 'DESC',
         }
       );
-      
+
       setOffers(allOffers);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load offers';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to load offers';
       setError(errorMessage);
       console.error('Error loading offers:', err);
     } finally {
@@ -96,15 +102,15 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
 
     try {
       setComparisonLoading(true);
-      
+
       const repositoryFactory = RepositoryFactory.getInstance();
       const comparisonEngine = new ComparisonEngine(repositoryFactory);
-      
+
       const results = await comparisonEngine.compareOffers(
         inventoryItem.id,
         comparisonConfig
       );
-      
+
       setComparisonResults(results);
     } catch (err) {
       console.error('Error performing comparison:', err);
@@ -123,10 +129,13 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
         return;
       }
 
-      const filtered = offers.filter(offer =>
-        offer.supplierNameSnapshot?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        offer.sourceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        offer.currency?.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = offers.filter(
+        offer =>
+          offer.supplierNameSnapshot
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          offer.sourceType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          offer.currency?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredOffers(filtered);
     },
@@ -166,15 +175,17 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
     if (!comparisonResults?.results || comparisonResults.results.length < 2) {
       return false;
     }
-    
+
     const bestScore = comparisonResults.results[0].score;
-    const offerResult = comparisonResults.results.find(r => r.offer.id === offer.id);
-    
+    const offerResult = comparisonResults.results.find(
+      r => r.offer.id === offer.id
+    );
+
     // Handle edge case where offer result might not be found
     if (!offerResult) {
       return false;
     }
-    
+
     // Use a small epsilon for floating point comparison
     const epsilon = 0.0001;
     return Math.abs(offerResult.score - bestScore) < epsilon;
@@ -267,7 +278,8 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
       return (
         <View style={styles.comparisonHeader}>
           <Text style={styles.comparisonHeaderText}>
-            🏆 Best offer: {bestOffer?.offer.supplierNameSnapshot} - {bestOffer?.offer.currency} {bestOffer?.offer.totalPrice.toFixed(2)}
+            🏆 Best offer: {bestOffer?.offer.supplierNameSnapshot} -{' '}
+            {bestOffer?.offer.currency} {bestOffer?.offer.totalPrice.toFixed(2)}
           </Text>
           <Text style={styles.comparisonSubtext}>
             {totalOffers} offers analyzed using {strategyUsed} strategy
@@ -281,10 +293,7 @@ export const OfferListScreen: React.FC<OfferListScreenProps> = ({
 
   return (
     <Screen backgroundColor="#F2F2F7">
-      <Header 
-        title={`Offers for ${inventoryItem.name}`}
-        onBack={onBack}
-      />
+      <Header title={`Offers for ${inventoryItem.name}`} onBack={onBack} />
 
       <SearchBar
         placeholder="Search offers by supplier, source, or currency..."

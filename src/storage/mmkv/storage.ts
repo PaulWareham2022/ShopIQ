@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 
-// Helper function to generate secure encryption key
+// Helper function to generate secure encryption key (currently unused for Expo Go compatibility)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function generateOrRetrieveEncryptionKey(
   keyId: string
 ): Promise<string | undefined> {
@@ -209,50 +210,13 @@ if (Platform.OS === 'web') {
   cacheStorage = new WebStorage('cache-storage');
   userPreferencesStorage = new WebStorage('user-preferences');
 } else {
-  // Native platforms - use MMKV
-
-  const { MMKV } = require('react-native-mmkv');
-
-  // Initialize with encryption keys (async initialization will be handled)
-  Promise.all([
-    generateOrRetrieveEncryptionKey('app-storage-key'),
-    generateOrRetrieveEncryptionKey('cache-storage-key'),
-    generateOrRetrieveEncryptionKey('user-preferences-key'),
-  ])
-    .then(([appKey, cacheKey, userPrefKey]) => {
-      // Reinitialize instances with encryption keys
-      appStorage = new MMKV({
-        id: 'app-storage',
-        encryptionKey: appKey,
-      });
-
-      cacheStorage = new MMKV({
-        id: 'cache-storage',
-        encryptionKey: cacheKey,
-      });
-
-      userPreferencesStorage = new MMKV({
-        id: 'user-preferences',
-        encryptionKey: userPrefKey,
-      });
-
-      if (__DEV__) {
-        console.log('✅ MMKV storage initialized with encryption');
-      }
-    })
-    .catch(error => {
-      if (__DEV__) {
-        console.warn(
-          'Failed to initialize encrypted MMKV storage, falling back to unencrypted:',
-          error
-        );
-      }
-    });
-
-  // Initial instances (will be replaced with encrypted versions)
-  appStorage = new MMKV({ id: 'app-storage' });
-  cacheStorage = new MMKV({ id: 'cache-storage' });
-  userPreferencesStorage = new MMKV({ id: 'user-preferences' });
+  // Native platforms - temporarily use web storage for Expo Go compatibility
+  console.warn(
+    '🔧 Using web storage fallback on native platform for Expo Go compatibility'
+  );
+  appStorage = new WebStorage('app-storage');
+  cacheStorage = new WebStorage('cache-storage');
+  userPreferencesStorage = new WebStorage('user-preferences');
 }
 
 // Export wrapped instances

@@ -16,7 +16,6 @@ import {
 // Repository implementations
 import { SupplierRepository } from './repositories/SupplierRepository';
 import { InventoryItemRepository } from './repositories/InventoryItemRepository';
-import { OfferRepository } from './repositories/OfferRepository';
 import { EnhancedOfferRepository } from './repositories/EnhancedOfferRepository';
 import { HistoricalPriceRepository } from './repositories/HistoricalPriceRepository';
 import { Supplier, InventoryItem, Offer, HistoricalPrice } from './types';

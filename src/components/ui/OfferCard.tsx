@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
-  TextStyle,
 } from 'react-native';
 import { colors } from '../../constants/colors';
 import { Offer, ComparisonResult } from '../../storage/types';
@@ -13,31 +12,31 @@ import { Offer, ComparisonResult } from '../../storage/types';
 export interface OfferCardProps {
   /** The offer to display */
   offer: Offer;
-  
+
   /** Comparison result if available */
   comparisonResult?: ComparisonResult;
-  
+
   /** Whether this is the best offer */
   isBestOffer?: boolean;
-  
+
   /** Whether this offer is tied for best */
   isTiedForBest?: boolean;
-  
+
   /** Callback when offer is pressed */
   onPress?: () => void;
-  
+
   /** Callback when offer is long pressed */
   onLongPress?: () => void;
-  
+
   /** Custom container style */
   containerStyle?: ViewStyle;
-  
+
   /** Show detailed comparison information */
   showComparisonDetails?: boolean;
-  
+
   /** Show price breakdown */
   showPriceBreakdown?: boolean;
-  
+
   /** Test ID for testing */
   testID?: string;
 }
@@ -86,42 +85,61 @@ export const OfferCard: React.FC<OfferCardProps> = ({
   };
 
   // Get flags as chips
-  const getFlagChips = (): Array<{ label: string; variant: 'primary' | 'secondary' | 'warning' | 'success' }> => {
-    const chips: Array<{ label: string; variant: 'primary' | 'secondary' | 'warning' | 'success' }> = [];
-    
+  const getFlagChips = (): Array<{
+    label: string;
+    variant: 'primary' | 'secondary' | 'warning' | 'success';
+  }> => {
+    const chips: Array<{
+      label: string;
+      variant: 'primary' | 'secondary' | 'warning' | 'success';
+    }> = [];
+
     // Add comparison flags
     if (comparisonResult?.metadata?.flags) {
       comparisonResult.metadata.flags.forEach(flag => {
-        let variant: 'primary' | 'secondary' | 'warning' | 'success' = 'secondary';
-        
+        let variant: 'primary' | 'secondary' | 'warning' | 'success' =
+          'secondary';
+
         if (flag.includes('high-quality')) variant = 'success';
         else if (flag.includes('low-quality')) variant = 'warning';
         else if (flag.includes('shipping-included')) variant = 'primary';
         else if (flag.includes('tax-included')) variant = 'primary';
-        
+
         chips.push({ label: flag.replace(/-/g, ' '), variant });
       });
     }
-    
+
     // Add offer-specific flags
     if (offer.shippingIncluded) {
       chips.push({ label: 'Free Shipping', variant: 'success' });
     }
-    
+
     if (offer.isTaxIncluded) {
       chips.push({ label: 'Tax Included', variant: 'primary' });
     }
-    
+
     return chips;
   };
 
   const chips = getFlagChips();
 
   const content = (
-    <View style={[styles.container, containerStyle, getContainerStyle(highlightVariant)]} testID={testID}>
+    <View
+      style={[
+        styles.container,
+        containerStyle,
+        getContainerStyle(highlightVariant),
+      ]}
+      testID={testID}
+    >
       {/* Best Offer Badge */}
       {isBestOffer && (
-        <View style={[styles.bestOfferBadge, isTiedForBest ? styles.tiedBadge : styles.bestBadge]}>
+        <View
+          style={[
+            styles.bestOfferBadge,
+            isTiedForBest ? styles.tiedBadge : styles.bestBadge,
+          ]}
+        >
           <Text style={styles.bestOfferBadgeText}>
             {isTiedForBest ? '🏆 Tied for Best' : '🏆 Best Offer'}
           </Text>
@@ -131,7 +149,9 @@ export const OfferCard: React.FC<OfferCardProps> = ({
       <View style={styles.header}>
         <View style={styles.supplierInfo}>
           <Text style={styles.supplierName}>
-            {offer.supplierNameSnapshot || offer.supplierId || 'Unknown Supplier'}
+            {offer.supplierNameSnapshot ||
+              offer.supplierId ||
+              'Unknown Supplier'}
           </Text>
           <Text style={styles.sourceType}>
             {offer.sourceType === 'online' ? '🌐 Online' : '🏪 In-Store'}
@@ -151,7 +171,9 @@ export const OfferCard: React.FC<OfferCardProps> = ({
       {/* Price per canonical unit */}
       {offer.effectivePricePerCanonical && (
         <View style={styles.pricePerUnitRow}>
-          <Text style={styles.pricePerUnitLabel}>Price per {offer.amountUnit}:</Text>
+          <Text style={styles.pricePerUnitLabel}>
+            Price per {offer.amountUnit}:
+          </Text>
           <Text style={styles.pricePerUnitValue}>
             {formatPrice(offer.effectivePricePerCanonical, offer.currency)}
           </Text>
@@ -167,16 +189,25 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               {comparisonResult.score.toFixed(4)}
             </Text>
           </View>
-          
+
           {comparisonResult.metadata?.confidence !== undefined && (
             <View style={styles.comparisonRow}>
               <Text style={styles.comparisonLabel}>Confidence:</Text>
-              <Text style={[styles.comparisonValue, { color: getConfidenceColor(comparisonResult.metadata.confidence) }]}>
+              <Text
+                style={[
+                  styles.comparisonValue,
+                  {
+                    color: getConfidenceColor(
+                      comparisonResult.metadata.confidence
+                    ),
+                  },
+                ]}
+              >
                 {(comparisonResult.metadata.confidence * 100).toFixed(0)}%
               </Text>
             </View>
           )}
-          
+
           {comparisonResult.metadata?.explanation && (
             <Text style={styles.explanation}>
               {comparisonResult.metadata.explanation}
@@ -195,7 +226,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               {formatPrice(offer.totalPrice, offer.currency)}
             </Text>
           </View>
-          
+
           {offer.shippingCost && offer.shippingCost > 0 && (
             <View style={styles.breakdownRow}>
               <Text style={styles.breakdownItem}>Shipping:</Text>
@@ -204,10 +235,12 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               </Text>
             </View>
           )}
-          
+
           {offer.taxRate && offer.taxRate > 0 && (
             <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownItem}>Tax ({offer.taxRate * 100}%):</Text>
+              <Text style={styles.breakdownItem}>
+                Tax ({offer.taxRate * 100}%):
+              </Text>
               <Text style={styles.breakdownValue}>
                 {formatPrice(offer.totalPrice * offer.taxRate, offer.currency)}
               </Text>
@@ -249,7 +282,10 @@ export const OfferCard: React.FC<OfferCardProps> = ({
 
       {/* Observed date */}
       <Text style={styles.observedDate}>
-        Observed: {offer.observedAt ? new Date(offer.observedAt).toLocaleDateString() : 'Unknown date'}
+        Observed:{' '}
+        {offer.observedAt
+          ? new Date(offer.observedAt).toLocaleDateString()
+          : 'Unknown date'}
       </Text>
     </View>
   );

@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -36,7 +36,8 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "17.0"
+            "deploymentTarget": "17.0",
+            "useFrameworks": "static"
           }
         }
       ],
@@ -49,9 +50,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "shopiq-project-id"
+        "projectId": "a8bac370-7017-441f-aac2-4376d2addf2f"
       }
     },
-    "owner": "shopiq-team"
+    "owner": "paulwareham"
   }
 }

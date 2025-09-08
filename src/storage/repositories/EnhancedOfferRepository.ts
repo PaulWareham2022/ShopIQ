@@ -8,7 +8,6 @@
 import { OfferRepository, Offer, OfferInput } from './OfferRepository';
 import { HistoricalPriceService } from '../services/HistoricalPriceService';
 import { RepositoryFactory } from '../RepositoryFactory';
-import { InventoryItem } from '../types';
 
 /**
  * Enhanced offer repository that automatically tracks historical prices
@@ -27,7 +26,9 @@ export class EnhancedOfferRepository extends OfferRepository {
    */
   private async getHistoricalPriceService(): Promise<HistoricalPriceService> {
     if (!this.historicalPriceService) {
-      this.historicalPriceService = new HistoricalPriceService(this.repositoryFactory);
+      this.historicalPriceService = new HistoricalPriceService(
+        this.repositoryFactory
+      );
     }
     return this.historicalPriceService;
   }
@@ -41,7 +42,11 @@ export class EnhancedOfferRepository extends OfferRepository {
 
     // Record historical price asynchronously (don't block offer creation)
     this.recordHistoricalPriceAsync(offer).catch(error => {
-      console.warn('Failed to record historical price for offer:', offer.id, error);
+      console.warn(
+        'Failed to record historical price for offer:',
+        offer.id,
+        error
+      );
     });
 
     return offer;
@@ -68,11 +73,15 @@ export class EnhancedOfferRepository extends OfferRepository {
 
     // Check if price-related fields changed
     const priceChanged = this.hasPriceChanged(existingOffer, updatedOffer);
-    
+
     if (priceChanged) {
       // Record historical price asynchronously
       this.recordHistoricalPriceAsync(updatedOffer).catch(error => {
-        console.warn('Failed to record historical price for updated offer:', updatedOffer.id, error);
+        console.warn(
+          'Failed to record historical price for updated offer:',
+          updatedOffer.id,
+          error
+        );
       });
     }
 
@@ -100,13 +109,17 @@ export class EnhancedOfferRepository extends OfferRepository {
   private async recordHistoricalPriceAsync(offer: Offer): Promise<void> {
     try {
       const historicalPriceService = await this.getHistoricalPriceService();
-      
+
       // Get the inventory item to get canonical unit
-      const inventoryRepo = await this.repositoryFactory.getInventoryItemRepository();
+      const inventoryRepo =
+        await this.repositoryFactory.getInventoryItemRepository();
       const inventoryItem = await inventoryRepo.findById(offer.inventoryItemId);
-      
+
       if (!inventoryItem) {
-        console.warn('Cannot record historical price: inventory item not found:', offer.inventoryItemId);
+        console.warn(
+          'Cannot record historical price: inventory item not found:',
+          offer.inventoryItemId
+        );
         return;
       }
 
@@ -200,7 +213,10 @@ export class EnhancedOfferRepository extends OfferRepository {
     }
   ): Promise<any[]> {
     const historicalPriceService = await this.getHistoricalPriceService();
-    return await historicalPriceService.getHistoricalPrices(inventoryItemId, options);
+    return await historicalPriceService.getHistoricalPrices(
+      inventoryItemId,
+      options
+    );
   }
 
   /**
@@ -227,7 +243,11 @@ export class EnhancedOfferRepository extends OfferRepository {
     supplierId?: string
   ): Promise<any> {
     const historicalPriceService = await this.getHistoricalPriceService();
-    return await historicalPriceService.getPriceStatistics(inventoryItemId, period, supplierId);
+    return await historicalPriceService.getPriceStatistics(
+      inventoryItemId,
+      period,
+      supplierId
+    );
   }
 
   /**
@@ -239,7 +259,11 @@ export class EnhancedOfferRepository extends OfferRepository {
     supplierId?: string
   ): Promise<any> {
     const historicalPriceService = await this.getHistoricalPriceService();
-    return await historicalPriceService.getBestHistoricalPrice(inventoryItemId, period, supplierId);
+    return await historicalPriceService.getBestHistoricalPrice(
+      inventoryItemId,
+      period,
+      supplierId
+    );
   }
 
   /**
@@ -254,7 +278,10 @@ export class EnhancedOfferRepository extends OfferRepository {
     }
   ): Promise<any[]> {
     const historicalPriceService = await this.getHistoricalPriceService();
-    return await historicalPriceService.getPriceAlerts(inventoryItemId, options);
+    return await historicalPriceService.getPriceAlerts(
+      inventoryItemId,
+      options
+    );
   }
 
   /**
@@ -265,6 +292,9 @@ export class EnhancedOfferRepository extends OfferRepository {
     period: '1d' | '7d' | '30d' | '90d' | '1y' | 'all' = '30d'
   ): Promise<any> {
     const historicalPriceService = await this.getHistoricalPriceService();
-    return await historicalPriceService.getPriceHistorySummary(inventoryItemId, period);
+    return await historicalPriceService.getPriceHistorySummary(
+      inventoryItemId,
+      period
+    );
   }
 }

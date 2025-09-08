@@ -5,7 +5,7 @@
  */
 
 import { BaseRepository } from './base/BaseRepository';
-import { BaseEntity, DatabaseError, ValidationError, Offer } from '../types';
+import { DatabaseError, ValidationError, Offer } from '../types';
 import { CanonicalDimension } from '../types';
 import { executeSql } from '../sqlite/database';
 import { validateAndConvert } from '../utils/canonical-units';
@@ -124,16 +124,13 @@ export class OfferRepository extends BaseRepository<Offer> {
       tax_rate: entity.taxRate,
       shipping_cost: entity.shippingCost,
       min_order_amount: entity.minOrderAmount,
-      free_shipping_threshold_at_capture:
-        entity.freeShippingThresholdAtCapture,
+      free_shipping_threshold_at_capture: entity.freeShippingThresholdAtCapture,
       shipping_included: entity.shippingIncluded ? 1 : 0,
       amount: entity.amount,
       amount_unit: entity.amountUnit,
       amount_canonical: entity.amountCanonical,
-      price_per_canonical_excl_shipping:
-        entity.pricePerCanonicalExclShipping,
-      price_per_canonical_incl_shipping:
-        entity.pricePerCanonicalInclShipping,
+      price_per_canonical_excl_shipping: entity.pricePerCanonicalExclShipping,
+      price_per_canonical_incl_shipping: entity.pricePerCanonicalInclShipping,
       effective_price_per_canonical: entity.effectivePricePerCanonical,
       bundle_id: entity.bundleId,
       quality_rating: entity.qualityRating,
@@ -272,10 +269,8 @@ export class OfferRepository extends BaseRepository<Offer> {
         isTaxIncluded: input.isTaxIncluded ?? true, // Default to tax included
         shippingIncluded: input.shippingIncluded ?? false,
         amountCanonical: metrics.amountCanonical,
-        pricePerCanonicalExclShipping:
-          metrics.pricePerCanonicalExclShipping,
-        pricePerCanonicalInclShipping:
-          metrics.pricePerCanonicalInclShipping,
+        pricePerCanonicalExclShipping: metrics.pricePerCanonicalExclShipping,
+        pricePerCanonicalInclShipping: metrics.pricePerCanonicalInclShipping,
         effectivePricePerCanonical: metrics.effectivePricePerCanonical,
         computedByVersion: this.COMPUTATION_VERSION,
       };
@@ -378,12 +373,10 @@ export class OfferRepository extends BaseRepository<Offer> {
         observedAt: updates.observedAt ?? currentOffer.observedAt,
         totalPrice: updates.totalPrice ?? currentOffer.totalPrice,
         currency: updates.currency ?? currentOffer.currency,
-        isTaxIncluded:
-          updates.isTaxIncluded ?? currentOffer.isTaxIncluded,
+        isTaxIncluded: updates.isTaxIncluded ?? currentOffer.isTaxIncluded,
         taxRate: updates.taxRate ?? currentOffer.taxRate,
         shippingCost: updates.shippingCost ?? currentOffer.shippingCost,
-        minOrderAmount:
-          updates.minOrderAmount ?? currentOffer.minOrderAmount,
+        minOrderAmount: updates.minOrderAmount ?? currentOffer.minOrderAmount,
         freeShippingThresholdAtCapture:
           updates.freeShippingThresholdAtCapture ??
           currentOffer.freeShippingThresholdAtCapture,
@@ -419,10 +412,8 @@ export class OfferRepository extends BaseRepository<Offer> {
         const updateData: Partial<Offer> = {
           ...updates,
           amountCanonical: metrics.amountCanonical,
-          pricePerCanonicalExclShipping:
-            metrics.pricePerCanonicalExclShipping,
-          pricePerCanonicalInclShipping:
-            metrics.pricePerCanonicalInclShipping,
+          pricePerCanonicalExclShipping: metrics.pricePerCanonicalExclShipping,
+          pricePerCanonicalInclShipping: metrics.pricePerCanonicalInclShipping,
           effectivePricePerCanonical: metrics.effectivePricePerCanonical,
           computedByVersion: this.COMPUTATION_VERSION,
         };

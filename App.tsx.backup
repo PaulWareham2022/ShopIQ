@@ -3,11 +3,14 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { initializeDatabase } from './src/storage/sqlite/database';
 import { seedSampleSuppliers } from './src/storage/seed-suppliers';
+import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
 import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
 import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
+import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
+import { OfferListScreen } from './src/screens/offers/OfferListScreen';
 import { InventoryItem, Supplier } from './src/storage/types';
 
 type Screen =
@@ -17,7 +20,9 @@ type Screen =
   | 'inventory-add'
   | 'supplier-list'
   | 'supplier-detail'
-  | 'supplier-add';
+  | 'supplier-add'
+  | 'add-offer'
+  | 'offer-list';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -39,10 +44,26 @@ export default function App() {
         try {
           await seedSampleSuppliers();
         } catch (error) {
-          console.log(
-            'Sample suppliers already exist or seeding failed:',
-            error
-          );
+          if (__DEV__) {
+            // eslint-disable-next-line no-console
+            console.log(
+              'Sample suppliers already exist or seeding failed:',
+              error
+            );
+          }
+        }
+
+        // Seed sample inventory items for testing
+        try {
+          await seedSampleInventoryItems();
+        } catch (error) {
+          if (__DEV__) {
+            // eslint-disable-next-line no-console
+            console.log(
+              'Sample inventory items already exist or seeding failed:',
+              error
+            );
+          }
         }
 
         setStorageStatus('success');
@@ -82,6 +103,11 @@ export default function App() {
   const handleItemSaved = () => {
     setCurrentScreen('inventory-list');
     setSelectedItem(null);
+  };
+
+  const handleViewOffers = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setCurrentScreen('offer-list');
   };
 
   // Supplier navigation handlers
@@ -141,6 +167,22 @@ export default function App() {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setCurrentScreen('add-offer')}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonIcon}>💰</Text>
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonTitle}>Add Offer</Text>
+              <Text style={styles.buttonSubtitle}>
+                Capture new price offers
+              </Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
+
         {storageStatus === 'error' && (
           <Text style={styles.warningText}>
             Running in demo mode - data won't persist
@@ -172,6 +214,7 @@ export default function App() {
             itemId={selectedItem?.id}
             onBack={handleBackToList}
             onItemSaved={handleItemSaved}
+            onViewOffers={handleViewOffers}
           />
         );
       case 'inventory-add':
@@ -207,6 +250,24 @@ export default function App() {
             onBack={handleBackToSupplierList}
             onSupplierSaved={handleSupplierSaved}
           />
+        );
+      case 'add-offer':
+        return (
+          <AddOfferScreen
+            key="add-offer"
+            onBack={() => setCurrentScreen('home')}
+          />
+        );
+      case 'offer-list':
+        return selectedItem ? (
+          <OfferListScreen
+            key={`offers-${selectedItem.id}`}
+            inventoryItem={selectedItem}
+            onBack={handleBackToList}
+            onAddOffer={() => setCurrentScreen('add-offer')}
+          />
+        ) : (
+          renderHomeScreen()
         );
       default:
         return renderHomeScreen();

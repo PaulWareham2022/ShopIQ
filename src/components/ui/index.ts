@@ -41,6 +41,8 @@ export type {
   BestOfferBadgeProps,
   StandaloneBestOfferBadgeProps,
 } from './BestOfferBadge';
+export { ShelfLifeWarningBanner } from './ShelfLifeWarningBanner';
+export type { ShelfLifeWarningBannerProps } from './ShelfLifeWarningBanner';
 
 // Layout Components
 export { Header } from './Header';

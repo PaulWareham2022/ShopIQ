@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
 }) => {
   const getButtonStyle = (): ViewStyle[] => {
-    const baseStyle = [styles.button];
+    const baseStyle: ViewStyle[] = [styles.button];
 
     // Size styles
     if (size === 'small') baseStyle.push(styles.buttonSmall);
@@ -70,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const getTextStyle = (): TextStyle[] => {
-    const baseStyle = [styles.buttonText];
+    const baseStyle: TextStyle[] = [styles.buttonText];
 
     // Size styles
     if (size === 'small') baseStyle.push(styles.buttonTextSmall);

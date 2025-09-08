@@ -69,7 +69,11 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
   // Determine which offers are best/tied
   const bestOfferInfo = useMemo(() => {
     if (sortedResults.length === 0) {
-      return { bestScore: null, isBestOffer: {}, isTiedForBest: {} };
+      return {
+        bestScore: null,
+        isBestOffer: {} as Record<string, boolean>,
+        isTiedForBest: {} as Record<string, boolean>,
+      };
     }
 
     const bestScore = sortedResults[0].score;
@@ -99,6 +103,7 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
       return (
         <ComparisonItemCard
           comparisonResult={item}
+          inventoryItem={comparisonResults.inventoryItem}
           isBestOffer={isBestOffer}
           isTiedForBest={isTiedForBest}
           onPress={() => onOfferPress?.(item)}
@@ -117,7 +122,7 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
       onOfferLongPress,
       showComparisonDetails,
       showPriceTrend,
-      comparisonResults.inventoryItem.canonicalUnit,
+      comparisonResults.inventoryItem,
       testID,
     ]
   );
@@ -130,7 +135,7 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
 
   // Get item layout for better performance (optional optimization)
   const getItemLayout = useCallback(
-    (_: ComparisonResult[] | null | undefined, index: number) => ({
+    (_: ArrayLike<ComparisonResult> | null | undefined, index: number) => ({
       length: 200, // Approximate height of each item
       offset: 200 * index,
       index,
@@ -161,15 +166,17 @@ export const ComparisonList: React.FC<ComparisonListProps> = ({
 
     const totalOffers = sortedResults.length;
     const bestOffer = sortedResults[0];
-    
+
     // Helper function to get effective price with fallback
     const getEffectivePrice = (offer: any) => {
-      return offer.effectivePricePerCanonical || 
-             offer.pricePerCanonicalInclShipping || 
-             offer.pricePerCanonicalExclShipping || 
-             (offer.totalPrice / offer.amount);
+      return (
+        offer.effectivePricePerCanonical ||
+        offer.pricePerCanonicalInclShipping ||
+        offer.pricePerCanonicalExclShipping ||
+        offer.totalPrice / offer.amount
+      );
     };
-    
+
     const priceRange =
       sortedResults.length > 1
         ? getEffectivePrice(sortedResults[sortedResults.length - 1].offer)
@@ -240,13 +247,13 @@ const ComparisonListHeader: React.FC<ComparisonListHeaderProps> = ({
     if (typeof price !== 'number' || isNaN(price)) {
       return `${currency} 0.00`;
     }
-    
+
     // Handle very small numbers that would round to 0.00
     if (price < 0.01 && price > 0) {
       // For prices less than 1 cent, show more decimal places
       return `${currency} ${price.toFixed(6)}`;
     }
-    
+
     return `${currency} ${price.toFixed(2)}`;
   };
 

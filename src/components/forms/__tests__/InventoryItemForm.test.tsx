@@ -32,7 +32,7 @@ describe('InventoryItemForm', () => {
 
     expect(getByText('Item Name *')).toBeTruthy();
     expect(getByText('Category')).toBeTruthy();
-    expect(getByText('Canonical Unit *')).toBeTruthy();
+    expect(getByText('Unit *')).toBeTruthy();
     expect(getByText('Shelf-life Sensitive')).toBeTruthy();
     expect(getByText('Save Item')).toBeTruthy();
     expect(getByText('Cancel')).toBeTruthy();
@@ -48,7 +48,7 @@ describe('InventoryItemForm', () => {
 
     await waitFor(() => {
       expect(getByText('Item name is required')).toBeTruthy();
-      expect(getByText('Canonical unit is required')).toBeTruthy();
+      expect(getByText('Unit is required')).toBeTruthy();
     });
   });
 
@@ -58,11 +58,11 @@ describe('InventoryItemForm', () => {
     );
 
     const nameInput = getByPlaceholderText('Enter item name');
-    const unitInput = getByPlaceholderText('Enter unit (e.g., kg, ml, unit)');
+    const unitSearchInput = getByPlaceholderText('Or search');
     const submitButton = getByText('Save Item');
 
     fireEvent.changeText(nameInput, 'Test Item');
-    fireEvent.changeText(unitInput, 'invalid-unit');
+    fireEvent.changeText(unitSearchInput, 'invalid-unit');
     fireEvent.press(submitButton);
 
     await waitFor(() => {
@@ -78,11 +78,11 @@ describe('InventoryItemForm', () => {
     );
 
     const nameInput = getByPlaceholderText('Enter item name');
-    const unitInput = getByPlaceholderText('Enter unit (e.g., kg, ml, unit)');
+    const unitSearchInput = getByPlaceholderText('Or search');
     const submitButton = getByText('Save Item');
 
     fireEvent.changeText(nameInput, 'Test Item');
-    fireEvent.changeText(unitInput, 'kg');
+    fireEvent.changeText(unitSearchInput, 'kg');
     fireEvent.press(submitButton);
 
     await waitFor(() => {
@@ -109,22 +109,23 @@ describe('InventoryItemForm', () => {
   });
 
   it('shows shelf life days field when shelf life sensitive is enabled', () => {
-    const { getByText, getByPlaceholderText } = render(
+    const { getByTestId, getByPlaceholderText } = render(
       <InventoryItemForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />
     );
 
-    const shelfLifeSwitch = getByText('Shelf-life Sensitive');
+    // Find the Switch component by its testID or by finding the Switch element
+    const shelfLifeSwitch = getByTestId('shelf-life-switch');
     fireEvent.press(shelfLifeSwitch);
 
     expect(getByPlaceholderText('Enter shelf life in days')).toBeTruthy();
   });
 
   it('validates shelf life days as positive number', async () => {
-    const { getByText, getByPlaceholderText } = render(
+    const { getByText, getByPlaceholderText, getByTestId } = render(
       <InventoryItemForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />
     );
 
-    const shelfLifeSwitch = getByText('Shelf-life Sensitive');
+    const shelfLifeSwitch = getByTestId('shelf-life-switch');
     fireEvent.press(shelfLifeSwitch);
 
     const shelfLifeInput = getByPlaceholderText('Enter shelf life in days');

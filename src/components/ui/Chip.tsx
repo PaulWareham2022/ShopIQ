@@ -39,7 +39,7 @@ export const Chip: React.FC<ChipProps> = ({
   textStyle,
 }) => {
   const getChipStyle = (): ViewStyle[] => {
-    const baseStyle = [styles.chip];
+    const baseStyle: ViewStyle[] = [styles.chip];
 
     // Size styles
     if (size === 'small') baseStyle.push(styles.chipSmall);
@@ -70,7 +70,7 @@ export const Chip: React.FC<ChipProps> = ({
   };
 
   const getTextStyle = (): TextStyle[] => {
-    const baseStyle = [styles.chipText];
+    const baseStyle: TextStyle[] = [styles.chipText];
 
     // Size styles
     if (size === 'small') baseStyle.push(styles.chipTextSmall);

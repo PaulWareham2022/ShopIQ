@@ -48,7 +48,7 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
           label={label}
           required={required}
           value="" // We don't show the selected value in the input
-          style={styles.hiddenInput}
+          containerStyle={styles.hiddenInput}
           editable={false}
         />
       )}
@@ -71,10 +71,10 @@ export const UnitSelector: React.FC<UnitSelectorProps> = ({
         value={value}
         onChangeText={onValueChange}
         placeholder={customInputPlaceholder}
-        inputStyle={[
-          styles.customInput,
-          !isCustomUnit && styles.predefinedUnitInput,
-        ]}
+        inputStyle={{
+          ...styles.customInput,
+          ...(!isCustomUnit && styles.predefinedUnitInput),
+        }}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="default"

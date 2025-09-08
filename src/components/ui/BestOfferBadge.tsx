@@ -81,68 +81,65 @@ export const BestOfferBadge: React.FC<BestOfferBadgeProps> = ({
 
   // Get badge styles
   const getBadgeStyles = () => {
-    const baseStyles = {
-      container: styles.container,
-      text: styles.text,
+    const baseStyles: {
+      container: ViewStyle[];
+      text: TextStyle[];
+    } = {
+      container: [styles.container],
+      text: [styles.text],
     };
 
     // Size variants
     switch (size) {
       case 'small':
-        baseStyles.container = [baseStyles.container, styles.containerSmall];
-        baseStyles.text = [baseStyles.text, styles.textSmall];
+        baseStyles.container.push(styles.containerSmall);
+        baseStyles.text.push(styles.textSmall);
         break;
       case 'large':
-        baseStyles.container = [baseStyles.container, styles.containerLarge];
-        baseStyles.text = [baseStyles.text, styles.textLarge];
+        baseStyles.container.push(styles.containerLarge);
+        baseStyles.text.push(styles.textLarge);
         break;
       default:
-        baseStyles.container = [baseStyles.container, styles.containerMedium];
-        baseStyles.text = [baseStyles.text, styles.textMedium];
+        baseStyles.container.push(styles.containerMedium);
+        baseStyles.text.push(styles.textMedium);
     }
 
     // Variant styles
     switch (badgeVariant) {
       case 'best':
-        baseStyles.container = [baseStyles.container, styles.containerBest];
-        baseStyles.text = [baseStyles.text, styles.textBest];
+        baseStyles.container.push(styles.containerBest);
+        baseStyles.text.push(styles.textBest);
         break;
       case 'tied':
-        baseStyles.container = [baseStyles.container, styles.containerTied];
-        baseStyles.text = [baseStyles.text, styles.textTied];
+        baseStyles.container.push(styles.containerTied);
+        baseStyles.text.push(styles.textTied);
         break;
       case 'savings':
-        baseStyles.container = [baseStyles.container, styles.containerSavings];
-        baseStyles.text = [baseStyles.text, styles.textSavings];
+        baseStyles.container.push(styles.containerSavings);
+        baseStyles.text.push(styles.textSavings);
         break;
       case 'custom':
-        baseStyles.container = [baseStyles.container, styles.containerCustom];
-        baseStyles.text = [baseStyles.text, styles.textCustom];
+        baseStyles.container.push(styles.containerCustom);
+        baseStyles.text.push(styles.textCustom);
         break;
     }
 
     // Position styles
     switch (position) {
       case 'top-left':
-        baseStyles.container = [baseStyles.container, styles.positionTopLeft];
+        baseStyles.container.push(styles.positionTopLeft);
         break;
       case 'top-right':
-        baseStyles.container = [baseStyles.container, styles.positionTopRight];
+        baseStyles.container.push(styles.positionTopRight);
         break;
       case 'bottom-left':
-        baseStyles.container = [
-          baseStyles.container,
-          styles.positionBottomLeft,
-        ];
+        baseStyles.container.push(styles.positionBottomLeft);
         break;
       case 'bottom-right':
-        baseStyles.container = [
-          baseStyles.container,
-          styles.positionBottomRight,
-        ];
+        baseStyles.container.push(styles.positionBottomRight);
         break;
       case 'inline':
-        baseStyles.container = [baseStyles.container, styles.positionInline];
+        baseStyles.container.push(styles.positionInline);
         break;
     }
 
@@ -197,11 +194,11 @@ export const StandaloneBestOfferBadge: React.FC<
   };
 
   const getBadgeText = () => {
-    if (savingsAmount && savingsPercentage) {
+    if (savingsAmount !== undefined && savingsPercentage !== undefined) {
       return `🏆 Best Offer • Save ${formatPrice(savingsAmount)} (${savingsPercentage.toFixed(0)}%)`;
-    } else if (savingsAmount) {
+    } else if (savingsAmount !== undefined) {
       return `🏆 Best Offer • Save ${formatPrice(savingsAmount)}`;
-    } else if (savingsPercentage) {
+    } else if (savingsPercentage !== undefined) {
       return `🏆 Best Offer • Save ${savingsPercentage.toFixed(0)}%`;
     } else if (isTiedForBest) {
       return '🏆 Tied for Best Offer';
@@ -211,54 +208,39 @@ export const StandaloneBestOfferBadge: React.FC<
   };
 
   const getBadgeStyles = () => {
-    const baseStyles = {
-      container: styles.standaloneContainer,
-      text: styles.standaloneText,
+    const baseStyles: {
+      container: ViewStyle[];
+      text: TextStyle[];
+    } = {
+      container: [styles.standaloneContainer],
+      text: [styles.standaloneText],
     };
 
     // Size variants
     switch (size) {
       case 'small':
-        baseStyles.container = [
-          baseStyles.container,
-          styles.standaloneContainerSmall,
-        ];
-        baseStyles.text = [baseStyles.text, styles.standaloneTextSmall];
+        baseStyles.container.push(styles.standaloneContainerSmall);
+        baseStyles.text.push(styles.standaloneTextSmall);
         break;
       case 'large':
-        baseStyles.container = [
-          baseStyles.container,
-          styles.standaloneContainerLarge,
-        ];
-        baseStyles.text = [baseStyles.text, styles.standaloneTextLarge];
+        baseStyles.container.push(styles.standaloneContainerLarge);
+        baseStyles.text.push(styles.standaloneTextLarge);
         break;
       default:
-        baseStyles.container = [
-          baseStyles.container,
-          styles.standaloneContainerMedium,
-        ];
-        baseStyles.text = [baseStyles.text, styles.standaloneTextMedium];
+        baseStyles.container.push(styles.standaloneContainerMedium);
+        baseStyles.text.push(styles.standaloneTextMedium);
     }
 
     // Variant based on savings
     if (savingsAmount || savingsPercentage) {
-      baseStyles.container = [
-        baseStyles.container,
-        styles.standaloneContainerSavings,
-      ];
-      baseStyles.text = [baseStyles.text, styles.standaloneTextSavings];
+      baseStyles.container.push(styles.standaloneContainerSavings);
+      baseStyles.text.push(styles.standaloneTextSavings);
     } else if (isTiedForBest) {
-      baseStyles.container = [
-        baseStyles.container,
-        styles.standaloneContainerTied,
-      ];
-      baseStyles.text = [baseStyles.text, styles.standaloneTextTied];
+      baseStyles.container.push(styles.standaloneContainerTied);
+      baseStyles.text.push(styles.standaloneTextTied);
     } else {
-      baseStyles.container = [
-        baseStyles.container,
-        styles.standaloneContainerBest,
-      ];
-      baseStyles.text = [baseStyles.text, styles.standaloneTextBest];
+      baseStyles.container.push(styles.standaloneContainerBest);
+      baseStyles.text.push(styles.standaloneTextBest);
     }
 
     return baseStyles;

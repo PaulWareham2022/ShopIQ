@@ -18,6 +18,8 @@ jest.mock('react-native', () => ({
   FlatList: 'FlatList',
   TextInput: 'TextInput',
   ScrollView: 'ScrollView',
+  Switch: 'Switch',
+  Button: 'Button',
   Alert: {
     alert: jest.fn(),
   },

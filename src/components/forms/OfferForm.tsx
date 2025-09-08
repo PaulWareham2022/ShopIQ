@@ -8,6 +8,7 @@ import { Switch } from '../ui/Switch';
 import { Chip } from '../ui/Chip';
 import { Picker, PickerItem } from '../ui/Picker';
 import { DatePicker } from '../ui/DatePicker';
+import { ShelfLifeWarningBanner } from '../ui/ShelfLifeWarningBanner';
 import { OfferInput } from '../../storage/repositories/OfferRepository';
 import { InventoryItem } from '../../storage/types';
 import { Supplier } from '../../storage/types';
@@ -23,6 +24,10 @@ import {
   isSupportedUnit,
   formatAmount,
 } from '../../storage/utils/canonical-units';
+import {
+  analyzeShelfLifeWarning,
+  ShelfLifeWarningResult,
+} from '../../storage/utils/shelf-life-warnings';
 
 interface OfferFormProps {
   initialValues?: Partial<OfferInput>;
@@ -62,6 +67,7 @@ interface PriceMetrics {
   effectivePricePerCanonical?: number;
   isValidUnit: boolean;
   unitError?: string;
+  shelfLifeWarning?: ShelfLifeWarningResult;
 }
 
 /**
@@ -133,6 +139,15 @@ const computePriceMetrics = (
   // Effective price (for now, same as including shipping)
   const effectivePricePerCanonical = pricePerCanonicalInclShipping;
 
+  // Analyze shelf-life warning if we have a valid inventory item and amount
+  let shelfLifeWarning: ShelfLifeWarningResult | undefined;
+  if (selectedInventoryItem && amountNum > 0) {
+    shelfLifeWarning = analyzeShelfLifeWarning(
+      selectedInventoryItem,
+      amountNum
+    );
+  }
+
   return {
     canonicalAmount,
     canonicalUnit,
@@ -140,6 +155,7 @@ const computePriceMetrics = (
     pricePerCanonicalInclShipping,
     effectivePricePerCanonical,
     isValidUnit: true,
+    shelfLifeWarning,
   };
 };
 
@@ -571,6 +587,18 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                     />
                   </View>
                 </View>
+
+                {/* Shelf-Life Warning Banner */}
+                {priceMetrics.shelfLifeWarning?.shouldShowWarning && (
+                  <ShelfLifeWarningBanner
+                    message={
+                      priceMetrics.shelfLifeWarning.warningMessage ||
+                      'Shelf-life sensitive item warning'
+                    }
+                    severity={priceMetrics.shelfLifeWarning.severity}
+                    testID="offer-form-shelf-life-warning"
+                  />
+                )}
 
                 {/* Price Computation Display */}
                 {priceMetrics.isValidUnit && priceMetrics.canonicalUnit && (

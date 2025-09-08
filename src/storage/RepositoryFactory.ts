@@ -18,7 +18,14 @@ import { SupplierRepository } from './repositories/SupplierRepository';
 import { InventoryItemRepository } from './repositories/InventoryItemRepository';
 import { EnhancedOfferRepository } from './repositories/EnhancedOfferRepository';
 import { HistoricalPriceRepository } from './repositories/HistoricalPriceRepository';
-import { Supplier, InventoryItem, Offer, HistoricalPrice } from './types';
+import {
+  Supplier,
+  InventoryItem,
+  Offer,
+  HistoricalPrice,
+  UnitConversion,
+  Bundle,
+} from './types';
 import { KeyValueRepository } from './repositories/base/KeyValueRepository';
 
 // Storage layer imports
@@ -29,27 +36,7 @@ import {
   userPreferencesStorageWrapper,
 } from './mmkv/storage';
 
-// Entity types that will be implemented later
-
-interface UnitConversion {
-  id: string;
-  from_unit: string;
-  to_unit: string;
-  factor: number;
-  category: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string;
-}
-
-interface Bundle {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string;
-}
+// Entity types are now imported from './types'
 
 // Simple transaction implementation
 class SQLiteTransaction implements Transaction {

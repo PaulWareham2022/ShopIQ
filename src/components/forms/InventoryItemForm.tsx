@@ -8,7 +8,7 @@ import {
   type ValidatedInventoryItem,
   type ValidatedNewInventoryItem,
 } from '../../storage/validation/schemas';
-import { InventoryItem } from '../../storage/repositories/InventoryItemRepository';
+import { InventoryItem } from '../../storage/types';
 import {
   getUnitDimension,
   isSupportedUnit,
@@ -159,8 +159,8 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
         : CreateInventoryItemSchema;
       const validationResult = chosenSchema.safeParse(inventoryItemData);
       if (!validationResult.success) {
-        const errorMessages = validationResult.error.errors
-          .map(err => err.message)
+        const errorMessages = validationResult.error.issues
+          .map((err: any) => err.message)
           .join(', ');
         Alert.alert('Validation Error', errorMessages);
         return;
@@ -253,6 +253,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 onValueChange={value =>
                   setFieldValue('shelfLifeSensitive', value)
                 }
+                testID="shelf-life-switch"
               />
 
               {/* Shelf Life Days (conditional) */}

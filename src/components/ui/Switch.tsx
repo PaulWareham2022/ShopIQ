@@ -17,6 +17,7 @@ interface SwitchProps {
   containerStyle?: ViewStyle;
   labelStyle?: TextStyle;
   helpText?: string;
+  testID?: string;
 }
 
 export const Switch: React.FC<SwitchProps> = ({
@@ -27,6 +28,7 @@ export const Switch: React.FC<SwitchProps> = ({
   containerStyle,
   labelStyle,
   helpText,
+  testID,
 }) => {
   return (
     <View style={[styles.container, containerStyle]}>
@@ -45,6 +47,7 @@ export const Switch: React.FC<SwitchProps> = ({
             true: colors.primary,
           }}
           thumbColor={value ? colors.white : colors.grayText}
+          testID={testID}
         />
       </View>
       {helpText && <Text style={styles.helpText}>{helpText}</Text>}

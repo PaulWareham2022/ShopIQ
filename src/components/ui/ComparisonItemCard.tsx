@@ -10,10 +10,18 @@ import {
 } from 'react-native';
 import { colors } from '../../constants/colors';
 import { ComparisonResult } from '../../storage/comparison/types';
+import { InventoryItem } from '../../storage/types';
+import {
+  shouldShowShelfLifeWarning,
+  getShelfLifeWarningSeverity,
+} from '../../storage/utils/shelf-life-warnings';
 
 export interface ComparisonItemCardProps {
   /** The comparison result containing offer and metadata */
   comparisonResult: ComparisonResult;
+
+  /** The inventory item for shelf-life warning analysis */
+  inventoryItem?: InventoryItem;
 
   /** Whether this is the best offer */
   isBestOffer?: boolean;
@@ -45,6 +53,7 @@ export interface ComparisonItemCardProps {
 
 export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
   comparisonResult,
+  inventoryItem,
   isBestOffer = false,
   isTiedForBest = false,
   onPress,
@@ -71,16 +80,15 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
     if (typeof price !== 'number' || isNaN(price)) {
       return `${currency} 0.00`;
     }
-    
+
     // Handle very small numbers that would round to 0.00
     if (price < 0.01 && price > 0) {
       // For prices less than 1 cent, show more decimal places
       return `${currency} ${price.toFixed(6)}`;
     }
-    
+
     return `${currency} ${price.toFixed(2)}`;
   };
-
 
   // Format amount with unit
   const formatAmount = (amount: number, unit: string): string => {
@@ -152,6 +160,36 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
         />
         <Text style={[styles.confidenceText, { color: confidenceColor }]}>
           {confidenceText} Confidence
+        </Text>
+      </View>
+    );
+  };
+
+  // Get shelf-life warning indicator
+  const getShelfLifeWarning = () => {
+    if (!inventoryItem) return null;
+
+    const shouldWarn = shouldShowShelfLifeWarning(inventoryItem, offer);
+    if (!shouldWarn) return null;
+
+    const severity = getShelfLifeWarningSeverity(inventoryItem, offer);
+    // const message = getShelfLifeWarningMessage(inventoryItem, offer.amount);
+
+    const warningColor =
+      severity === 'high'
+        ? colors.error
+        : severity === 'warning'
+          ? colors.warning
+          : colors.primary;
+
+    const warningIcon =
+      severity === 'high' ? '🚨' : severity === 'warning' ? '⚠️' : 'ℹ️';
+
+    return (
+      <View style={styles.shelfLifeWarningContainer}>
+        <Text style={styles.shelfLifeWarningIcon}>{warningIcon}</Text>
+        <Text style={[styles.shelfLifeWarningText, { color: warningColor }]}>
+          Shelf-life sensitive
         </Text>
       </View>
     );
@@ -282,10 +320,10 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
           ]}
         >
           {formatPrice(
-            offer.effectivePricePerCanonical || 
-            offer.pricePerCanonicalInclShipping || 
-            offer.pricePerCanonicalExclShipping || 
-            (offer.totalPrice / offer.amount), 
+            offer.effectivePricePerCanonical ||
+              offer.pricePerCanonicalInclShipping ||
+              offer.pricePerCanonicalExclShipping ||
+              offer.totalPrice / offer.amount,
             offer.currency
           )}
         </Text>
@@ -305,6 +343,7 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
       <View style={styles.indicatorsRow}>
         {getTrendIndicator()}
         {getConfidenceIndicator()}
+        {getShelfLifeWarning()}
       </View>
 
       {/* Flags */}
@@ -497,6 +536,18 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   confidenceText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  shelfLifeWarningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  shelfLifeWarningIcon: {
+    fontSize: 12,
+    marginRight: 4,
+  },
+  shelfLifeWarningText: {
     fontSize: 12,
     fontWeight: '500',
   },

@@ -23,6 +23,8 @@ const mockOffer: Offer = {
   pricePerCanonicalExclShipping: 0.052,
   pricePerCanonicalInclShipping: 0.052,
   effectivePricePerCanonical: 0.052,
+  qualityRating: 4,
+  notes: 'Great quality product with fast shipping',
   created_at: '2024-01-15T10:00:00Z',
   updated_at: '2024-01-15T10:00:00Z',
 };
@@ -119,6 +121,53 @@ describe('ComparisonItemCard', () => {
     expect(getByText('low_shipping')).toBeTruthy();
   });
 
+  it('displays quality rating when available', () => {
+    const { getByText, getByTestId } = render(
+      <ComparisonItemCard
+        comparisonResult={mockComparisonResult}
+        testID="test-card"
+      />
+    );
+
+    expect(getByText('Quality Rating:')).toBeTruthy();
+    expect(getByTestId('test-card-quality-rating')).toBeTruthy();
+  });
+
+  it('displays notes when available', () => {
+    const { getByText } = render(
+      <ComparisonItemCard
+        comparisonResult={mockComparisonResult}
+        testID="test-card"
+      />
+    );
+
+    expect(getByText('Notes:')).toBeTruthy();
+    expect(getByText('Great quality product with fast shipping')).toBeTruthy();
+  });
+
+  it('does not display rating section when neither rating nor notes are available', () => {
+    const offerWithoutRatingAndNotes = {
+      ...mockOffer,
+      qualityRating: undefined,
+      notes: undefined,
+    };
+
+    const comparisonResultWithoutRatingAndNotes = {
+      ...mockComparisonResult,
+      offer: offerWithoutRatingAndNotes,
+    };
+
+    const { queryByText } = render(
+      <ComparisonItemCard
+        comparisonResult={comparisonResultWithoutRatingAndNotes}
+        testID="test-card"
+      />
+    );
+
+    expect(queryByText('Quality Rating:')).toBeNull();
+    expect(queryByText('Notes:')).toBeNull();
+  });
+
   it('displays supplier URL button when supplierUrl is present', () => {
     const { getByText } = render(
       <ComparisonItemCard
@@ -150,11 +199,12 @@ describe('ComparisonItemCard', () => {
       <ComparisonItemCard
         comparisonResult={mockComparisonResult}
         onPress={onPress}
-        testID="test-card"
+        testID="test-card-press"
       />
     );
 
-    fireEvent.press(getByTestId('test-card'));
+    const touchableElement = getByTestId('test-card-press');
+    fireEvent.press(touchableElement);
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
@@ -164,11 +214,12 @@ describe('ComparisonItemCard', () => {
       <ComparisonItemCard
         comparisonResult={mockComparisonResult}
         onLongPress={onLongPress}
-        testID="test-card"
+        testID="test-card-longpress"
       />
     );
 
-    fireEvent(getByTestId('test-card'), 'longPress');
+    const touchableElement = getByTestId('test-card-longpress');
+    fireEvent(touchableElement, 'longPress');
     expect(onLongPress).toHaveBeenCalledTimes(1);
   });
 

@@ -7,7 +7,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors } from '../../constants/colors';
-import { Offer, ComparisonResult } from '../../storage/types';
+import { Offer } from '../../storage/types';
+import { ComparisonResult } from '../../storage/comparison/types';
+import { StarRatingDisplay } from './StarRating';
 
 export interface OfferCardProps {
   /** The offer to display */
@@ -96,7 +98,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({
 
     // Add comparison flags
     if (comparisonResult?.metadata?.flags) {
-      comparisonResult.metadata.flags.forEach(flag => {
+      comparisonResult.metadata.flags.forEach((flag: string) => {
         let variant: 'primary' | 'secondary' | 'warning' | 'success' =
           'secondary';
 
@@ -130,7 +132,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({
         containerStyle,
         getContainerStyle(highlightVariant),
       ]}
-      testID={testID}
+      testID={onPress || onLongPress ? undefined : testID}
     >
       {/* Best Offer Badge */}
       {isBestOffer && (
@@ -154,7 +156,13 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               'Unknown Supplier'}
           </Text>
           <Text style={styles.sourceType}>
-            {offer.sourceType === 'online' ? '🌐 Online' : '🏪 In-Store'}
+            {offer.sourceType === 'manual'
+              ? '✋ Manual'
+              : offer.sourceType === 'url'
+                ? '🌐 URL'
+                : offer.sourceType === 'ocr'
+                  ? '📷 OCR'
+                  : '🔗 API'}
           </Text>
         </View>
 
@@ -254,8 +262,8 @@ export const OfferCard: React.FC<OfferCardProps> = ({
         <View style={styles.chipsContainer}>
           {chips.map((chip, index) => {
             const chipVariant = chip.variant || 'primary';
-            let chipStyle = styles.chip;
-            let chipTextStyle = styles.chipText;
+            let chipStyle: any = styles.chip;
+            let chipTextStyle: any = styles.chipText;
 
             if (chipVariant === 'primary') {
               chipStyle = [styles.chip, styles.chipPrimary];
@@ -277,6 +285,32 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               </View>
             );
           })}
+        </View>
+      )}
+
+      {/* Rating and Notes */}
+      {(offer.qualityRating || offer.notes) && (
+        <View style={styles.ratingNotesContainer}>
+          {offer.qualityRating && (
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Quality Rating:</Text>
+              <StarRatingDisplay
+                rating={offer.qualityRating}
+                starSize={16}
+                showRatingNumber={true}
+                showNoRating={false}
+                testID={`${testID}-quality-rating`}
+              />
+            </View>
+          )}
+          {offer.notes && (
+            <View style={styles.notesRow}>
+              <Text style={styles.notesLabel}>Notes:</Text>
+              <Text style={styles.notesText} numberOfLines={3}>
+                {offer.notes}
+              </Text>
+            </View>
+          )}
         </View>
       )}
 
@@ -526,5 +560,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.grayText,
     textAlign: 'right',
+  },
+  ratingNotesContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.lightGray,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  ratingLabel: {
+    fontSize: 14,
+    color: colors.grayText,
+    fontWeight: '500',
+    marginRight: 12,
+    minWidth: 100,
+  },
+  notesRow: {
+    marginTop: 4,
+  },
+  notesLabel: {
+    fontSize: 14,
+    color: colors.grayText,
+    fontWeight: '500',
+    marginBottom: 6,
+  },
+  notesText: {
+    fontSize: 14,
+    color: colors.darkText,
+    lineHeight: 18,
+    fontStyle: 'italic',
   },
 });

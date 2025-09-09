@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { OfferCard } from '../OfferCard';
-import { Offer, ComparisonResult } from '../../../storage/types';
+import { Offer } from '../../../storage/types';
+import { ComparisonResult } from '../../../storage/comparison/types';
 
 // Mock data
 const mockOffer: Offer = {
@@ -9,22 +10,26 @@ const mockOffer: Offer = {
   inventoryItemId: 'item-1',
   supplierId: 'supplier-1',
   supplierNameSnapshot: 'Test Supplier',
-  sourceType: 'online',
+  sourceType: 'manual',
   totalPrice: 10.99,
   currency: 'USD',
   amount: 2,
   amountUnit: 'kg',
   amountCanonical: 2,
+  pricePerCanonicalExclShipping: 5.495,
+  pricePerCanonicalInclShipping: 5.495,
   effectivePricePerCanonical: 5.495,
   shippingCost: 2.99,
   shippingIncluded: false,
   taxRate: 0.08,
   isTaxIncluded: false,
   qualityRating: 4,
+  notes: 'Excellent product quality and fast delivery',
   observedAt: '2024-01-15T10:00:00Z',
+  capturedAt: '2024-01-15T10:00:00Z',
   created_at: '2024-01-15T10:00:00Z',
   updated_at: '2024-01-15T10:00:00Z',
-  deleted_at: null,
+  deleted_at: undefined,
 };
 
 const mockComparisonResult: ComparisonResult = {
@@ -47,22 +52,17 @@ const mockComparisonResult: ComparisonResult = {
 
 describe('OfferCard', () => {
   it('renders offer information correctly', () => {
-    const { getByText } = render(
-      <OfferCard offer={mockOffer} />
-    );
+    const { getByText } = render(<OfferCard offer={mockOffer} />);
 
     expect(getByText('Test Supplier')).toBeTruthy();
     expect(getByText('USD 10.99')).toBeTruthy();
     expect(getByText('2 kg')).toBeTruthy();
-    expect(getByText('🌐 Online')).toBeTruthy();
+    expect(getByText('✋ Manual')).toBeTruthy();
   });
 
   it('shows best offer badge when isBestOffer is true', () => {
     const { getByText } = render(
-      <OfferCard 
-        offer={mockOffer} 
-        isBestOffer={true}
-      />
+      <OfferCard offer={mockOffer} isBestOffer={true} />
     );
 
     expect(getByText('🏆 Best Offer')).toBeTruthy();
@@ -70,11 +70,7 @@ describe('OfferCard', () => {
 
   it('shows tied badge when isTiedForBest is true', () => {
     const { getByText } = render(
-      <OfferCard 
-        offer={mockOffer} 
-        isBestOffer={true}
-        isTiedForBest={true}
-      />
+      <OfferCard offer={mockOffer} isBestOffer={true} isTiedForBest={true} />
     );
 
     expect(getByText('🏆 Tied for Best')).toBeTruthy();
@@ -82,41 +78,41 @@ describe('OfferCard', () => {
 
   it('applies best offer styling when isBestOffer is true', () => {
     const { getByTestId } = render(
-      <OfferCard 
-        offer={mockOffer} 
-        isBestOffer={true}
-        testID="offer-card"
-      />
+      <OfferCard offer={mockOffer} isBestOffer={true} testID="offer-card" />
     );
 
     const card = getByTestId('offer-card');
-    expect(card.props.style).toMatchObject({
-      borderColor: expect.any(String),
-      borderWidth: 2,
-      backgroundColor: expect.any(String),
-    });
+    // Check that the style array contains the expected styling
+    expect(Array.isArray(card.props.style)).toBe(true);
+    expect(card.props.style).toContainEqual(
+      expect.objectContaining({
+        borderColor: expect.any(String),
+        borderWidth: 2,
+        backgroundColor: expect.any(String),
+      })
+    );
   });
 
   it('applies tied offer styling when isTiedForBest is true', () => {
     const { getByTestId } = render(
-      <OfferCard 
-        offer={mockOffer} 
-        isTiedForBest={true}
-        testID="offer-card"
-      />
+      <OfferCard offer={mockOffer} isTiedForBest={true} testID="offer-card" />
     );
 
     const card = getByTestId('offer-card');
-    expect(card.props.style).toMatchObject({
-      borderColor: expect.any(String),
-      borderWidth: 2,
-      backgroundColor: expect.any(String),
-    });
+    // Check that the style array contains the expected styling
+    expect(Array.isArray(card.props.style)).toBe(true);
+    expect(card.props.style).toContainEqual(
+      expect.objectContaining({
+        borderColor: expect.any(String),
+        borderWidth: 2,
+        backgroundColor: expect.any(String),
+      })
+    );
   });
 
   it('shows comparison details when showComparisonDetails is true', () => {
     const { getByText } = render(
-      <OfferCard 
+      <OfferCard
         offer={mockOffer}
         comparisonResult={mockComparisonResult}
         showComparisonDetails={true}
@@ -131,26 +127,20 @@ describe('OfferCard', () => {
   });
 
   it('shows price breakdown when showPriceBreakdown is true', () => {
-    const { getByText } = render(
-      <OfferCard 
-        offer={mockOffer}
-        showPriceBreakdown={true}
-      />
+    const { getByText, getAllByText } = render(
+      <OfferCard offer={mockOffer} showPriceBreakdown={true} />
     );
 
     expect(getByText('Price Breakdown:')).toBeTruthy();
     expect(getByText('Base Price:')).toBeTruthy();
-    expect(getByText('USD 10.99')).toBeTruthy();
+    expect(getAllByText('USD 10.99')).toHaveLength(2); // One in header, one in breakdown
     expect(getByText('Shipping:')).toBeTruthy();
     expect(getByText('USD 2.99')).toBeTruthy();
   });
 
   it('displays flags as chips', () => {
     const { getByText } = render(
-      <OfferCard 
-        offer={mockOffer}
-        comparisonResult={mockComparisonResult}
-      />
+      <OfferCard offer={mockOffer} comparisonResult={mockComparisonResult} />
     );
 
     expect(getByText('shipping included')).toBeTruthy();
@@ -174,14 +164,45 @@ describe('OfferCard', () => {
   it('handles missing observed date gracefully', () => {
     const offerWithoutDate = {
       ...mockOffer,
-      observedAt: undefined,
+      observedAt: '',
     };
 
-    const { getByText } = render(
-      <OfferCard offer={offerWithoutDate} />
+    const { getByText } = render(<OfferCard offer={offerWithoutDate} />);
+
+    expect(getByText('Observed: Unknown date')).toBeTruthy();
+  });
+
+  it('displays quality rating when available', () => {
+    const { getByText, getByTestId } = render(
+      <OfferCard offer={mockOffer} testID="offer-card" />
     );
 
-    expect(getByText('Unknown date')).toBeTruthy();
+    expect(getByText('Quality Rating:')).toBeTruthy();
+    expect(getByTestId('offer-card-quality-rating')).toBeTruthy();
+  });
+
+  it('displays notes when available', () => {
+    const { getByText } = render(<OfferCard offer={mockOffer} />);
+
+    expect(getByText('Notes:')).toBeTruthy();
+    expect(
+      getByText('Excellent product quality and fast delivery')
+    ).toBeTruthy();
+  });
+
+  it('does not display rating section when neither rating nor notes are available', () => {
+    const offerWithoutRatingAndNotes = {
+      ...mockOffer,
+      qualityRating: undefined,
+      notes: undefined,
+    };
+
+    const { queryByText } = render(
+      <OfferCard offer={offerWithoutRatingAndNotes} />
+    );
+
+    expect(queryByText('Quality Rating:')).toBeNull();
+    expect(queryByText('Notes:')).toBeNull();
   });
 
   it('handles invalid price values gracefully', () => {
@@ -190,9 +211,7 @@ describe('OfferCard', () => {
       totalPrice: NaN,
     };
 
-    const { getByText } = render(
-      <OfferCard offer={offerWithInvalidPrice} />
-    );
+    const { getByText } = render(<OfferCard offer={offerWithInvalidPrice} />);
 
     expect(getByText('USD 0.00')).toBeTruthy();
   });
@@ -200,35 +219,33 @@ describe('OfferCard', () => {
   it('calls onPress when offer is pressed', () => {
     const onPress = jest.fn();
     const { getByTestId } = render(
-      <OfferCard 
+      <OfferCard
         offer={mockOffer}
         onPress={onPress}
-        testID="offer-card"
+        testID="offer-card-press"
       />
     );
 
-    fireEvent.press(getByTestId('offer-card'));
+    fireEvent.press(getByTestId('offer-card-press'));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
   it('calls onLongPress when offer is long pressed', () => {
     const onLongPress = jest.fn();
     const { getByTestId } = render(
-      <OfferCard 
+      <OfferCard
         offer={mockOffer}
         onLongPress={onLongPress}
-        testID="offer-card"
+        testID="offer-card-longpress"
       />
     );
 
-    fireEvent(getByTestId('offer-card'), 'longPress');
+    fireEvent(getByTestId('offer-card-longpress'), 'longPress');
     expect(onLongPress).toHaveBeenCalledTimes(1);
   });
 
   it('shows price per canonical unit when available', () => {
-    const { getByText } = render(
-      <OfferCard offer={mockOffer} />
-    );
+    const { getByText } = render(<OfferCard offer={mockOffer} />);
 
     expect(getByText('Price per kg:')).toBeTruthy();
     expect(getByText('USD 5.50')).toBeTruthy();
@@ -240,9 +257,7 @@ describe('OfferCard', () => {
       shippingIncluded: true,
     };
 
-    const { getByText } = render(
-      <OfferCard offer={offerWithShipping} />
-    );
+    const { getByText } = render(<OfferCard offer={offerWithShipping} />);
 
     expect(getByText('Free Shipping')).toBeTruthy();
   });
@@ -253,16 +268,14 @@ describe('OfferCard', () => {
       isTaxIncluded: true,
     };
 
-    const { getByText } = render(
-      <OfferCard offer={offerWithTax} />
-    );
+    const { getByText } = render(<OfferCard offer={offerWithTax} />);
 
     expect(getByText('Tax Included')).toBeTruthy();
   });
 
   it('displays confidence level with appropriate color', () => {
     const { getByText } = render(
-      <OfferCard 
+      <OfferCard
         offer={mockOffer}
         comparisonResult={mockComparisonResult}
         showComparisonDetails={true}
@@ -281,7 +294,7 @@ describe('OfferCard', () => {
     };
 
     const { getByText } = render(
-      <OfferCard 
+      <OfferCard
         offer={mockOffer}
         comparisonResult={comparisonResultWithoutMetadata}
         showComparisonDetails={true}

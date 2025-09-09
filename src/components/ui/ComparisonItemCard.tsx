@@ -15,6 +15,7 @@ import {
   shouldShowShelfLifeWarning,
   getShelfLifeWarningSeverity,
 } from '../../storage/utils/shelf-life-warnings';
+import { StarRatingDisplay } from './StarRating';
 
 export interface ComparisonItemCardProps {
   /** The comparison result containing offer and metadata */
@@ -264,7 +265,7 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
         containerStyle,
         getContainerStyle(highlightVariant),
       ]}
-      testID={testID}
+      testID={onPress || onLongPress ? undefined : testID}
     >
       {/* Best Offer Badge */}
       {isBestOffer && (
@@ -348,6 +349,32 @@ export const ComparisonItemCard: React.FC<ComparisonItemCardProps> = ({
 
       {/* Flags */}
       {chips.length > 0 && <View style={styles.flagsContainer}>{chips}</View>}
+
+      {/* Rating and Notes */}
+      {(offer.qualityRating || offer.notes) && (
+        <View style={styles.ratingNotesContainer}>
+          {offer.qualityRating && (
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Quality Rating:</Text>
+              <StarRatingDisplay
+                rating={offer.qualityRating}
+                starSize={16}
+                showRatingNumber={true}
+                showNoRating={false}
+                testID={`${testID}-quality-rating`}
+              />
+            </View>
+          )}
+          {offer.notes && (
+            <View style={styles.notesRow}>
+              <Text style={styles.notesLabel}>Notes:</Text>
+              <Text style={styles.notesText} numberOfLines={2}>
+                {offer.notes}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* Supplier URL */}
       {offer.supplierUrl && (
@@ -612,5 +639,38 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 8,
     lineHeight: 16,
+  },
+  ratingNotesContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.lightGray,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  ratingLabel: {
+    fontSize: 12,
+    color: colors.grayText,
+    fontWeight: '500',
+    marginRight: 8,
+    minWidth: 80,
+  },
+  notesRow: {
+    marginTop: 4,
+  },
+  notesLabel: {
+    fontSize: 12,
+    color: colors.grayText,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  notesText: {
+    fontSize: 12,
+    color: colors.darkText,
+    lineHeight: 16,
+    fontStyle: 'italic',
   },
 });

@@ -12,7 +12,7 @@ import { colors } from '../../constants/colors';
 export interface ItemCardProps {
   icon?: string;
   title: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactElement;
   chips?: Array<{
     label: string;
     variant?: 'primary' | 'secondary' | 'warning' | 'success';
@@ -53,13 +53,17 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         {(subtitle || chips.length > 0) && (
           <View style={styles.metaRow}>
             {subtitle && (
-              <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
+              typeof subtitle === 'string' ? (
+                <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
+              ) : (
+                <View style={subtitleStyle}>{subtitle}</View>
+              )
             )}
 
             {chips.map((chip, index) => {
               const chipVariant = chip.variant || 'primary';
-              let chipStyle = styles.chip;
-              let chipTextStyle = styles.chipText;
+              let chipStyle: ViewStyle[] = [styles.chip];
+              let chipTextStyle: TextStyle[] = [styles.chipText];
 
               if (chipVariant === 'primary') {
                 chipStyle = [styles.chip, styles.chipPrimary];

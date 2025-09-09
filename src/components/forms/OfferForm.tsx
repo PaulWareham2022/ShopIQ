@@ -9,6 +9,7 @@ import { Chip } from '../ui/Chip';
 import { Picker, PickerItem } from '../ui/Picker';
 import { DatePicker } from '../ui/DatePicker';
 import { ShelfLifeWarningBanner } from '../ui/ShelfLifeWarningBanner';
+import { StarRatingInput } from '../ui/StarRating';
 import { OfferInput } from '../../storage/repositories/OfferRepository';
 import { InventoryItem } from '../../storage/types';
 import { Supplier } from '../../storage/types';
@@ -55,8 +56,7 @@ const SOURCE_TYPES: Array<{
   { label: 'API Import', value: 'api' },
 ];
 
-// Quality rating options (1-5 stars)
-const QUALITY_RATINGS = [1, 2, 3, 4, 5];
+// Quality rating is now handled by StarRating component
 
 // Interface for computed price metrics
 interface PriceMetrics {
@@ -737,20 +737,23 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 )}
 
                 {/* Quality Rating */}
-                <View>
-                  <Text style={styles.label}>Quality Rating (1-5)</Text>
-                  <View style={styles.chipContainer}>
-                    {QUALITY_RATINGS.map(rating => (
-                      <Chip
-                        key={rating}
-                        label={`${rating} ⭐`}
-                        variant="default"
-                        onPress={() => {
-                          setFieldValue('qualityRating', rating.toString());
-                        }}
-                      />
-                    ))}
-                  </View>
+                <View style={styles.ratingSection}>
+                  <Text style={styles.ratingLabel}>Quality Rating (1-5 stars)</Text>
+                  <StarRatingInput
+                    rating={Number(values.qualityRating) || 0}
+                    onRatingChange={(rating) => setFieldValue('qualityRating', rating.toString())}
+                    starSize={28}
+                    testID="offer-form-quality-rating"
+                  />
+                  {Number(values.qualityRating) > 0 && (
+                    <Text style={styles.ratingDescription}>
+                      {Number(values.qualityRating) === 1 && 'Poor quality'}
+                      {Number(values.qualityRating) === 2 && 'Below average'}
+                      {Number(values.qualityRating) === 3 && 'Average quality'}
+                      {Number(values.qualityRating) === 4 && 'Good quality'}
+                      {Number(values.qualityRating) === 5 && 'Excellent quality'}
+                    </Text>
+                  )}
                 </View>
 
                 {/* Optional Fields */}
@@ -1004,5 +1007,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.error,
     textAlign: 'center',
+  },
+  // Rating section styles
+  ratingSection: {
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  ratingLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.darkText,
+    marginBottom: 12,
+  },
+  ratingDescription: {
+    fontSize: 14,
+    color: colors.grayText,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });

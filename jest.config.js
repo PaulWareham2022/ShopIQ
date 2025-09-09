@@ -28,6 +28,8 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^react-native-svg$': '<rootDir>/src/__mocks__/react-native-svg.js',
+    '^react-native-star-rating-widget$': '<rootDir>/src/__mocks__/react-native-star-rating-widget.js',
   },
   globals: {
     __DEV__: false,

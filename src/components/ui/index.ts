@@ -44,6 +44,16 @@ export type {
 export { ShelfLifeWarningBanner } from './ShelfLifeWarningBanner';
 export type { ShelfLifeWarningBannerProps } from './ShelfLifeWarningBanner';
 
+// Rating Components
+export { 
+  StarRatingComponent,
+  SupplierRating,
+  QualityRating,
+  StarRatingDisplay,
+  StarRatingInput
+} from './StarRating';
+export type { StarRatingProps } from './StarRating';
+
 // Layout Components
 export { Header } from './Header';
 export { Screen } from './Screen';

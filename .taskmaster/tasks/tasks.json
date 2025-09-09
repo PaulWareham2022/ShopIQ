@@ -637,7 +637,51 @@
           10
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update SQLite Schema for Rating and Notes",
+            "description": "Modify the SQLite database schema to add optional 'rating' (integer, 1–5) and 'notes' (text) fields to both the offers and suppliers tables. Ensure backward compatibility and data migration if necessary.",
+            "dependencies": [],
+            "details": "Use ALTER TABLE statements to add 'rating' and 'notes' columns to existing tables. Verify schema changes using PRAGMA table_info and test with sample data.\n<info added on 2025-09-08T20:47:54.046Z>\n✅ Task 11.1 Implementation Complete\n\nWhat was implemented:\n1. TypeScript Interface Update: Added `rating?: number` field to the `Supplier` interface in `src/storage/types/index.ts`\n2. Database Schema Update: Added `rating INTEGER CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5))` column to the `suppliers` table schema in `src/storage/sqlite/schemas.ts`\n3. Migration System: Created migration `002_add_supplier_rating.ts` to add the rating column to existing databases\n4. Repository Updates: Updated `SupplierRepository.ts` to handle the new rating field in both `mapRowToEntity` and `mapEntityToRow` methods\n5. Web Database Mock: Updated the web database mock in `database.ts` to handle the rating field in supplier operations\n6. Migration Registration: Registered the new migration in the migration system\n\nKey Implementation Details:\n- The rating field is optional (nullable) and constrained to values 1-5\n- Both `offers` and `suppliers` tables now have rating and notes fields as required\n- The migration system is properly integrated and will run automatically on app startup\n- Backward compatibility is maintained - existing data will have NULL ratings\n- The migration includes proper rollback support\n\nFiles Modified:\n- `src/storage/types/index.ts` - Added rating field to Supplier interface\n- `src/storage/sqlite/schemas.ts` - Added rating column to suppliers table schema\n- `src/storage/migrations/002_add_supplier_rating.ts` - New migration file\n- `src/storage/migrations/index.ts` - Registered the migration\n- `src/storage/repositories/SupplierRepository.ts` - Updated mapping methods\n- `src/storage/sqlite/database.ts` - Updated web database mock\n- `src/storage/RepositoryFactory.ts` - Re-enabled migration system\n\nTesting:\n- Created test script `test-migration.ts` to verify the migration works correctly\n- All linting checks pass\n- Migration system is properly integrated and will run on app startup\n\nThe implementation follows the task requirements exactly: both offers and suppliers tables now have optional rating (1-5) and notes fields, with proper backward compatibility and data migration support.\n</info added on 2025-09-08T20:47:54.046Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Integrate Star Rating UI Component",
+            "description": "Implement the star rating UI using react-native-star-rating-widget or a similar component, ensuring it supports 1–5 star selection and is reusable for both offers and suppliers.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Configure the component for controlled input, accessibility, and visual consistency. Prepare for integration into forms and views.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Rating and Notes Fields to Offer and Supplier Forms",
+            "description": "Extend the offer and supplier forms to include the new rating (using the star rating component) and notes fields, ensuring proper validation and optional entry.",
+            "dependencies": [
+              "11.1",
+              "11.2"
+            ],
+            "details": "Bind form fields to the SQLite-backed model. Ensure that changes are persisted and loaded correctly for editing existing records.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Display Rating and Notes in Comparison and Detail Views",
+            "description": "Update the comparison and detail views for offers and suppliers to display the stored rating (as stars) and notes, ensuring clear presentation and read-only state.",
+            "dependencies": [
+              "11.3"
+            ],
+            "details": "Test display logic for both new and legacy records. Ensure UI consistency and handle cases where fields are empty.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 12,
@@ -818,7 +862,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-08T20:38:38.123Z",
+      "updated": "2025-09-09T00:07:11.150Z",
       "description": "Tasks for master context"
     }
   }

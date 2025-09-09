@@ -9,6 +9,7 @@ import {
   ItemCard,
   EmptyState,
   FloatingActionButton,
+  SupplierRating,
 } from '../../components/ui';
 
 interface SupplierListScreenProps {
@@ -114,9 +115,22 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
         : []),
     ];
 
+    // Create subtitle with rating if available
+    const subtitle = item.rating ? (
+      <View style={styles.ratingContainer}>
+        <SupplierRating 
+          rating={item.rating} 
+          starSize={16}
+          showRatingNumber={true}
+          testID={`supplier-${item.id}-rating`}
+        />
+      </View>
+    ) : undefined;
+
     return (
       <ItemCard
         title={item.name}
+        subtitle={subtitle}
         chips={chips}
         notes={item.notes}
         onPress={() => onSupplierPress(item)}
@@ -196,5 +210,8 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 20,
     paddingBottom: 100, // Space for FAB
+  },
+  ratingContainer: {
+    marginTop: 4,
   },
 });

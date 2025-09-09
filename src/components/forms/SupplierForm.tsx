@@ -19,6 +19,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Switch } from '../ui/Switch';
 import { Chip } from '../ui/Chip';
+import { StarRatingInput } from '../ui/StarRating';
 
 interface SupplierFormProps {
   initialValues?: Partial<Supplier>;
@@ -41,6 +42,7 @@ interface FormValues {
   pickupAvailable: boolean;
   urlPatterns: string;
   notes: string;
+  rating: number;
 }
 
 // Common country codes for quick selection
@@ -79,6 +81,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     pickupAvailable: initialValues?.shippingPolicy?.pickupAvailable || false,
     urlPatterns: initialValues?.urlPatterns?.join(', ') || '',
     notes: initialValues?.notes || '',
+    rating: initialValues?.rating || 0,
   });
 
   const validateForm = (values: FormValues) => {
@@ -162,6 +165,11 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         'Shipping per-item cost must be a non-negative number';
     }
 
+    // Validate rating
+    if (values.rating < 0 || values.rating > 5) {
+      errors.rating = 'Rating must be between 0 and 5';
+    }
+
     return errors;
   };
 
@@ -210,6 +218,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         shippingPolicy,
         urlPatterns,
         notes: values.notes.trim() || undefined,
+        rating: values.rating > 0 ? values.rating : undefined,
         created_at: initialValues?.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
         deleted_at: undefined,
@@ -467,6 +476,27 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 inputStyle={styles.textArea}
               />
 
+              {/* Rating Section */}
+              <Text style={styles.sectionTitle}>Quality Rating</Text>
+              <View style={styles.ratingSection}>
+                <Text style={styles.ratingLabel}>Rate this supplier (1-5 stars)</Text>
+                <StarRatingInput
+                  rating={values.rating}
+                  onRatingChange={(rating) => setFieldValue('rating', rating)}
+                  starSize={28}
+                  testID="supplier-form-rating"
+                />
+                {values.rating > 0 && (
+                  <Text style={styles.ratingDescription}>
+                    {values.rating === 1 && 'Poor quality'}
+                    {values.rating === 2 && 'Below average'}
+                    {values.rating === 3 && 'Average quality'}
+                    {values.rating === 4 && 'Good quality'}
+                    {values.rating === 5 && 'Excellent quality'}
+                  </Text>
+                )}
+              </View>
+
               {/* Notes */}
               <Input
                 label="Notes"
@@ -545,6 +575,22 @@ const styles = StyleSheet.create({
   textArea: {
     height: 80,
     textAlignVertical: 'top',
+  },
+  ratingSection: {
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  ratingLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.darkText,
+    marginBottom: 12,
+  },
+  ratingDescription: {
+    fontSize: 14,
+    color: colors.grayText,
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   buttonContainer: {
     flexDirection: 'row',

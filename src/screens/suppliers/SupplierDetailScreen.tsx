@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Platform } from 'react-native';
 import { colors } from '../../constants/colors';
 import { SupplierRepository } from '../../storage/repositories/SupplierRepository';
 import { Supplier } from '../../storage/types';
 import { SupplierForm } from '../../components/forms/SupplierForm';
 import { ValidatedSupplier } from '../../storage/validation/schemas';
-import { Screen, Header, Button } from '../../components/ui';
+import { Screen, Header, Button, SupplierRating, StarRatingInput } from '../../components/ui';
+import { fixRatingColumn } from '../../storage/fix-rating-column';
 
 interface SupplierDetailScreenProps {
   supplierId?: string;
@@ -22,6 +23,7 @@ export const SupplierDetailScreen: React.FC<SupplierDetailScreenProps> = ({
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [isEditing, setIsEditing] = useState(!supplierId); // New supplier if no ID provided
   const [loading, setLoading] = useState(!!supplierId); // Only load if editing existing supplier
+  const [isEditingRating, setIsEditingRating] = useState(false);
   const [repository] = useState(() => new SupplierRepository());
 
   const loadSupplier = useCallback(async () => {
@@ -61,6 +63,7 @@ export const SupplierDetailScreen: React.FC<SupplierDetailScreenProps> = ({
         shippingPolicy: values.shippingPolicy,
         urlPatterns: values.urlPatterns,
         notes: values.notes,
+        rating: values.rating,
       };
 
       if (supplierId) {
@@ -73,6 +76,64 @@ export const SupplierDetailScreen: React.FC<SupplierDetailScreenProps> = ({
       onSupplierSaved();
     } catch {
       Alert.alert('Error', 'Failed to save supplier');
+    }
+  };
+
+  const handleRatingUpdate = async (newRating: number) => {
+    if (!supplier) return;
+    
+    try {
+      const updatedSupplier = await repository.update(supplier.id, { rating: newRating });
+      if (updatedSupplier) {
+        setSupplier(updatedSupplier);
+        setIsEditingRating(false);
+      } else {
+        // Rating update was skipped (column doesn't exist)
+        Alert.alert(
+          'Rating Not Available', 
+          'Rating functionality is not available in this version. Please update the app to use rating features.'
+        );
+      }
+    } catch (error) {
+      console.error('Rating update error:', error);
+      // Provide more specific error messages
+      let errorMessage = 'Unknown error';
+      if (error.message) {
+        if (error.message.includes('no such column') || error.message.includes('database needs to be updated')) {
+          errorMessage = 'Rating feature is not available. The database needs to be updated.';
+          // Offer to fix the issue
+          Alert.alert(
+            'Rating Not Available',
+            'The rating feature is not available because the database needs to be updated. Would you like to try to fix this now?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Fix Now', onPress: handleFixRatingColumn }
+            ]
+          );
+          return;
+        } else if (error.message.includes('CHECK constraint')) {
+          errorMessage = 'Invalid rating value. Please select a rating between 0-5.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      Alert.alert('Error', `Failed to update rating: ${errorMessage}`);
+    }
+  };
+
+  const handleFixRatingColumn = async () => {
+    try {
+      Alert.alert('Fixing Rating Column', 'Attempting to fix the rating column...');
+      const result = await fixRatingColumn();
+      
+      if (result.success) {
+        Alert.alert('Success', result.message);
+      } else {
+        Alert.alert('Failed', result.message);
+      }
+    } catch (error) {
+      console.error('Failed to fix rating column:', error);
+      Alert.alert('Error', 'Failed to fix rating column. Please try again or contact support.');
     }
   };
 
@@ -244,6 +305,87 @@ export const SupplierDetailScreen: React.FC<SupplierDetailScreenProps> = ({
             </View>
           )}
 
+          {/* Rating Section - Updated Layout */}
+          <View style={styles.ratingRow}>
+            <Text style={styles.detailLabel}>Rating:</Text>
+            <View style={styles.ratingSection}>
+              {isEditingRating ? (
+                <View style={{
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  width: '100%',
+                  gap: 16,
+                }}>
+                  <Text style={{
+                    fontSize: 14,
+                    color: colors.grayText,
+                    marginBottom: 8,
+                    fontWeight: '500',
+                  }}>Tap a star to rate:</Text>
+                  <View style={{
+                    width: '100%',
+                    paddingVertical: 12,
+                    paddingHorizontal: 4,
+                  }}>
+                    <StarRatingInput
+                      rating={supplier?.rating || 0}
+                      onRatingChange={handleRatingUpdate}
+                      starSize={32}
+                      showNoRating={false}
+                      testID="supplier-rating-edit"
+                    />
+                  </View>
+                  <View style={{
+                    alignSelf: 'flex-end',
+                    marginTop: 8,
+                  }}>
+                    <Button
+                      title="Cancel"
+                      variant="secondary"
+                      onPress={() => setIsEditingRating(false)}
+                      style={styles.ratingButton}
+                    />
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.ratingDisplayContainer}>
+                  {supplier?.rating ? (
+                    <>
+                      <SupplierRating
+                        rating={supplier.rating}
+                        starSize={20}
+                        showRatingNumber={true}
+                        testID="supplier-rating-display"
+                      />
+                      <Button
+                        title="Edit"
+                        variant="secondary"
+                        onPress={() => setIsEditingRating(true)}
+                        style={styles.ratingButton}
+                      />
+                    </>
+                  ) : (
+                    <View style={styles.ratingDisplayContainer}>
+                      <SupplierRating
+                        rating={0}
+                        starSize={20}
+                        showRatingNumber={false}
+                        testID="supplier-rating-empty"
+                      />
+                      <TouchableOpacity
+                        onPress={() => setIsEditingRating(true)}
+                        style={styles.addRatingButton}
+                        testID="add-rating-button"
+                      >
+                        <Text style={styles.addRatingIcon}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          </View>
+
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Created:</Text>
             <Text style={styles.detailValue}>
@@ -333,5 +475,42 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 0,
+  },
+  ratingRow: {
+    marginBottom: 16, // Give more space for the rating section
+  },
+  ratingSection: {
+    flex: 1,
+    minWidth: 0, // Allow flex shrinking
+  },
+  ratingDisplayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  ratingButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    minWidth: 70,
+    flexShrink: 0,
+  },
+  addRatingButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  addRatingIcon: {
+    fontSize: 18,
+    fontWeight: '300',
+    color: colors.white,
+    lineHeight: 18,
   },
 });

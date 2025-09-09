@@ -40,6 +40,9 @@ export const SUPPLIERS_SCHEMA = `
     -- Free-form notes
     notes TEXT,
     
+    -- Personal quality rating 0–5 for supplier reliability/quality (0 = no rating)
+    rating INTEGER CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
+    
     -- Standard timestamps
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),

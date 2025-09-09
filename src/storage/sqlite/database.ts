@@ -124,8 +124,9 @@ class WebDatabase {
               shipping_policy: params?.[8] || null,
               url_patterns: params?.[9] || null,
               notes: params?.[10] || null,
-              created_at: params?.[11] || new Date().toISOString(),
-              updated_at: params?.[12] || new Date().toISOString(),
+              rating: params?.[11] || null,
+              created_at: params?.[12] || new Date().toISOString(),
+              updated_at: params?.[13] || new Date().toISOString(),
               deleted_at: null,
             };
             suppliers.push(newSupplier);
@@ -194,25 +195,40 @@ class WebDatabase {
                 changes: 1,
               });
             }
-          } else if (sql.includes('UPDATE suppliers SET name = ?')) {
-            // Mock supplier update
+          } else if (sql.includes('UPDATE suppliers SET')) {
+            // Mock supplier update - handle any UPDATE statement for suppliers
+            console.log('Web mock handling UPDATE suppliers:', sql);
+            console.log('Web mock UPDATE params:', params);
+            
             const tableName = 'suppliers';
             const suppliers = this.mockData.get(tableName) || [];
-            const supplierId = params?.[8]; // ID is the last parameter
-            const updatedAt = params?.[7];
+            const supplierId = params?.[params.length - 1]; // ID is the last parameter
 
+            console.log('Web mock looking for supplier ID:', supplierId);
             const supplierIndex = suppliers.findIndex(s => s.id === supplierId);
+            console.log('Web mock found supplier at index:', supplierIndex);
+            
             if (supplierIndex !== -1) {
-              suppliers[supplierIndex] = {
-                ...suppliers[supplierIndex],
-                name: params?.[0],
-                website: params?.[1],
-                notes: params?.[2],
-                shipping_policy: params?.[3],
-                quality_rating: params?.[4],
-                created_at: params?.[5],
-                updated_at: updatedAt,
-              };
+              // Parse the SET clause to understand which fields are being updated
+              const setClause = sql.match(/SET\s+(.+?)\s+WHERE/)?.[1];
+              console.log('Web mock SET clause:', setClause);
+              
+              if (setClause) {
+                const fields = setClause.split(',').map(f => f.trim().split('=')[0].trim());
+                console.log('Web mock fields to update:', fields);
+                
+                // Update the supplier with the provided values
+                const updatedSupplier = { ...suppliers[supplierIndex] };
+                fields.forEach((field, index) => {
+                  if (params && params[index] !== undefined) {
+                    console.log(`Web mock updating field ${field} with value:`, params[index]);
+                    updatedSupplier[field] = params[index];
+                  }
+                });
+                
+                console.log('Web mock updated supplier:', updatedSupplier);
+                suppliers[supplierIndex] = updatedSupplier;
+              }
             }
 
             if (successCb) {

@@ -358,6 +358,8 @@ export abstract class BaseRepository<T extends BaseEntity>
       };
 
       const row = this.mapEntityToRow(updatedEntity);
+      console.log('BaseRepository.update - mapped row:', row);
+      
       const setClause = Object.keys(row)
         .filter(key => key !== 'id')
         .map(key => `${key} = ?`)
@@ -369,8 +371,11 @@ export abstract class BaseRepository<T extends BaseEntity>
       values.push(id);
 
       const sql = `UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`;
+      console.log('BaseRepository.update - SQL:', sql);
+      console.log('BaseRepository.update - values:', values);
 
       const result = await executeSql(sql, values);
+      console.log('BaseRepository.update - result:', result);
 
       if (result.rowsAffected === 0) {
         throw new EntityNotFoundError(this.tableName, id);

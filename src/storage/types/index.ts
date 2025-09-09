@@ -209,6 +209,9 @@ export interface Supplier extends BaseEntity {
 
   /** Free text for any operational caveats */
   notes?: string;
+
+  /** Personal quality rating 1–5 for supplier reliability/quality */
+  rating?: number;
 }
 
 // =============================================================================

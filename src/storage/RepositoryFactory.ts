@@ -165,9 +165,8 @@ export class RepositoryFactory implements IRepositoryFactory {
       // Initialize SQLite database
       await initializeDatabase();
 
-      // Skip migration system for now - it's causing issues with example migrations
-      // TODO: Re-enable when we have proper migrations or remove example migrations
-      // await this.initializeMigrations();
+      // Initialize and run migrations
+      await this.initializeMigrations();
 
       this.initialized = true;
 

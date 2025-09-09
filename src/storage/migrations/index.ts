@@ -25,6 +25,9 @@ export { MigrationManager, migrationManager } from './MigrationManager';
 export { migration001 } from './examples/001_add_supplier_contact_info';
 export { migration001Data } from './examples/001_migrate_user_preferences_v2';
 
+// Production migrations
+export { migration002 } from './002_add_supplier_rating';
+
 // Convenience functions for setting up migrations
 import { migrationRegistry } from './MigrationRegistry';
 import { migrationManager } from './MigrationManager';
@@ -56,10 +59,14 @@ export const initializeMigrationSystem = async (): Promise<void> => {
         const { migration001Data } = await import(
           './examples/001_migrate_user_preferences_v2'
         );
+        const { migration002 } = await import(
+          './002_add_supplier_rating'
+        );
 
         // Register migrations with error handling
         migrationRegistry.register(migration001);
         migrationRegistry.register(migration001Data);
+        migrationRegistry.register(migration002);
       } catch (importError) {
         if (typeof __DEV__ !== 'undefined' && __DEV__) {
           console.warn(

@@ -19,7 +19,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Switch } from '../ui/Switch';
 import { Chip } from '../ui/Chip';
-import { StarRatingInput } from '../ui/StarRating';
+import { StarRatingInput } from '../ui';
 
 interface SupplierFormProps {
   initialValues?: Partial<Supplier>;
@@ -479,10 +479,12 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               {/* Rating Section */}
               <Text style={styles.sectionTitle}>Quality Rating</Text>
               <View style={styles.ratingSection}>
-                <Text style={styles.ratingLabel}>Rate this supplier (1-5 stars)</Text>
+                <Text style={styles.ratingLabel}>
+                  Rate this supplier (1-5 stars)
+                </Text>
                 <StarRatingInput
                   rating={values.rating}
-                  onRatingChange={(rating) => setFieldValue('rating', rating)}
+                  onRatingChange={rating => setFieldValue('rating', rating)}
                   starSize={28}
                   testID="supplier-form-rating"
                 />

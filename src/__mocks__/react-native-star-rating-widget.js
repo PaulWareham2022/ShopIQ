@@ -10,8 +10,8 @@ const StarRating = ({
   starSize = 20,
   color = '#FFD700',
   emptyColor = '#E0E0E0',
-  enableHalfStar = false,
-  enableSwiping = false,
+  enableHalfStar: _enableHalfStar = false,
+  enableSwiping: _enableSwiping = false,
   starStyle = {},
   testID,
   ...props
@@ -47,5 +47,7 @@ const StarRating = ({
   }, ...stars);
 };
 
+// eslint-disable-next-line no-undef
 module.exports = StarRating;
+// eslint-disable-next-line no-undef
 module.exports.default = StarRating;

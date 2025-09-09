@@ -636,7 +636,7 @@
         "dependencies": [
           10
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -667,7 +667,7 @@
               "11.2"
             ],
             "details": "Bind form fields to the SQLite-backed model. Ensure that changes are persisted and loaded correctly for editing existing records.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -678,7 +678,7 @@
               "11.3"
             ],
             "details": "Test display logic for both new and legacy records. Ensure UI consistency and handle cases where fields are empty.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -694,7 +694,63 @@
           11
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Analyze and Minimize Required Fields",
+            "description": "Review offer and inventory entry forms to identify and reduce the number of required fields to the absolute minimum necessary for ultra-fast capture, ensuring compliance with PRD requirements.",
+            "dependencies": [],
+            "details": "Audit current forms, consult PRD, and validate with stakeholders which fields are essential. Remove or make optional any non-critical fields. Document the final set of required fields for both offer and inventory forms.\n<info added on 2025-09-09T01:37:29.358Z>\nInitiated systematic review of Offer and Inventory Item forms to identify opportunities for further reduction of required fields, in line with PRD’s ultra-fast capture mandate. Evaluating each field for essentiality, prioritizing elimination of non-critical inputs, and exploring automation or smart defaults where possible. Will document proposed changes and rationale for each field, referencing best practices such as the EAS (Eliminate, Automate, Simplify) framework and industry guidance on minimizing user effort and maximizing completion rates.\n</info added on 2025-09-09T01:37:29.358Z>\n<info added on 2025-09-09T01:46:37.730Z>\nCurrent Required Fields Analysis Complete\n\nOffer Form Required Fields (6 total):\n1. Inventory Item (Picker) - Links offer to tracked item\n2. Supplier (Picker) - Identifies source of offer\n3. Total Price (Input) - Core pricing data\n4. Currency (Input) - Required for price normalization\n5. Amount (Input) - Quantity purchased\n6. Amount Unit (Input) - Unit for quantity normalization\n\nInventory Item Form Required Fields (2 total):\n1. Item Name (Input) - Human-readable identifier\n2. Unit (UnitSelector) - Canonical unit for price normalization\n\nCurrent Optional Fields in Offer Form:\n- Source Type (defaults to 'manual')\n- Observed Date (defaults to current time)\n- Tax Information (defaults to tax included)\n- Shipping Information (defaults to not included)\n- Quality Rating (optional)\n- Supplier URL, Source URL, Photo URI, Notes (all optional)\n\nCurrent Optional Fields in Inventory Form:\n- Category, Shelf Life settings, Usage Rate, Notes (all optional)\n\nInitial Assessment: The forms are already quite minimal with only 6 required fields for offers and 2 for inventory items. However, there are opportunities for further optimization based on the PRD's ultra-fast capture mandate.\n</info added on 2025-09-09T01:46:37.730Z>\n<info added on 2025-09-09T01:47:04.531Z>\nEAS Framework Analysis and Proposed Optimizations\n\nELIMINATE – Fields to Remove:\n- Currency (Required → Auto-populated): Each supplier has a defaultCurrency in the data model, so this field can be auto-populated based on the selected supplier, reducing required fields from 6 to 5 and streamlining user input.\n\nAUTOMATE – Smart Defaults:\n- Amount Unit (Required → Smart Default): Since most offers use the inventory item's canonical unit, pre-fill this field with the inventory item's unit upon selection, while still allowing override. This reduces manual entry and helps prevent unit mismatches.\n\nSIMPLIFY – Already Well Optimized:\n- Source Type, Observed Date, and Tax Information already default to sensible values, and all optional fields are correctly marked.\n\nPROPOSED ULTRA-FAST OFFER FORM (4 required fields):\n- Inventory Item (Picker)\n- Supplier (Picker)\n- Total Price (Input)\n- Amount (Input)\n\nAUTO-POPULATED FIELDS:\n- Currency (from supplier's defaultCurrency)\n- Amount Unit (from inventory item's canonical unit, with override option)\n\nIMPACT:\n- 33% reduction in required fields (from 6 to 4)\n- Maintains all essential data for price normalization\n- Strongly aligns with PRD’s ultra-fast capture mandate\n- Reduces user cognitive load and data entry time, supporting best practices for form optimization and conversion rates\n</info added on 2025-09-09T01:47:04.531Z>\n<info added on 2025-09-09T01:48:01.865Z>\nImplementation of ultra-fast capture form optimizations is now complete. The Offer form now requires only four fields: Inventory Item, Supplier, Total Price, and Amount. Currency and Amount Unit fields are auto-populated based on supplier and inventory item selection, with user override supported. Validation schema and form logic have been updated to reflect these changes, resulting in a 33% reduction in required fields and full alignment with the PRD’s ultra-fast capture requirements.\n</info added on 2025-09-09T01:48:01.865Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Keyboard Shortcuts and Auto-Focus",
+            "description": "Enhance form usability by adding keyboard shortcuts for navigation and actions, and ensure auto-focus behavior for rapid data entry.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Define and implement keyboard shortcuts for field navigation and form submission. Set up auto-focus to move to the next logical field after entry. Test for smooth keyboard-only flow and accessibility.\n<info added on 2025-09-09T10:41:14.576Z>\nMobile refactoring completed: Desktop-only keyboard shortcuts and navigation handlers have been removed to align with mobile UX standards. Mobile-specific enhancements include auto-focus progression using the \"Next\" button, smart keyboard type detection (numeric, email), optimized auto-capitalization, and disabled auto-correction for technical fields. Mobile-appropriate help text guides users to tap \"Next\" to move between fields. Documentation now includes a comprehensive \"Mobile Form Optimization Guidelines\" section, mobile patterns/anti-patterns, and a future enhancement roadmap. All tests pass, and the codebase features a mobile-optimized useFormFocus hook and enhanced Input component for mobile keyboard intelligence. The implementation now prioritizes mobile-first patterns for touch devices, removing desktop-specific optimizations irrelevant to React Native apps.\n</info added on 2025-09-09T10:41:14.576Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Add Smart Unit Defaults by Item Type",
+            "description": "Configure forms to automatically select the most likely unit for each item type, reducing manual input and errors.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Map item types to canonical units. Implement logic to pre-fill or suggest units based on selected item. Ensure unit conversion and defaulting logic aligns with PRD and normalization requirements.\n<info added on 2025-09-09T10:43:37.450Z>\nSmart unit defaults are now fully implemented for both OfferForm and InventoryItemForm, featuring a TypeScript utility for pattern-based and category-based unit suggestions, confidence scoring, and canonical unit support. The forms provide real-time, mobile-optimized chip-based suggestions, auto-hide behavior, and contextual labeling. OfferForm additionally suggests alternative units for flexibility. Technical implementation includes type safety, efficient pattern matching, confidence-based ranking, and seamless integration with form validation and state management, meeting all PRD requirements for smart unit defaults.\n</info added on 2025-09-09T10:43:37.450Z>",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Use Performant Form Components",
+            "description": "Refactor forms to use high-performance components from React Native Paper or NativeBase, optimizing for rendering speed and responsiveness.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Replace existing form fields with components from the chosen UI library. Ensure compatibility with keyboard shortcuts, auto-focus, and smart defaults. Profile component rendering to avoid unnecessary re-renders.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Profile and Optimize Form Latency",
+            "description": "Measure and minimize form latency, ensuring ultra-fast interaction and submission as required by the PRD.",
+            "dependencies": [
+              "12.2",
+              "12.3",
+              "12.4"
+            ],
+            "details": "Use React DevTools and performance profiling tools to measure form render and interaction times. Identify bottlenecks (e.g., excessive re-renders, slow validation). Apply optimizations such as state colocation, memoization, and minimal re-rendering. Validate improvements with E2E and usability tests.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 13,
@@ -862,7 +918,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-09T00:07:11.150Z",
+      "updated": "2025-09-09T10:50:12.837Z",
       "description": "Tasks for master context"
     }
   }

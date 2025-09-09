@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Alert, 
+  KeyboardAvoidingView, 
+  Platform 
+} from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { Switch } from '../ui/Switch';
+import { OptimizedButton } from '../ui/OptimizedButton';
+import { OptimizedInput } from '../ui/OptimizedInput';
+import { OptimizedSwitch } from '../ui/OptimizedSwitch';
 import { Chip } from '../ui/Chip';
-import { Picker, PickerItem } from '../ui/Picker';
+import { OptimizedPicker, OptimizedPickerItem } from '../ui/OptimizedPicker';
 import { DatePicker } from '../ui/DatePicker';
 import { ShelfLifeWarningBanner } from '../ui/ShelfLifeWarningBanner';
 import { StarRatingInput } from '../ui/StarRating';
@@ -29,6 +37,8 @@ import {
   analyzeShelfLifeWarning,
   ShelfLifeWarningResult,
 } from '../../storage/utils/shelf-life-warnings';
+import { getSmartUnitSuggestions } from '../../storage/utils/smart-unit-defaults';
+import { useFormFocus } from '../../hooks/useFormFocus';
 
 interface OfferFormProps {
   initialValues?: Partial<OfferInput>;
@@ -176,6 +186,66 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     !propInventoryItems || !propSuppliers
   );
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [smartUnitSuggestions, setSmartUnitSuggestions] = useState<string[]>([]);
+  const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Form focus management
+  const fieldOrder = [
+    'inventoryItemId',
+    'supplierId', 
+    'totalPrice',
+    'amount',
+    'amountUnit',
+    'currency',
+    'taxRate',
+    'shippingCost',
+    'supplierUrl',
+    'sourceUrl',
+    'photoUri',
+    'notes'
+  ];
+
+  const formFocus = useFormFocus({
+    fieldOrder,
+    onSubmit: () => {
+      // This will be handled by Formik's handleSubmit
+    },
+    onCancel,
+  });
+
+  // Handle notes field focus with automatic scrolling
+  const handleNotesFocus = () => {
+    formFocus.handleFieldFocus('notes');
+    // Scroll to bottom to ensure notes field is visible above keyboard
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 300); // Delay to allow keyboard to appear first
+  };
+
+  // Update smart unit suggestions when inventory item is selected
+  const updateSmartUnitSuggestions = (inventoryItemId: string) => {
+    const selectedItem = inventoryItems.find(item => item.id === inventoryItemId);
+    if (selectedItem) {
+      const suggestions = getSmartUnitSuggestions({
+        itemName: selectedItem.name,
+        category: selectedItem.category,
+        existingCanonicalUnit: selectedItem.canonicalUnit,
+      });
+      
+      // Get alternative units (not the canonical unit) and show top 3
+      const alternativeSuggestions = suggestions
+        .filter(s => s.unit !== selectedItem.canonicalUnit)
+        .slice(0, 3)
+        .map(s => s.unit);
+      
+      setSmartUnitSuggestions(alternativeSuggestions);
+      setShowSmartSuggestions(alternativeSuggestions.length > 0);
+    } else {
+      setSmartUnitSuggestions([]);
+      setShowSmartSuggestions(false);
+    }
+  };
 
   // Fetch data if not provided as props
   useEffect(() => {
@@ -287,6 +357,11 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       const supplierNameSnapshot =
         selectedSupplier?.name || validatedValues.supplierNameSnapshot;
 
+      // Get selected inventory item
+      const selectedInventoryItem = inventoryItems.find(
+        item => item.id === validatedValues.inventoryItemId
+      );
+
       // Debug logging for form submission
       // eslint-disable-next-line no-console
       console.log(
@@ -296,8 +371,16 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       // eslint-disable-next-line no-console
       console.log(
         'OfferForm - Form submission - selected inventory item:',
-        inventoryItems.find(item => item.id === validatedValues.inventoryItemId)
+        selectedInventoryItem
       );
+
+      // Get currency from form or auto-populate from supplier
+      const currency = validatedValues.currency?.trim().toUpperCase() || 
+        selectedSupplier?.defaultCurrency || 'CAD';
+      
+      // Get amount unit from form or auto-populate from inventory item
+      const amountUnit = validatedValues.amountUnit?.trim() || 
+        selectedInventoryItem?.canonicalUnit || 'unit';
 
       // Convert validated form values to OfferInput
       const offerInput: OfferInput = {
@@ -309,7 +392,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         sourceUrl: validatedValues.sourceUrl?.trim() || undefined,
         observedAt: validatedValues.observedAt,
         totalPrice: Number(validatedValues.totalPrice),
-        currency: validatedValues.currency.trim().toUpperCase(),
+        currency: currency,
         isTaxIncluded: validatedValues.isTaxIncluded,
         taxRate: validatedValues.taxRate
           ? Number(validatedValues.taxRate)
@@ -319,7 +402,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
           : undefined,
         shippingIncluded: validatedValues.shippingIncluded,
         amount: Number(validatedValues.amount),
-        amountUnit: validatedValues.amountUnit.trim(),
+        amountUnit: amountUnit,
         qualityRating: validatedValues.qualityRating
           ? Number(validatedValues.qualityRating)
           : undefined,
@@ -336,7 +419,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   };
 
   // Convert data to picker items
-  const inventoryPickerItems: PickerItem[] = inventoryItems.map(item => ({
+  const inventoryPickerItems: OptimizedPickerItem[] = inventoryItems.map(item => ({
     id: item.id,
     label: item.name,
     subtitle: item.category || undefined,
@@ -354,7 +437,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     inventoryPickerItems.map(item => ({ id: item.id, label: item.label }))
   );
 
-  const supplierPickerItems: PickerItem[] = suppliers.map(supplier => ({
+  const supplierPickerItems: OptimizedPickerItem[] = suppliers.map(supplier => ({
     id: supplier.id,
     label: supplier.name,
     subtitle: `${supplier.countryCode}${supplier.regionCode ? ` - ${supplier.regionCode}` : ''}`,
@@ -392,7 +475,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Error Loading Form</Text>
           <Text style={styles.errorMessage}>{loadError}</Text>
-          <Button
+          <OptimizedButton
             title="Retry"
             variant="primary"
             onPress={() => {
@@ -402,6 +485,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               if (!propSuppliers) setSuppliers([]);
             }}
             style={styles.retryButton}
+            testID="offer-form-retry-button"
           />
         </View>
       </View>
@@ -433,30 +517,50 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         const priceMetrics = computePriceMetrics(
           values.totalPrice,
           values.amount,
-          values.amountUnit,
+          values.amountUnit || '',
           values.shippingCost || '0',
           values.shippingIncluded,
           selectedInventoryItem
         );
 
         return (
-          <View style={styles.formWrapper}>
+          <KeyboardAvoidingView 
+            style={styles.formWrapper}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
+          >
             <ScrollView
+              ref={scrollViewRef}
               style={styles.scrollContainer}
               contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
               <View style={styles.form}>
+                {/* Mobile Form Tips */}
+                <View style={styles.mobileTipsContainer}>
+                  <Text style={styles.mobileTipsTitle}>Quick Entry Tips</Text>
+                  <Text style={styles.mobileTipsText}>
+                    Use keyboard "Next" button to move between fields • Currency and units auto-fill from selections
+                  </Text>
+                </View>
+
                 {/* Inventory Item Selection */}
                 <View style={styles.firstFieldContainer}>
-                  <Picker
+                  <OptimizedPicker
                     label="Inventory Item"
                     required
                     value={values.inventoryItemId}
-                    onValueChange={value =>
-                      setFieldValue('inventoryItemId', value)
-                    }
+                    onValueChange={value => {
+                      setFieldValue('inventoryItemId', value);
+                      // Auto-populate amount unit from inventory item's canonical unit
+                      const selectedItem = inventoryItems.find(item => item.id === value);
+                      if (selectedItem?.canonicalUnit && !values.amountUnit) {
+                        setFieldValue('amountUnit', selectedItem.canonicalUnit);
+                      }
+                      // Update smart unit suggestions
+                      updateSmartUnitSuggestions(value);
+                    }}
                     items={inventoryPickerItems}
                     placeholder="Select an inventory item..."
                     error={
@@ -465,15 +569,23 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                         : undefined
                     }
                     emptyText="No inventory items available. Add some items first."
+                    testID="offer-form-inventory-picker"
                   />
                 </View>
 
                 {/* Supplier Selection */}
-                <Picker
+                <OptimizedPicker
                   label="Supplier"
                   required
                   value={values.supplierId}
-                  onValueChange={value => setFieldValue('supplierId', value)}
+                  onValueChange={value => {
+                    setFieldValue('supplierId', value);
+                    // Auto-populate currency from supplier's default currency
+                    const selectedSupplier = suppliers.find(s => s.id === value);
+                    if (selectedSupplier?.defaultCurrency) {
+                      setFieldValue('currency', selectedSupplier.defaultCurrency);
+                    }
+                  }}
                   items={supplierPickerItems}
                   placeholder="Select a supplier..."
                   error={
@@ -482,6 +594,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       : undefined
                   }
                   emptyText="No suppliers available. Add some suppliers first."
+                  testID="offer-form-supplier-picker"
                 />
 
                 {/* Source Type */}
@@ -502,7 +615,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 </View>
 
                 {/* Total Price */}
-                <Input
+                <OptimizedInput
                   label="Total Price"
                   required
                   value={values.totalPrice}
@@ -510,27 +623,36 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   onBlur={handleBlur('totalPrice')}
                   placeholder="Enter total price"
                   keyboardType="numeric"
+                  returnKeyType="next"
+                  fieldName="totalPrice"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={
                     errors.totalPrice && touched.totalPrice
                       ? errors.totalPrice
                       : undefined
                   }
+                  testID="offer-form-total-price"
                 />
 
-                {/* Currency */}
+                {/* Currency - Auto-populated from supplier */}
                 <View>
-                  <Input
+                  <OptimizedInput
                     label="Currency"
-                    required
                     value={values.currency}
                     onChangeText={text => {
                       const upperText = text.toUpperCase();
                       setFieldValue('currency', upperText);
                     }}
                     onBlur={handleBlur('currency')}
-                    placeholder="e.g., CAD, USD, EUR"
+                    placeholder="Auto-filled from supplier"
                     maxLength={3}
                     autoCapitalize="characters"
+                    editable={true}
+                    returnKeyType="next"
+                    fieldName="currency"
+                    onSubmitEditing={formFocus.handleSubmitEditing}
+                    onFocus={formFocus.handleFieldFocus}
                     error={
                       errors.currency && touched.currency
                         ? errors.currency
@@ -554,7 +676,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 {/* Amount and Unit */}
                 <View style={styles.rowContainer}>
                   <View style={styles.halfWidth}>
-                    <Input
+                    <OptimizedInput
                       label="Amount"
                       required
                       value={values.amount}
@@ -562,6 +684,10 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       onBlur={handleBlur('amount')}
                       placeholder="Quantity"
                       keyboardType="numeric"
+                      returnKeyType="next"
+                      fieldName="amount"
+                      onSubmitEditing={formFocus.handleSubmitEditing}
+                      onFocus={formFocus.handleFieldFocus}
                       error={
                         errors.amount && touched.amount
                           ? errors.amount
@@ -570,15 +696,18 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                     />
                   </View>
                   <View style={styles.halfWidth}>
-                    <Input
+                    <OptimizedInput
                       label="Unit"
-                      required
                       value={values.amountUnit}
                       onChangeText={handleChange('amountUnit')}
                       onBlur={handleBlur('amountUnit')}
-                      placeholder="e.g., kg, L, unit"
+                      placeholder={selectedInventoryItem?.canonicalUnit || "e.g., kg, L, unit"}
                       autoCapitalize="none"
                       autoCorrect={false}
+                      returnKeyType="next"
+                      fieldName="amountUnit"
+                      onSubmitEditing={formFocus.handleSubmitEditing}
+                      onFocus={formFocus.handleFieldFocus}
                       error={
                         errors.amountUnit && touched.amountUnit
                           ? errors.amountUnit
@@ -587,6 +716,29 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                     />
                   </View>
                 </View>
+
+                {/* Smart Unit Suggestions */}
+                {showSmartSuggestions && smartUnitSuggestions.length > 0 && selectedInventoryItem && (
+                  <View style={styles.smartSuggestionsContainer}>
+                    <Text style={styles.smartSuggestionsLabel}>
+                      Alternative units for "{selectedInventoryItem.name}":
+                    </Text>
+                    <View style={styles.smartSuggestionsChips}>
+                      {smartUnitSuggestions.map((unit) => (
+                        <Chip
+                          key={unit}
+                          label={unit}
+                          variant="default"
+                          onPress={() => {
+                            setFieldValue('amountUnit', unit);
+                            setShowSmartSuggestions(false); // Hide suggestions after selection
+                          }}
+                          style={styles.smartSuggestionChip}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                )}
 
                 {/* Shelf-Life Warning Banner */}
                 {priceMetrics.shelfLifeWarning?.shouldShowWarning && (
@@ -662,7 +814,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 {/* Unit Error Display */}
                 {!priceMetrics.isValidUnit &&
                   priceMetrics.unitError &&
-                  values.amountUnit.trim() && (
+                  values.amountUnit?.trim() && (
                     <View style={styles.unitErrorContainer}>
                       <Text style={styles.unitErrorText}>
                         {priceMetrics.unitError}
@@ -687,20 +839,25 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 {/* Tax Information */}
                 <Text style={styles.sectionTitle}>Tax Information</Text>
 
-                <Switch
+                <OptimizedSwitch
                   label="Tax Included in Price"
                   value={values.isTaxIncluded}
                   onValueChange={value => setFieldValue('isTaxIncluded', value)}
+                  testID="offer-form-tax-included"
                 />
 
                 {!values.isTaxIncluded && (
-                  <Input
+                  <OptimizedInput
                     label="Tax Rate"
                     value={values.taxRate}
                     onChangeText={handleChange('taxRate')}
                     onBlur={handleBlur('taxRate')}
                     placeholder="e.g., 0.15 for 15%"
                     keyboardType="numeric"
+                    returnKeyType="next"
+                    fieldName="taxRate"
+                    onSubmitEditing={formFocus.handleSubmitEditing}
+                    onFocus={formFocus.handleFieldFocus}
                     error={
                       errors.taxRate && touched.taxRate
                         ? errors.taxRate
@@ -712,22 +869,27 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 {/* Shipping Information */}
                 <Text style={styles.sectionTitle}>Shipping Information</Text>
 
-                <Switch
+                <OptimizedSwitch
                   label="Shipping Included"
                   value={values.shippingIncluded}
                   onValueChange={value =>
                     setFieldValue('shippingIncluded', value)
                   }
+                  testID="offer-form-shipping-included"
                 />
 
                 {!values.shippingIncluded && (
-                  <Input
+                  <OptimizedInput
                     label="Shipping Cost"
                     value={values.shippingCost}
                     onChangeText={handleChange('shippingCost')}
                     onBlur={handleBlur('shippingCost')}
                     placeholder="Enter shipping cost"
                     keyboardType="numeric"
+                    returnKeyType="next"
+                    fieldName="shippingCost"
+                    onSubmitEditing={formFocus.handleSubmitEditing}
+                    onFocus={formFocus.handleFieldFocus}
                     error={
                       errors.shippingCost && touched.shippingCost
                         ? errors.shippingCost
@@ -759,7 +921,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 {/* Optional Fields */}
                 <Text style={styles.sectionTitle}>Optional Information</Text>
 
-                <Input
+                <OptimizedInput
                   label="Supplier URL"
                   value={values.supplierUrl}
                   onChangeText={handleChange('supplierUrl')}
@@ -767,9 +929,13 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   placeholder="Product page URL"
                   keyboardType="url"
                   autoCapitalize="none"
+                  returnKeyType="next"
+                  fieldName="supplierUrl"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                 />
 
-                <Input
+                <OptimizedInput
                   label="Source URL"
                   value={values.sourceUrl}
                   onChangeText={handleChange('sourceUrl')}
@@ -777,18 +943,26 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   placeholder="Where this data was captured from"
                   keyboardType="url"
                   autoCapitalize="none"
+                  returnKeyType="next"
+                  fieldName="sourceUrl"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                 />
 
-                <Input
+                <OptimizedInput
                   label="Photo URI"
                   value={values.photoUri}
                   onChangeText={handleChange('photoUri')}
                   onBlur={handleBlur('photoUri')}
                   placeholder="Path to product photo"
+                  returnKeyType="next"
+                  fieldName="photoUri"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                 />
 
                 {/* Notes */}
-                <Input
+                <OptimizedInput
                   label="Notes"
                   value={values.notes}
                   onChangeText={handleChange('notes')}
@@ -797,32 +971,39 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   multiline
                   numberOfLines={3}
                   inputStyle={styles.textArea}
+                  returnKeyType="default"
+                  fieldName="notes"
+                  onSubmitEditing={() => {
+                    // For multiline text, don't submit form on return
+                    // Let user manually tap submit button
+                  }}
+                  onFocus={handleNotesFocus}
                 />
               </View>
             </ScrollView>
 
             {/* Fixed Action Buttons */}
             <View style={styles.buttonContainer}>
-              <Button
+              <OptimizedButton
                 title="Cancel"
                 variant="secondary"
                 onPress={onCancel}
                 disabled={isSubmitting}
-                fullWidth
                 style={styles.cancelButton}
+                testID="offer-form-cancel-button"
               />
 
-              <Button
+              <OptimizedButton
                 title={submitButtonText}
                 variant="primary"
                 onPress={handleSubmit}
                 disabled={isSubmitting}
                 loading={isSubmitting}
-                fullWidth
                 style={styles.submitButton}
+                testID="offer-form-submit-button"
               />
             </View>
-          </View>
+          </KeyboardAvoidingView>
         );
       }}
     </Formik>
@@ -838,7 +1019,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 100, // Extra padding to ensure notes field is visible above keyboard
   },
   form: {
     padding: 0,
@@ -895,9 +1076,11 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   cancelButton: {
+    flex: 0.35, // Give cancel button 35% of available space
     marginRight: 0,
   },
   submitButton: {
+    flex: 0.65, // Give submit button 65% of available space
     marginLeft: 0,
   },
   loadingContainer: {
@@ -1024,5 +1207,49 @@ const styles = StyleSheet.create({
     color: colors.grayText,
     marginTop: 8,
     fontStyle: 'italic',
+  },
+  // Mobile tips styles
+  mobileTipsContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0F0FF',
+  },
+  mobileTipsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  mobileTipsText: {
+    fontSize: 11,
+    color: colors.grayText,
+    lineHeight: 16,
+  },
+  // Smart suggestions styles
+  smartSuggestionsContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: '#E0F0FF',
+  },
+  smartSuggestionsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  smartSuggestionsChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  smartSuggestionChip: {
+    marginRight: 0,
+    marginBottom: 0,
   },
 });

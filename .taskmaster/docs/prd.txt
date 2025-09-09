@@ -42,9 +42,10 @@ Primary domain for initial testing: Pool/spa chemicals. Future: groceries and ge
   - Decide where to buy (tap to open supplier URL if present)
   - Optional: add quality rating/notes to remember experience
 - UI/UX considerations
-  - Ultra-fast capture: minimal required fields; keyboard-optimized form; smart defaults for units based on item
+  - Ultra-fast capture: minimal required fields; mobile-optimized form; smart defaults for units based on item
   - Display normalized price-per-unit prominently
   - Clear indication of best deal and historical prices
+  - Mobile-first form design: touch-friendly, auto-focus progression, mobile keyboard optimization
 </context>
 
 <PRD>
@@ -57,6 +58,66 @@ Primary domain for initial testing: Pool/spa chemicals. Future: groceries and ge
   - Comparison engine (unit conversion + price-per-unit)
   - Shelf-life advisory (flag-only)
   - Quality/notes
+
+# Mobile Form Optimization Guidelines
+## Core Principles
+- **Mobile-First Design**: All form optimizations must be designed for touch interfaces and mobile keyboards
+- **Ultra-Fast Capture**: Minimize required fields and cognitive load for rapid data entry
+- **Smart Defaults**: Auto-populate fields based on context (supplier currency, item units, etc.)
+- **Progressive Enhancement**: Start with basic mobile patterns, add advanced features incrementally
+
+## Mobile-Specific Optimizations
+### Auto-Focus and Navigation
+- **Return Key Progression**: "Next" button moves to next logical field, "Done" submits form
+- **Smart Keyboard Types**: Numeric for prices/quantities, email for URLs, default for text
+- **Field Ordering**: Logical top-to-bottom flow optimized for thumb navigation
+- **Auto-Capitalization**: Appropriate capitalization per field type (none for units, characters for currency)
+
+### Touch Interface Optimizations
+- **Touch-Friendly Sizing**: Minimum 44pt touch targets for all interactive elements
+- **Swipe Gestures**: Consider swipe-to-navigate between form sections (future enhancement)
+- **Voice Input**: Integration with device voice recognition for notes and item names
+- **Camera Integration**: Barcode scanning for product identification and quantity entry
+
+### Mobile Keyboard Behavior
+- **Keyboard Types**: 
+  - `numeric` for prices, quantities, tax rates
+  - `email-address` for URLs
+  - `default` for text fields
+  - `phone-pad` for numeric codes
+- **Return Key Types**:
+  - `next` for all fields except the last
+  - `done` for final field to submit form
+- **Auto-Correction**: Disabled for units, codes, and technical terms
+- **Auto-Capitalization**: Disabled for units and codes, enabled for names
+
+### Consistent Navigation UX (Critical Best Practice)
+- **Universal "Next" Button**: All keyboard types (numeric, URL, default) must show "Next" button when `returnKeyType="next"` is set
+- **Platform Compliance**: iOS and Android both respect `returnKeyType` regardless of `keyboardType`
+- **User Expectation**: Users expect consistent navigation behavior across all form fields
+- **Implementation**: Use `returnKeyType="next"` for all fields except the last, `returnKeyType="done"` for final field
+- **Tip Text Accuracy**: Form instructions must accurately describe available navigation (e.g., "Use keyboard 'Next' button to move between fields")
+- **Anti-Pattern**: Never mix navigation methods (some fields with "Next", others without) - creates confusion and poor UX
+
+### Performance Considerations
+- **Minimal Re-renders**: Use React.memo and useCallback for form components
+- **Lazy Loading**: Load picker options on demand
+- **Debounced Validation**: Avoid excessive validation calls during typing
+- **Optimistic Updates**: Show immediate feedback for auto-populated fields
+
+## Anti-Patterns to Avoid
+- **Desktop Keyboard Shortcuts**: Ctrl/Cmd+S, Tab, Arrow keys, Escape - not available on mobile
+- **Hover States**: Not applicable to touch interfaces
+- **Complex Keyboard Combinations**: Mobile keyboards don't support modifier keys
+- **Mouse-Specific Interactions**: Right-click, drag-and-drop, etc.
+
+## Future Mobile Enhancements
+- **Barcode Scanning**: Auto-populate product information from barcodes
+- **NFC Integration**: Quick supplier identification via NFC tags
+- **Location Services**: Auto-detect nearby suppliers
+- **Offline-First**: Ensure forms work without internet connection
+- **Accessibility**: VoiceOver/TalkBack support for screen readers
+- **Haptic Feedback**: Subtle vibrations for form completion and errors
 
 # Data Model (field-by-field with purpose)
 Conventions (apply to all entities unless noted):

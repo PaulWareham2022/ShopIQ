@@ -7,6 +7,9 @@
 import { BaseRepository } from './base/BaseRepository';
 import { DatabaseError, ValidationError, Offer } from '../types';
 import { CanonicalDimension } from '../types';
+
+// Re-export Offer type for external use
+export type { Offer };
 import { executeSql } from '../sqlite/database';
 import { validateAndConvert } from '../utils/canonical-units';
 import { Platform } from 'react-native';

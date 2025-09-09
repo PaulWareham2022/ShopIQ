@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { colors } from '../../constants/colors';
 
-interface InputProps extends Omit<RNTextInputProps, 'style'> {
+interface InputProps extends Omit<RNTextInputProps, 'style' | 'onFocus' | 'onKeyPress'> {
   label?: string;
   error?: string;
   required?: boolean;
@@ -18,9 +18,23 @@ interface InputProps extends Omit<RNTextInputProps, 'style'> {
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
   helpText?: string;
+  fieldName?: string;
+  onKeyPress?: (event: any, fieldName: string) => void;
+  onFocus?: (fieldName: string) => void;
+  autoFocusNext?: boolean;
+  // Mobile-specific props
+  mobileKeyboardType?: 'numeric' | 'email-address' | 'phone-pad' | 'default';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoCorrect?: boolean;
 }
 
-export const Input: React.FC<InputProps> = ({
+export interface InputRef {
+  focus: () => void;
+  blur: () => void;
+  clear: () => void;
+}
+
+export const Input = forwardRef<InputRef, InputProps>(({
   label,
   error,
   required = false,
@@ -28,8 +42,76 @@ export const Input: React.FC<InputProps> = ({
   inputStyle,
   labelStyle,
   helpText,
+  fieldName,
+  onKeyPress,
+  onFocus,
+  autoFocusNext = false,
+  mobileKeyboardType,
+  autoCapitalize = 'sentences',
+  autoCorrect = true,
   ...textInputProps
-}) => {
+}, ref) => {
+  const inputRef = useRef<RNTextInput>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    blur: () => inputRef.current?.blur(),
+    clear: () => inputRef.current?.clear(),
+  }));
+
+  const handleKeyPress = (event: any) => {
+    if (onKeyPress && fieldName) {
+      onKeyPress(event, fieldName);
+    }
+  };
+
+  const handleFocus = () => {
+    if (onFocus && fieldName) {
+      onFocus(fieldName);
+    }
+  };
+
+  const handleSubmitEditing = () => {
+    if (autoFocusNext && onKeyPress && fieldName) {
+      // Simulate Enter key press for auto-focus next
+      onKeyPress({ nativeEvent: { key: 'Enter' } }, fieldName);
+    }
+  };
+
+  // Mobile-optimized keyboard type selection
+  const getKeyboardType = () => {
+    if (mobileKeyboardType) {
+      return mobileKeyboardType;
+    }
+    // Auto-detect based on field name for common patterns
+    if (fieldName?.includes('price') || fieldName?.includes('amount') || fieldName?.includes('rate')) {
+      return 'numeric';
+    }
+    if (fieldName?.includes('url') || fieldName?.includes('email')) {
+      return 'email-address';
+    }
+    return 'default';
+  };
+
+  // Mobile-optimized auto-capitalization
+  const getAutoCapitalize = () => {
+    if (fieldName?.includes('unit') || fieldName?.includes('code') || fieldName?.includes('currency')) {
+      return 'characters';
+    }
+    if (fieldName?.includes('url') || fieldName?.includes('email')) {
+      return 'none';
+    }
+    return autoCapitalize;
+  };
+
+  // Mobile-optimized auto-correction
+  const getAutoCorrect = () => {
+    if (fieldName?.includes('unit') || fieldName?.includes('code') || fieldName?.includes('url')) {
+      return false;
+    }
+    return autoCorrect;
+  };
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
@@ -40,8 +122,16 @@ export const Input: React.FC<InputProps> = ({
       )}
 
       <RNTextInput
+        ref={inputRef}
         style={[styles.input, error && styles.inputError, inputStyle]}
         placeholderTextColor={colors.grayText}
+        onKeyPress={handleKeyPress}
+        onFocus={handleFocus}
+        onSubmitEditing={handleSubmitEditing}
+        returnKeyType={autoFocusNext ? 'next' : 'done'}
+        keyboardType={getKeyboardType()}
+        autoCapitalize={getAutoCapitalize()}
+        autoCorrect={getAutoCorrect()}
         {...textInputProps}
       />
 
@@ -49,7 +139,9 @@ export const Input: React.FC<InputProps> = ({
       {helpText && !error && <Text style={styles.helpText}>{helpText}</Text>}
     </View>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 const styles = StyleSheet.create({
   container: {

@@ -167,6 +167,14 @@ export const SupplierSchema = BaseEntitySchema.extend({
 
   /** Free text for operational notes */
   notes: z.string().max(1000, 'Notes too long').optional(),
+
+  /** Personal quality rating 1-5 for supplier reliability/quality */
+  rating: z
+    .number()
+    .int('Rating must be an integer')
+    .min(1, 'Rating must be >= 1')
+    .max(5, 'Rating must be <= 5')
+    .optional(),
 });
 
 /**
@@ -507,7 +515,8 @@ export const OfferFormInputSchema = z.object({
     .regex(/^[A-Z]{3}$/, 'Currency must be uppercase letters')
     .refine(code => ISO_CURRENCY_CODES.has(code), {
       message: 'Invalid currency code',
-    }),
+    })
+    .optional(),
 
   amount: z
     .string()
@@ -519,7 +528,8 @@ export const OfferFormInputSchema = z.object({
   amountUnit: z
     .string()
     .min(1, 'Amount unit is required')
-    .max(20, 'Amount unit too long'),
+    .max(20, 'Amount unit too long')
+    .optional(),
 
   // Optional fields with validation
   supplierNameSnapshot: z

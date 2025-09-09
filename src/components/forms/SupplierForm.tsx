@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Alert, 
+  KeyboardAvoidingView, 
+  Platform 
+} from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
 import {
@@ -15,11 +23,12 @@ import {
   validateCurrencyCode,
   validateUrlPatterns,
 } from '../../storage/utils/iso-validation';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { Switch } from '../ui/Switch';
+import { OptimizedButton } from '../ui/OptimizedButton';
+import { OptimizedInput } from '../ui/OptimizedInput';
+import { OptimizedSwitch } from '../ui/OptimizedSwitch';
 import { Chip } from '../ui/Chip';
 import { StarRatingInput } from '../ui';
+import { useFormFocus } from '../../hooks/useFormFocus';
 
 interface SupplierFormProps {
   initialValues?: Partial<Supplier>;
@@ -63,6 +72,39 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const [selectedCurrency, setSelectedCurrency] = useState(
     initialValues?.defaultCurrency || ''
   );
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Form focus management
+  const fieldOrder = [
+    'name',
+    'countryCode',
+    'regionCode',
+    'storeCode',
+    'defaultCurrency',
+    'membershipType',
+    'freeShippingThreshold',
+    'shippingBaseCost',
+    'shippingPerItemCost',
+    'urlPatterns',
+    'notes'
+  ];
+
+  const formFocus = useFormFocus({
+    fieldOrder,
+    onSubmit: () => {
+      // This will be handled by Formik's handleSubmit
+    },
+    onCancel,
+  });
+
+  // Handle notes field focus with automatic scrolling
+  const handleNotesFocus = () => {
+    formFocus.handleFieldFocus('notes');
+    // Scroll to bottom to ensure notes field is visible above keyboard
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 300); // Delay to allow keyboard to appear first
+  };
 
   const getInitialFormValues = (): FormValues => ({
     name: initialValues?.name || '',
@@ -270,30 +312,47 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         handleSubmit,
         isSubmitting,
       }: FormikProps<FormValues>) => (
-        <View style={styles.formWrapper}>
+        <KeyboardAvoidingView 
+          style={styles.formWrapper}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
+        >
           <ScrollView
+            ref={scrollViewRef}
             style={styles.scrollContainer}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.form}>
+              {/* Mobile Form Tips */}
+              <View style={styles.mobileTipsContainer}>
+                <Text style={styles.mobileTipsTitle}>Quick Entry Tips</Text>
+                <Text style={styles.mobileTipsText}>
+                  Use keyboard "Next" button to move between fields • Country and currency codes auto-format
+                </Text>
+              </View>
+
               {/* Supplier Name */}
               <View style={styles.firstFieldContainer}>
-                <Input
+                <OptimizedInput
                   label="Supplier Name"
                   required
                   value={values.name}
                   onChangeText={handleChange('name')}
                   onBlur={handleBlur('name')}
                   placeholder="Enter supplier name"
+                  returnKeyType="next"
+                  fieldName="name"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={errors.name && touched.name ? errors.name : undefined}
                 />
               </View>
 
               {/* Country Code */}
               <View>
-                <Input
+                <OptimizedInput
                   label="Country Code"
                   required
                   value={values.countryCode}
@@ -306,6 +365,10 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   placeholder="e.g., CA, US, GB"
                   maxLength={2}
                   autoCapitalize="characters"
+                  returnKeyType="next"
+                  fieldName="countryCode"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={
                     errors.countryCode && touched.countryCode
                       ? errors.countryCode
@@ -330,7 +393,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               </View>
 
               {/* Region Code */}
-              <Input
+              <OptimizedInput
                 label="Region Code"
                 value={values.regionCode}
                 onChangeText={text =>
@@ -339,6 +402,10 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 onBlur={handleBlur('regionCode')}
                 placeholder="e.g., CA-NS, US-CA (optional)"
                 autoCapitalize="characters"
+                returnKeyType="next"
+                fieldName="regionCode"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
                 error={
                   errors.regionCode && touched.regionCode
                     ? errors.regionCode
@@ -347,17 +414,21 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               />
 
               {/* Store Code */}
-              <Input
+              <OptimizedInput
                 label="Store Code"
                 value={values.storeCode}
                 onChangeText={handleChange('storeCode')}
                 onBlur={handleBlur('storeCode')}
                 placeholder="Internal store identifier (optional)"
+                returnKeyType="next"
+                fieldName="storeCode"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
               />
 
               {/* Default Currency */}
               <View>
-                <Input
+                <OptimizedInput
                   label="Default Currency"
                   required
                   value={values.defaultCurrency}
@@ -370,6 +441,10 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   placeholder="e.g., CAD, USD, EUR"
                   maxLength={3}
                   autoCapitalize="characters"
+                  returnKeyType="next"
+                  fieldName="defaultCurrency"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={
                     errors.defaultCurrency && touched.defaultCurrency
                       ? errors.defaultCurrency
@@ -394,7 +469,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               </View>
 
               {/* Membership Required */}
-              <Switch
+              <OptimizedSwitch
                 label="Membership Required"
                 value={values.membershipRequired}
                 onValueChange={value =>
@@ -404,25 +479,33 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
 
               {/* Membership Type (conditional) */}
               {values.membershipRequired && (
-                <Input
+                <OptimizedInput
                   label="Membership Type"
                   value={values.membershipType}
                   onChangeText={handleChange('membershipType')}
                   onBlur={handleBlur('membershipType')}
                   placeholder="e.g., Gold Star, Executive"
+                  returnKeyType="next"
+                  fieldName="membershipType"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                 />
               )}
 
               {/* Shipping Policy Section */}
               <Text style={styles.sectionTitle}>Shipping Policy</Text>
 
-              <Input
+              <OptimizedInput
                 label="Free Shipping Threshold"
                 value={values.freeShippingThreshold}
                 onChangeText={handleChange('freeShippingThreshold')}
                 onBlur={handleBlur('freeShippingThreshold')}
                 placeholder="Minimum order for free shipping"
                 keyboardType="numeric"
+                returnKeyType="next"
+                fieldName="freeShippingThreshold"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
                 error={
                   errors.freeShippingThreshold && touched.freeShippingThreshold
                     ? errors.freeShippingThreshold
@@ -430,13 +513,17 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 }
               />
 
-              <Input
+              <OptimizedInput
                 label="Base Shipping Cost"
                 value={values.shippingBaseCost}
                 onChangeText={handleChange('shippingBaseCost')}
                 onBlur={handleBlur('shippingBaseCost')}
                 placeholder="Base shipping fee"
                 keyboardType="numeric"
+                returnKeyType="next"
+                fieldName="shippingBaseCost"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
                 error={
                   errors.shippingBaseCost && touched.shippingBaseCost
                     ? errors.shippingBaseCost
@@ -444,13 +531,17 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 }
               />
 
-              <Input
+              <OptimizedInput
                 label="Per-Item Shipping Cost"
                 value={values.shippingPerItemCost}
                 onChangeText={handleChange('shippingPerItemCost')}
                 onBlur={handleBlur('shippingPerItemCost')}
                 placeholder="Additional cost per item"
                 keyboardType="numeric"
+                returnKeyType="next"
+                fieldName="shippingPerItemCost"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
                 error={
                   errors.shippingPerItemCost && touched.shippingPerItemCost
                     ? errors.shippingPerItemCost
@@ -458,14 +549,14 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 }
               />
 
-              <Switch
+              <OptimizedSwitch
                 label="Pickup Available"
                 value={values.pickupAvailable}
                 onValueChange={value => setFieldValue('pickupAvailable', value)}
               />
 
               {/* URL Patterns */}
-              <Input
+              <OptimizedInput
                 label="URL Patterns"
                 value={values.urlPatterns}
                 onChangeText={handleChange('urlPatterns')}
@@ -474,6 +565,10 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 multiline
                 numberOfLines={2}
                 inputStyle={styles.textArea}
+                returnKeyType="next"
+                fieldName="urlPatterns"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
               />
 
               {/* Rating Section */}
@@ -500,7 +595,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               </View>
 
               {/* Notes */}
-              <Input
+              <OptimizedInput
                 label="Notes"
                 value={values.notes}
                 onChangeText={handleChange('notes')}
@@ -509,32 +604,37 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 multiline
                 numberOfLines={3}
                 inputStyle={styles.textArea}
+                returnKeyType="default"
+                fieldName="notes"
+                onSubmitEditing={() => {
+                  // For multiline text, don't submit form on return
+                  // Let user manually tap submit button
+                }}
+                onFocus={handleNotesFocus}
               />
             </View>
           </ScrollView>
 
           {/* Fixed Action Buttons */}
           <View style={styles.buttonContainer}>
-            <Button
+            <OptimizedButton
               title="Cancel"
               variant="secondary"
               onPress={onCancel}
               disabled={isSubmitting}
-              fullWidth
               style={styles.cancelButton}
             />
 
-            <Button
+            <OptimizedButton
               title={submitButtonText}
               variant="primary"
               onPress={() => handleSubmit()}
               disabled={isSubmitting}
               loading={isSubmitting}
-              fullWidth
               style={styles.submitButton}
             />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       )}
     </Formik>
   );
@@ -549,7 +649,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 100, // Extra padding to ensure notes field is visible above keyboard
   },
   form: {
     padding: 0,
@@ -609,9 +709,31 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   cancelButton: {
+    flex: 0.35, // Give cancel button 35% of available space
     marginRight: 0,
   },
   submitButton: {
+    flex: 0.65, // Give submit button 65% of available space
     marginLeft: 0,
+  },
+  // Mobile tips styles
+  mobileTipsContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0F0FF',
+  },
+  mobileTipsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  mobileTipsText: {
+    fontSize: 11,
+    color: colors.grayText,
+    lineHeight: 16,
   },
 });

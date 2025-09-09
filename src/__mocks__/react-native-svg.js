@@ -39,6 +39,7 @@ const Touchable = {
   },
 };
 
+// eslint-disable-next-line no-undef
 module.exports = {
   Svg,
   Path,

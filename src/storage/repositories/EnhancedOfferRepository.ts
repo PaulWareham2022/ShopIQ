@@ -66,7 +66,7 @@ export class EnhancedOfferRepository extends OfferRepository {
     }
 
     // Update the offer using the parent implementation
-    const updatedOffer = await super.updateOffer(id, updates);
+    const updatedOffer = await super.update(id, updates);
     if (!updatedOffer) {
       return null;
     }

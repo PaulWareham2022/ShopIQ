@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Alert, 
+  KeyboardAvoidingView, 
+  Platform 
+} from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
 import {
@@ -14,10 +22,13 @@ import {
   isSupportedUnit,
 } from '../../storage/utils/canonical-units';
 import { CanonicalDimension } from '../../storage/types';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { Switch } from '../ui/Switch';
+import { getSmartUnitSuggestions } from '../../storage/utils/smart-unit-defaults';
+import { OptimizedButton } from '../ui/OptimizedButton';
+import { OptimizedInput } from '../ui/OptimizedInput';
+import { OptimizedSwitch } from '../ui/OptimizedSwitch';
 import { UnitSelector, UnitGroup } from '../ui/UnitSelector';
+import { Chip } from '../ui/Chip';
+import { useFormFocus } from '../../hooks/useFormFocus';
 
 interface InventoryItemFormProps {
   initialValues?: Partial<InventoryItem>;
@@ -52,7 +63,59 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
 }) => {
   const [detectedDimension, setDetectedDimension] =
     useState<CanonicalDimension | null>(null);
-  // Removed unit suggestions and available units - now using chip selection
+  const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
+  const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Form focus management
+  const fieldOrder = [
+    'name',
+    'category',
+    'canonicalUnit',
+    'shelfLifeDays',
+    'usageRatePerDay',
+    'notes'
+  ];
+
+  const formFocus = useFormFocus({
+    fieldOrder,
+    onSubmit: () => {
+      // This will be handled by Formik's handleSubmit
+    },
+    onCancel,
+  });
+
+  // Handle notes field focus with automatic scrolling
+  const handleNotesFocus = () => {
+    formFocus.handleFieldFocus('notes');
+    // Scroll to bottom to ensure notes field is visible above keyboard
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 300); // Delay to allow keyboard to appear first
+  };
+
+  // Update smart suggestions when name or category changes
+  const updateSmartSuggestions = (name: string, category: string) => {
+    if (name.trim().length > 2) { // Only suggest after user has typed a few characters
+      const suggestions = getSmartUnitSuggestions({
+        itemName: name,
+        category: category || undefined,
+        existingCanonicalUnit: initialValues?.canonicalUnit,
+      });
+      
+      // Get top 3 suggestions and show them
+      const topSuggestions = suggestions
+        .slice(0, 3)
+        .map(s => s.unit)
+        .filter(unit => unit !== initialValues?.canonicalUnit); // Don't suggest current unit
+      
+      setSmartSuggestions(topSuggestions);
+      setShowSmartSuggestions(topSuggestions.length > 0);
+    } else {
+      setSmartSuggestions([]);
+      setShowSmartSuggestions(false);
+    }
+  };
 
   // Map technical dimension names to user-friendly names
   const getDimensionDisplayName = (dimension: CanonicalDimension): string => {
@@ -195,35 +258,86 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
         handleSubmit,
         isSubmitting,
       }: FormikProps<FormValues>) => (
-        <View style={styles.formWrapper}>
+        <KeyboardAvoidingView 
+          style={styles.formWrapper}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
+        >
           <ScrollView
+            ref={scrollViewRef}
             style={styles.scrollContainer}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.form}>
+                {/* Mobile Form Tips */}
+                <View style={styles.mobileTipsContainer}>
+                  <Text style={styles.mobileTipsTitle}>Quick Entry Tips</Text>
+                  <Text style={styles.mobileTipsText}>
+                    Use keyboard "Next" button to move between fields • Units auto-detect based on item type
+                  </Text>
+                </View>
+
               {/* Item Name */}
               <View style={styles.firstFieldContainer}>
-                <Input
+                <OptimizedInput
                   label="Item Name"
                   required
                   value={values.name}
-                  onChangeText={handleChange('name')}
+                  onChangeText={(text) => {
+                    handleChange('name')(text);
+                    updateSmartSuggestions(text, values.category);
+                  }}
                   onBlur={handleBlur('name')}
                   placeholder="Enter item name"
+                  returnKeyType="next"
+                  fieldName="name"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={errors.name && touched.name ? errors.name : undefined}
+                  testID="inventory-form-item-name"
                 />
               </View>
 
               {/* Category */}
-              <Input
+              <OptimizedInput
                 label="Category"
                 value={values.category}
-                onChangeText={handleChange('category')}
+                onChangeText={(text) => {
+                  handleChange('category')(text);
+                  updateSmartSuggestions(values.name, text);
+                }}
                 onBlur={handleBlur('category')}
                 placeholder="Enter category (optional)"
+                returnKeyType="next"
+                fieldName="category"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
               />
+
+              {/* Smart Unit Suggestions */}
+              {showSmartSuggestions && smartSuggestions.length > 0 && (
+                <View style={styles.smartSuggestionsContainer}>
+                  <Text style={styles.smartSuggestionsLabel}>
+                    Suggested units for "{values.name}":
+                  </Text>
+                  <View style={styles.smartSuggestionsChips}>
+                    {smartSuggestions.map((unit) => (
+                      <Chip
+                        key={unit}
+                        label={unit}
+                        variant="default"
+                        onPress={() => {
+                          handleUnitChange(unit, setFieldValue);
+                          setShowSmartSuggestions(false); // Hide suggestions after selection
+                        }}
+                        style={styles.smartSuggestionChip}
+                      />
+                    ))}
+                  </View>
+                </View>
+              )}
 
               {/* Unit Selection */}
               <UnitSelector
@@ -247,7 +361,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
               )}
 
               {/* Shelf Life Sensitivity */}
-              <Switch
+              <OptimizedSwitch
                 label="Shelf-life Sensitive"
                 value={values.shelfLifeSensitive}
                 onValueChange={value =>
@@ -258,13 +372,17 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
 
               {/* Shelf Life Days (conditional) */}
               {values.shelfLifeSensitive && (
-                <Input
+                <OptimizedInput
                   label="Shelf Life (days)"
                   value={values.shelfLifeDays}
                   onChangeText={handleChange('shelfLifeDays')}
                   onBlur={handleBlur('shelfLifeDays')}
                   placeholder="Enter shelf life in days"
                   keyboardType="numeric"
+                  returnKeyType="next"
+                  fieldName="shelfLifeDays"
+                  onSubmitEditing={formFocus.handleSubmitEditing}
+                  onFocus={formFocus.handleFieldFocus}
                   error={
                     errors.shelfLifeDays && touched.shelfLifeDays
                       ? errors.shelfLifeDays
@@ -274,13 +392,17 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
               )}
 
               {/* Usage Rate Per Day */}
-              <Input
+              <OptimizedInput
                 label="Usage Rate (per day)"
                 value={values.usageRatePerDay}
                 onChangeText={handleChange('usageRatePerDay')}
                 onBlur={handleBlur('usageRatePerDay')}
                 placeholder="Enter usage rate (optional)"
                 keyboardType="numeric"
+                returnKeyType="next"
+                fieldName="usageRatePerDay"
+                onSubmitEditing={formFocus.handleSubmitEditing}
+                onFocus={formFocus.handleFieldFocus}
                 error={
                   errors.usageRatePerDay && touched.usageRatePerDay
                     ? errors.usageRatePerDay
@@ -289,7 +411,7 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
               />
 
               {/* Notes */}
-              <Input
+              <OptimizedInput
                 label="Notes"
                 value={values.notes}
                 onChangeText={handleChange('notes')}
@@ -298,32 +420,39 @@ export const InventoryItemForm: React.FC<InventoryItemFormProps> = ({
                 multiline
                 numberOfLines={3}
                 inputStyle={styles.textArea}
+                returnKeyType="default"
+                fieldName="notes"
+                onSubmitEditing={() => {
+                  // For multiline text, don't submit form on return
+                  // Let user manually tap submit button
+                }}
+                onFocus={handleNotesFocus}
               />
             </View>
           </ScrollView>
 
           {/* Fixed Action Buttons */}
           <View style={styles.buttonContainer}>
-            <Button
+            <OptimizedButton
               title="Cancel"
               variant="secondary"
               onPress={onCancel}
               disabled={isSubmitting}
-              fullWidth
               style={styles.cancelButton}
+              testID="inventory-form-cancel-button"
             />
 
-            <Button
+            <OptimizedButton
               title={submitButtonText}
               variant="primary"
               onPress={() => handleSubmit()}
               disabled={isSubmitting}
               loading={isSubmitting}
-              fullWidth
               style={styles.submitButton}
+              testID="inventory-form-submit-button"
             />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       )}
     </Formik>
   );
@@ -338,7 +467,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 100, // Extra padding to ensure notes field is visible above keyboard
   },
   form: {
     padding: 0,
@@ -374,9 +503,55 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   cancelButton: {
+    flex: 0.35, // Give cancel button 35% of available space
     marginRight: 0,
   },
   submitButton: {
+    flex: 0.65, // Give submit button 65% of available space
     marginLeft: 0,
+  },
+  // Mobile tips styles
+  mobileTipsContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0F0FF',
+  },
+  mobileTipsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  mobileTipsText: {
+    fontSize: 11,
+    color: colors.grayText,
+    lineHeight: 16,
+  },
+  // Smart suggestions styles
+  smartSuggestionsContainer: {
+    backgroundColor: '#F0F8FF',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: '#E0F0FF',
+  },
+  smartSuggestionsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  smartSuggestionsChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  smartSuggestionChip: {
+    marginRight: 0,
+    marginBottom: 0,
   },
 });

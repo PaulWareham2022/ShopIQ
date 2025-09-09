@@ -5,6 +5,14 @@ export type { ButtonVariant, ButtonSize } from './Button';
 export { Input } from './Input';
 export { Switch } from './Switch';
 
+// Optimized Form Components (React Native Paper)
+export { OptimizedButton } from './OptimizedButton';
+export type { OptimizedButtonVariant, OptimizedButtonSize } from './OptimizedButton';
+export { OptimizedInput } from './OptimizedInput';
+export { OptimizedSwitch } from './OptimizedSwitch';
+export { OptimizedPicker } from './OptimizedPicker';
+export type { OptimizedPickerItem } from './OptimizedPicker';
+
 export { Chip } from './Chip';
 export type { ChipVariant, ChipSize } from './Chip';
 

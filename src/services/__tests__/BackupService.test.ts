@@ -73,7 +73,6 @@ describe('BackupService', () => {
   describe('createBackup', () => {
     it('should create a backup of the database file', async () => {
       const mockDbInfo = { exists: true, size: 1024 };
-      const mockBackupPath = '/mock/documents/backups/shopiq-backup-2024-01-15T10-30-45-123Z.db';
       
       mockFileSystem.getInfoAsync.mockResolvedValue(mockDbInfo as any);
       mockFileSystem.copyAsync.mockResolvedValue(undefined);

@@ -6,7 +6,7 @@
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Sharing from 'expo-sharing';
-import { Platform, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { RepositoryFactory } from '../storage/RepositoryFactory';
 import { executeSql } from '../storage/sqlite/database';
 
@@ -296,7 +296,7 @@ export class BackupService {
   /**
    * Complete backup verification
    */
-  async verifyBackupComplete(backupPath: string): Promise<CompleteVerificationResult> {
+  async verifyBackupComplete(_backupPath: string): Promise<CompleteVerificationResult> {
     console.log('🔍 Starting backup verification...');
     
     const result: CompleteVerificationResult = {

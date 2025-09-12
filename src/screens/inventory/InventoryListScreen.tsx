@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, FlatList, StyleSheet, Alert, Animated } from 'react-native';
 import { InventoryItemRepository } from '../../storage/repositories/InventoryItemRepository';
 import { InventoryItem } from '../../storage/types';
 import {
@@ -25,17 +25,36 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [repository] = useState(() => new InventoryItemRepository());
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const loadItems = useCallback(async () => {
     try {
-      setLoading(true);
+      // Only show loading if data takes longer than 100ms to load
+      const loadingTimeout = setTimeout(() => {
+        setLoading(true);
+      }, 100);
+      
       const allItems = await repository.findAll();
+      clearTimeout(loadingTimeout);
+      
       setItems(allItems);
+      // Set filtered items immediately after loading items
+      setFilteredItems(allItems);
+      setDataLoaded(true);
+      
+      // Fade in the content smoothly
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } catch {
       // Error handling is done via Alert.alert
       Alert.alert('Error', 'Failed to load inventory items');
+      setDataLoaded(true); // Still mark as loaded even on error
     } finally {
       setLoading(false);
     }
@@ -163,27 +182,38 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
     );
   }
 
+  // Don't render the main content until data is loaded to prevent flicker
+  if (!dataLoaded) {
+    return (
+      <Screen backgroundColor="#F2F2F7">
+        <Header title="Inventory" onBack={onBack} />
+      </Screen>
+    );
+  }
+
   return (
     <Screen backgroundColor="#F2F2F7">
       <Header title="Inventory" onBack={onBack} />
 
-      <SearchBar
-        placeholder="Search items..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onSearch={handleSearch}
-      />
+      <Animated.View style={{ opacity: fadeAnim }}>
+        <SearchBar
+          placeholder="Search items..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSearch={handleSearch}
+        />
 
-      <FlatList
-        data={filteredItems}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={renderEmptyState}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={filteredItems}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <FloatingActionButton onPress={onAddItem} />
+        <FloatingActionButton onPress={onAddItem} />
+      </Animated.View>
     </Screen>
   );
 };

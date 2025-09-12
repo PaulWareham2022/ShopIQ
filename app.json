@@ -18,7 +18,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shopiq.app",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "appleTeamId": "766Y9QHTNH"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +28,12 @@
       },
       "package": "com.shopiq.app",
       "versionCode": 1,
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ]
     },
     "plugins": [
       [

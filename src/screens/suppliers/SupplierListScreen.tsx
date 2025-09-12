@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { View, FlatList, StyleSheet, Alert, Animated } from 'react-native';
 import { SupplierRepository } from '../../storage/repositories/SupplierRepository';
 import { Supplier } from '../../storage/types';
 import {
@@ -26,16 +26,35 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [repository] = useState(() => new SupplierRepository());
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const loadSuppliers = useCallback(async () => {
     try {
-      setLoading(true);
+      // Only show loading if data takes longer than 100ms to load
+      const loadingTimeout = setTimeout(() => {
+        setLoading(true);
+      }, 100);
+      
       const allSuppliers = await repository.findAll();
+      clearTimeout(loadingTimeout);
+      
       setSuppliers(allSuppliers);
+      // Set filtered suppliers immediately after loading suppliers
+      setFilteredSuppliers(allSuppliers);
+      setDataLoaded(true);
+      
+      // Fade in the content smoothly
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
     } catch {
       Alert.alert('Error', 'Failed to load suppliers');
+      setDataLoaded(true); // Still mark as loaded even on error
     } finally {
       setLoading(false);
     }
@@ -178,27 +197,38 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
     );
   }
 
+  // Don't render the main content until data is loaded to prevent flicker
+  if (!dataLoaded) {
+    return (
+      <Screen backgroundColor="#F2F2F7">
+        <Header title="Suppliers" onBack={onBack} />
+      </Screen>
+    );
+  }
+
   return (
     <Screen backgroundColor="#F2F2F7">
       <Header title="Suppliers" onBack={onBack} />
 
-      <SearchBar
-        placeholder="Search suppliers..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onSearch={handleSearch}
-      />
+      <Animated.View style={{ opacity: fadeAnim }}>
+        <SearchBar
+          placeholder="Search suppliers..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSearch={handleSearch}
+        />
 
-      <FlatList
-        data={filteredSuppliers}
-        renderItem={renderSupplier}
-        keyExtractor={supplier => supplier.id}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={renderEmptyState}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={filteredSuppliers}
+          renderItem={renderSupplier}
+          keyExtractor={supplier => supplier.id}
+          contentContainerStyle={styles.listContainer}
+          ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
+        />
 
-      <FloatingActionButton onPress={onAddSupplier} />
+        <FloatingActionButton onPress={onAddSupplier} />
+      </Animated.View>
     </Screen>
   );
 };

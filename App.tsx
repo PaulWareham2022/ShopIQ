@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
 import { initializeDatabase } from './src/storage/sqlite/database';
 import { seedSampleSuppliers } from './src/storage/seed-suppliers';
 import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';

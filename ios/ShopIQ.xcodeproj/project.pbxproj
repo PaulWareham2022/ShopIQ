@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		153EEEC1D651DC245FBF8E43 /* Pods_ShopIQ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34F0B36AD82D6D2090D415DF /* Pods_ShopIQ.framework */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		47A6B6A309E7C0F95C85A91B /* Pods_ShopIQ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */; };
-		70017AA4450235CA60568080 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */; };
+		46C9EFCA929D80D085F17033 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E13FD06E2F6233A2A9C344 /* ExpoModulesProvider.swift */; };
+		89071EB7C3E142C08073841F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A7727238969425D982B34260 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		E7707F78A1928F349D41EA97 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -20,13 +20,13 @@
 		13B07F961A680F5B00A75B9A /* ShopIQ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShopIQ.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ShopIQ/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ShopIQ/Info.plist; sourceTree = "<group>"; };
-		69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShopIQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.debug.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.debug.xcconfig"; sourceTree = "<group>"; };
+		1C8EDA58EB7CDC46F5E7AD87 /* Pods-ShopIQ.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.debug.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.debug.xcconfig"; sourceTree = "<group>"; };
+		34F0B36AD82D6D2090D415DF /* Pods_ShopIQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShopIQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5870BE3D5F447B05233B0573 /* Pods-ShopIQ.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.release.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.release.xcconfig"; sourceTree = "<group>"; };
+		A7727238969425D982B34260 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ShopIQ/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ShopIQ/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B0E13FD06E2F6233A2A9C344 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ShopIQ/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.release.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.release.xcconfig"; sourceTree = "<group>"; };
-		CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ShopIQ/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ShopIQ/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ShopIQ/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ShopIQ-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ShopIQ-Bridging-Header.h"; path = "ShopIQ/ShopIQ-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47A6B6A309E7C0F95C85A91B /* Pods_ShopIQ.framework in Frameworks */,
+				153EEEC1D651DC245FBF8E43 /* Pods_ShopIQ.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,26 +53,28 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */,
+				A7727238969425D982B34260 /* PrivacyInfo.xcprivacy */,
 			);
 			name = ShopIQ;
-			sourceTree = "<group>";
-		};
-		2BB911324D014842C50D0953 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				A5536446FEA4E800E6A42BC2 /* ShopIQ */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */,
+				34F0B36AD82D6D2090D415DF /* Pods_ShopIQ.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4C611B79BFBD5BF9F0178FEB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1C8EDA58EB7CDC46F5E7AD87 /* Pods-ShopIQ.debug.xcconfig */,
+				5870BE3D5F447B05233B0573 /* Pods-ShopIQ.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +91,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				C5AE4C3B577159D077ADE697 /* Pods */,
-				2BB911324D014842C50D0953 /* ExpoModulesProviders */,
+				4C611B79BFBD5BF9F0178FEB /* Pods */,
+				ACAC51190071CF53A9DF7FD3 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,12 +107,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A5536446FEA4E800E6A42BC2 /* ShopIQ */ = {
+		ACAC51190071CF53A9DF7FD3 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */,
+				F720C274F20A6D3E9D457633 /* ShopIQ */,
 			);
-			name = ShopIQ;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -122,13 +124,12 @@
 			path = ShopIQ/Supporting;
 			sourceTree = "<group>";
 		};
-		C5AE4C3B577159D077ADE697 /* Pods */ = {
+		F720C274F20A6D3E9D457633 /* ShopIQ */ = {
 			isa = PBXGroup;
 			children = (
-				9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */,
-				C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */,
+				B0E13FD06E2F6233A2A9C344 /* ExpoModulesProvider.swift */,
 			);
-			path = Pods;
+			name = ShopIQ;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ShopIQ" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				415A32A7F90DE3F9A3DE8E30 /* [Expo] Configure project */,
+				02D5697DECB9693928572D09 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				31357ACD0368ED3623715511 /* [CP] Embed Pods Frameworks */,
+				50EC5F39C5FF38E2E2AA22B1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -195,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				E7707F78A1928F349D41EA97 /* PrivacyInfo.xcprivacy in Resources */,
+				89071EB7C3E142C08073841F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +217,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
+		};
+		02D5697DECB9693928572D09 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ShopIQ/expo-configure-project.sh\"\n";
 		};
 		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -239,7 +259,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		31357ACD0368ED3623715511 /* [CP] Embed Pods Frameworks */ = {
+		50EC5F39C5FF38E2E2AA22B1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -256,25 +276,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		415A32A7F90DE3F9A3DE8E30 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ShopIQ/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -360,7 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				70017AA4450235CA60568080 /* ExpoModulesProvider.swift in Sources */,
+				46C9EFCA929D80D085F17033 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,13 +370,11 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */;
+			baseConfigurationReference = 1C8EDA58EB7CDC46F5E7AD87 /* Pods-ShopIQ.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShopIQ/ShopIQ.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 766Y9QHTNH;
 				ENABLE_BITCODE = NO;
@@ -398,7 +397,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shopiq.app;
 				PRODUCT_NAME = ShopIQ;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShopIQ/ShopIQ-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -409,13 +407,11 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */;
+			baseConfigurationReference = 5870BE3D5F447B05233B0573 /* Pods-ShopIQ.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShopIQ/ShopIQ.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 766Y9QHTNH;
 				INFOPLIST_FILE = ShopIQ/Info.plist;
@@ -433,7 +429,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shopiq.app;
 				PRODUCT_NAME = ShopIQ;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShopIQ/ShopIQ-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

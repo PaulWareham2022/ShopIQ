@@ -21,13 +21,27 @@
         "simulator": false
       }
     },
-    "production": {
+   "production": {
+      "distribution": "store",
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "NPM_CONFIG_INSTALL_STRATEGY": "hoisted"
+      },
+      "cache": {
+        "key": "production-build-v4"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "paulwareham@me.com",
+        "ascAppId": "6752504878",
+        "appleTeamId": "766Y9QHTNH"
+      }
+    }
   }
 }

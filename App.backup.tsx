@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { initializeDatabase } from './src/storage/sqlite/database';
 import { seedSampleSuppliers } from './src/storage/seed-suppliers';
 import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';
@@ -12,7 +12,6 @@ import { SupplierListScreen } from './src/screens/suppliers/SupplierListScreen';
 import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScreen';
 import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
 import { OfferListScreen } from './src/screens/offers/OfferListScreen';
-import { BackupScreen } from './src/screens/BackupScreen';
 import { InventoryItem, Supplier } from './src/storage/types';
 
 type Screen =
@@ -25,8 +24,7 @@ type Screen =
   | 'supplier-detail'
   | 'supplier-add'
   | 'add-offer'
-  | 'offer-list'
-  | 'backup';
+  | 'offer-list';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -37,7 +35,6 @@ export default function App() {
   const [storageStatus, setStorageStatus] = useState<
     'testing' | 'success' | 'error'
   >('testing');
-  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const initStorage = async () => {
@@ -144,18 +141,8 @@ export default function App() {
   const renderHomeScreen = () => (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>ShopIQ</Text>
-            <Text style={styles.subtitle}>Smart shopping comparisons</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => setShowMenu(true)}
-          >
-            <Text style={styles.menuIcon}>⋯</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.title}>ShopIQ</Text>
+        <Text style={styles.subtitle}>Smart shopping comparisons</Text>
       </View>
 
       <View style={styles.actionsContainer}>
@@ -209,33 +196,6 @@ export default function App() {
           </Text>
         )}
       </View>
-
-      {/* Three-dot menu modal */}
-      <Modal
-        visible={showMenu}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowMenu(false)}
-      >
-        <TouchableOpacity
-          style={styles.menuOverlay}
-          activeOpacity={1}
-          onPress={() => setShowMenu(false)}
-        >
-          <View style={styles.menuContainer}>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setShowMenu(false);
-                setCurrentScreen('backup');
-              }}
-            >
-              <Text style={styles.menuItemIcon}>💾</Text>
-              <Text style={styles.menuItemText}>Backup & Restore</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
 
       <StatusBar style="auto" />
     </View>
@@ -328,13 +288,6 @@ export default function App() {
         ) : (
           renderHomeScreen()
         );
-      case 'backup':
-        return (
-          <BackupScreen
-            key="backup"
-            onBack={() => setCurrentScreen('home')}
-          />
-        );
       default:
         return renderHomeScreen();
     }
@@ -353,25 +306,7 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingHorizontal: 20,
     paddingBottom: 40,
-  },
-  headerContent: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  menuButton: {
-    padding: 8,
-    marginRight: -8, // Align with the right edge
-  },
-  menuIcon: {
-    fontSize: 24,
-    color: colors.grayText,
-    fontWeight: 'bold',
-    transform: [{ rotate: '90deg' }], // Rotate to make it vertical
   },
   title: {
     fontSize: 48,
@@ -432,40 +367,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     fontStyle: 'italic',
-  },
-  // Menu modal styles
-  menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    paddingTop: 100,
-    paddingRight: 20,
-  },
-  menuContainer: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    shadowColor: colors.darkText || '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    minWidth: 200,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray || '#F2F2F7',
-  },
-  menuItemIcon: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  menuItemText: {
-    fontSize: 16,
-    color: colors.darkText,
-    fontWeight: '500',
   },
 });

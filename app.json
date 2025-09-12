@@ -18,8 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shopiq.app",
-      "buildNumber": "1",
-      "deploymentTarget": "17.0"
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,7 +41,9 @@
       ],
       "expo-sqlite",
       "expo-dev-client",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-file-system",
+      "expo-document-picker"
     ],
     "web": {
       "favicon": "./assets/favicon.png",

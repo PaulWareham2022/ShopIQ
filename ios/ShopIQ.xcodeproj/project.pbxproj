@@ -7,13 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		11DC37EA24C2F562ADDF3104 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9450E6F1BB0AE7A52504E7 /* ExpoModulesProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		44658F4D9FC44584B7576E59 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B21E233BD6C30F6F19234F45 /* PrivacyInfo.xcprivacy */; };
-		4691B8C10DA64AB57CD0477D /* Pods_ShopIQ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3ADB802599DA4C51CDE2E6 /* Pods_ShopIQ.framework */; };
-		A7F1E5E61D2A4C4C9B4A1F01 /* ExpoDevLauncherAppDelegateSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F1E5E51D2A4C4C9B4A1F01 /* ExpoDevLauncherAppDelegateSubscriber.swift */; };
+		47A6B6A309E7C0F95C85A91B /* Pods_ShopIQ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */; };
+		70017AA4450235CA60568080 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		E7707F78A1928F349D41EA97 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -21,17 +20,16 @@
 		13B07F961A680F5B00A75B9A /* ShopIQ.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShopIQ.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ShopIQ/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ShopIQ/Info.plist; sourceTree = "<group>"; };
-		15020255E9FD573FD5E92124 /* Pods-ShopIQ.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.release.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.release.xcconfig"; sourceTree = "<group>"; };
-		3EFEBE874C51FAE537A93FA7 /* Pods-ShopIQ.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.debug.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.debug.xcconfig"; sourceTree = "<group>"; };
-		9D3ADB802599DA4C51CDE2E6 /* Pods_ShopIQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShopIQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A7F1E5E51D2A4C4C9B4A1F01 /* ExpoDevLauncherAppDelegateSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExpoDevLauncherAppDelegateSubscriber.swift; path = ShopIQ/DevLauncher/ExpoDevLauncherAppDelegateSubscriber.swift; sourceTree = "<group>"; };
+		69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShopIQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.debug.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = ShopIQ/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B21E233BD6C30F6F19234F45 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ShopIQ/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShopIQ.release.xcconfig"; path = "Target Support Files/Pods-ShopIQ/Pods-ShopIQ.release.xcconfig"; sourceTree = "<group>"; };
+		CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ShopIQ/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ShopIQ/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ShopIQ/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* ShopIQ-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "ShopIQ-Bridging-Header.h"; path = "ShopIQ/ShopIQ-Bridging-Header.h"; sourceTree = "<group>"; };
-		FE9450E6F1BB0AE7A52504E7 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ShopIQ/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,21 +37,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4691B8C10DA64AB57CD0477D /* Pods_ShopIQ.framework in Frameworks */,
+				47A6B6A309E7C0F95C85A91B /* Pods_ShopIQ.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0F56500AFFF44D2EBFFFA53B /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				65B0B36435B7C3D4E57E6E7D /* ShopIQ */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* ShopIQ */ = {
 			isa = PBXGroup;
 			children = (
@@ -63,27 +53,26 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				B21E233BD6C30F6F19234F45 /* PrivacyInfo.xcprivacy */,
-				A7F1E5E51D2A4C4C9B4A1F01 /* ExpoDevLauncherAppDelegateSubscriber.swift */,
+				D8CB512B3D728D782209ADFF /* PrivacyInfo.xcprivacy */,
 			);
 			name = ShopIQ;
+			sourceTree = "<group>";
+		};
+		2BB911324D014842C50D0953 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				A5536446FEA4E800E6A42BC2 /* ShopIQ */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				9D3ADB802599DA4C51CDE2E6 /* Pods_ShopIQ.framework */,
+				69883F49EE12E21C8334CE52 /* Pods_ShopIQ.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		65B0B36435B7C3D4E57E6E7D /* ShopIQ */ = {
-			isa = PBXGroup;
-			children = (
-				FE9450E6F1BB0AE7A52504E7 /* ExpoModulesProvider.swift */,
-			);
-			name = ShopIQ;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -100,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				DBB92808E3271647B1CB104A /* Pods */,
-				0F56500AFFF44D2EBFFFA53B /* ExpoModulesProviders */,
+				C5AE4C3B577159D077ADE697 /* Pods */,
+				2BB911324D014842C50D0953 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -116,6 +105,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		A5536446FEA4E800E6A42BC2 /* ShopIQ */ = {
+			isa = PBXGroup;
+			children = (
+				CBC0EE745D90E6AE63C0936C /* ExpoModulesProvider.swift */,
+			);
+			name = ShopIQ;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,13 +122,12 @@
 			path = ShopIQ/Supporting;
 			sourceTree = "<group>";
 		};
-		DBB92808E3271647B1CB104A /* Pods */ = {
+		C5AE4C3B577159D077ADE697 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3EFEBE874C51FAE537A93FA7 /* Pods-ShopIQ.debug.xcconfig */,
-				15020255E9FD573FD5E92124 /* Pods-ShopIQ.release.xcconfig */,
+				9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */,
+				C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -143,13 +139,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ShopIQ" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				E1644261F3F3B1C641ABCF16 /* [Expo] Configure project */,
+				415A32A7F90DE3F9A3DE8E30 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				9396054682CF846F31B69877 /* [CP] Embed Pods Frameworks */,
+				31357ACD0368ED3623715511 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -199,7 +195,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				44658F4D9FC44584B7576E59 /* PrivacyInfo.xcprivacy in Resources */,
+				E7707F78A1928F349D41EA97 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +238,43 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		31357ACD0368ED3623715511 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		415A32A7F90DE3F9A3DE8E30 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ShopIQ/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -319,43 +352,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9396054682CF846F31B69877 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShopIQ/Pods-ShopIQ-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E1644261F3F3B1C641ABCF16 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ShopIQ/expo-configure-project.sh\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -364,8 +360,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				11DC37EA24C2F562ADDF3104 /* ExpoModulesProvider.swift in Sources */,
-				A7F1E5E61D2A4C4C9B4A1F01 /* ExpoDevLauncherAppDelegateSubscriber.swift in Sources */,
+				70017AA4450235CA60568080 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,12 +369,15 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3EFEBE874C51FAE537A93FA7 /* Pods-ShopIQ.debug.xcconfig */;
+			baseConfigurationReference = 9186D8881603FA7D63464B4C /* Pods-ShopIQ.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShopIQ/ShopIQ.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 766Y9QHTNH;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -400,6 +398,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shopiq.app;
 				PRODUCT_NAME = ShopIQ;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShopIQ/ShopIQ-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -410,12 +409,15 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 15020255E9FD573FD5E92124 /* Pods-ShopIQ.release.xcconfig */;
+			baseConfigurationReference = C9D6003B47E5D81F706767CE /* Pods-ShopIQ.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShopIQ/ShopIQ.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 766Y9QHTNH;
 				INFOPLIST_FILE = ShopIQ/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -431,6 +433,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shopiq.app;
 				PRODUCT_NAME = ShopIQ;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShopIQ/ShopIQ-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -25,14 +25,16 @@
       "distribution": "store",
       "ios": {
         "simulator": false,
-        "buildConfiguration": "Release"
+        "buildConfiguration": "Release",
+        "autoIncrement": "buildNumber"
       },
       "env": {
         "NPM_CONFIG_INSTALL_STRATEGY": "hoisted"
       },
       "cache": {
-        "key": "production-build-v4"
-      }
+        "key": "production-build-v6"
+      },
+      "node": "20.11.0"
     }
   },
   "submit": {

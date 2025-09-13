@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shopiq.app",
-      "buildNumber": "1",
+      "buildNumber": "3",
       "appleTeamId": "766Y9QHTNH"
     },
     "android": {

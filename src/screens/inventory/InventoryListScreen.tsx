@@ -36,15 +36,15 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
       const loadingTimeout = setTimeout(() => {
         setLoading(true);
       }, 100);
-      
+
       const allItems = await repository.findAll();
       clearTimeout(loadingTimeout);
-      
+
       setItems(allItems);
       // Set filtered items immediately after loading items
       setFilteredItems(allItems);
       setDataLoaded(true);
-      
+
       // Fade in the content smoothly
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -211,9 +211,9 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
           ListEmptyComponent={renderEmptyState}
           showsVerticalScrollIndicator={false}
         />
-
-        <FloatingActionButton onPress={onAddItem} />
       </Animated.View>
+
+      <FloatingActionButton onPress={onAddItem} />
     </Screen>
   );
 };

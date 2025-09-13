@@ -37,15 +37,15 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
       const loadingTimeout = setTimeout(() => {
         setLoading(true);
       }, 100);
-      
+
       const allSuppliers = await repository.findAll();
       clearTimeout(loadingTimeout);
-      
+
       setSuppliers(allSuppliers);
       // Set filtered suppliers immediately after loading suppliers
       setFilteredSuppliers(allSuppliers);
       setDataLoaded(true);
-      
+
       // Fade in the content smoothly
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -137,8 +137,8 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
     // Create subtitle with rating if available
     const subtitle = item.rating ? (
       <View style={styles.ratingContainer}>
-        <SupplierRating 
-          rating={item.rating} 
+        <SupplierRating
+          rating={item.rating}
           starSize={16}
           showRatingNumber={true}
           testID={`supplier-${item.id}-rating`}
@@ -226,9 +226,9 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
           ListEmptyComponent={renderEmptyState}
           showsVerticalScrollIndicator={false}
         />
-
-        <FloatingActionButton onPress={onAddSupplier} />
       </Animated.View>
+
+      <FloatingActionButton onPress={onAddSupplier} />
     </Screen>
   );
 };

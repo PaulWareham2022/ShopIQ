@@ -45,24 +45,23 @@ export default function App() {
         // Initialize database without running tests that create test suppliers
         await initializeDatabase();
 
-        // Seed sample suppliers for testing
-        try {
-          await seedSampleSuppliers();
-        } catch (error) {
-          if (__DEV__) {
+        // Only seed sample data in development mode
+        if (__DEV__) {
+          // Seed sample suppliers for testing
+          try {
+            await seedSampleSuppliers();
+          } catch (error) {
             // eslint-disable-next-line no-console
             console.log(
               'Sample suppliers already exist or seeding failed:',
               error
             );
           }
-        }
 
-        // Seed sample inventory items for testing
-        try {
-          await seedSampleInventoryItems();
-        } catch (error) {
-          if (__DEV__) {
+          // Seed sample inventory items for testing
+          try {
+            await seedSampleInventoryItems();
+          } catch (error) {
             // eslint-disable-next-line no-console
             console.log(
               'Sample inventory items already exist or seeding failed:',

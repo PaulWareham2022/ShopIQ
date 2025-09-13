@@ -64,9 +64,16 @@ const SAMPLE_INVENTORY_ITEMS: Omit<
 
 /**
  * Seed sample inventory items into the database
+ * ONLY for development and testing - should not run in production
  * Only creates items that don't already exist
  */
 export async function seedSampleInventoryItems(): Promise<void> {
+  if (!__DEV__) {
+    console.warn(
+      'seedSampleInventoryItems should only be called in development mode'
+    );
+    return;
+  }
   try {
     const repositoryFactory = RepositoryFactory.getInstance();
     await repositoryFactory.initialize();

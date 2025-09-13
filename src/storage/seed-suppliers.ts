@@ -138,9 +138,15 @@ export const sampleSuppliers: Omit<
 
 /**
  * Seeds the database with sample supplier data
- * Useful for development and testing
+ * ONLY for development and testing - should not run in production
  */
 export async function seedSampleSuppliers(): Promise<void> {
+  if (!__DEV__) {
+    console.warn(
+      'seedSampleSuppliers should only be called in development mode'
+    );
+    return;
+  }
   const repository = new SupplierRepository();
 
   try {
@@ -177,9 +183,16 @@ export async function seedSampleSuppliers(): Promise<void> {
 
 /**
  * Clears all suppliers and re-seeds with sample data
+ * ONLY for development and testing - should not run in production
  * Use with caution - this will delete existing supplier data
  */
 export async function resetSuppliersWithSampleData(): Promise<void> {
+  if (!__DEV__) {
+    console.warn(
+      'resetSuppliersWithSampleData should only be called in development mode'
+    );
+    return;
+  }
   const repository = new SupplierRepository();
 
   try {

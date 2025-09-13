@@ -236,6 +236,41 @@ describe('CSVBackupService', () => {
         ['2', 'Test Item', null]
       );
     });
+
+    it('should handle invalid quality_rating values by converting them to null', async () => {
+      const csvContent = 'id,quality_rating\n1,0\n2,6\n3,3';
+      
+      // Mock schema info for validation - simulate PRAGMA table_info failure
+      const mockSchemaResult = {
+        rows: {
+          length: 0 // Simulate empty result to trigger fallback schema
+        }
+      };
+
+      (executeSql as jest.Mock)
+        .mockResolvedValueOnce(undefined) // DELETE call
+        .mockResolvedValueOnce(mockSchemaResult) // PRAGMA table_info call (fails, triggers fallback)
+        .mockResolvedValueOnce(undefined) // First INSERT call
+        .mockResolvedValueOnce(undefined) // Second INSERT call
+        .mockResolvedValueOnce(undefined); // Third INSERT call
+
+      await (csvBackupService as any).importCSV('offers', csvContent);
+
+      // Invalid values (0 and 6) should be converted to null
+      expect(executeSql).toHaveBeenCalledWith(
+        'INSERT INTO offers (id,quality_rating) VALUES (?,?)',
+        ['1', null]
+      );
+      expect(executeSql).toHaveBeenCalledWith(
+        'INSERT INTO offers (id,quality_rating) VALUES (?,?)',
+        ['2', null]
+      );
+      // Valid value (3) should remain as is
+      expect(executeSql).toHaveBeenCalledWith(
+        'INSERT INTO offers (id,quality_rating) VALUES (?,?)',
+        ['3', 3]
+      );
+    });
   });
 
   describe('generateMetadata', () => {

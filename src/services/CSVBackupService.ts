@@ -315,6 +315,40 @@ export class CSVBackupService {
         created_at: { type: 'TEXT', notnull: 1, dflt_value: null },
         updated_at: { type: 'TEXT', notnull: 1, dflt_value: null },
         deleted_at: { type: 'TEXT', notnull: 0, dflt_value: null }
+      },
+      offers: {
+        id: { type: 'TEXT', notnull: 1, dflt_value: null },
+        inventory_item_id: { type: 'TEXT', notnull: 1, dflt_value: null },
+        supplier_id: { type: 'TEXT', notnull: 1, dflt_value: null },
+        supplier_name_snapshot: { type: 'TEXT', notnull: 0, dflt_value: null },
+        supplier_url: { type: 'TEXT', notnull: 0, dflt_value: null },
+        source_type: { type: 'TEXT', notnull: 1, dflt_value: null },
+        source_url: { type: 'TEXT', notnull: 0, dflt_value: null },
+        raw_capture: { type: 'TEXT', notnull: 0, dflt_value: null },
+        observed_at: { type: 'TEXT', notnull: 1, dflt_value: null },
+        captured_at: { type: 'TEXT', notnull: 1, dflt_value: null },
+        total_price: { type: 'REAL', notnull: 1, dflt_value: null },
+        currency: { type: 'TEXT', notnull: 1, dflt_value: null },
+        is_tax_included: { type: 'INTEGER', notnull: 1, dflt_value: 1 },
+        tax_rate: { type: 'REAL', notnull: 0, dflt_value: null },
+        shipping_cost: { type: 'REAL', notnull: 0, dflt_value: null },
+        min_order_amount: { type: 'REAL', notnull: 0, dflt_value: null },
+        free_shipping_threshold_at_capture: { type: 'REAL', notnull: 0, dflt_value: null },
+        shipping_included: { type: 'INTEGER', notnull: 0, dflt_value: 0 },
+        amount: { type: 'REAL', notnull: 1, dflt_value: null },
+        amount_unit: { type: 'TEXT', notnull: 1, dflt_value: null },
+        amount_canonical: { type: 'REAL', notnull: 1, dflt_value: null },
+        price_per_canonical_excl_shipping: { type: 'REAL', notnull: 1, dflt_value: null },
+        price_per_canonical_incl_shipping: { type: 'REAL', notnull: 1, dflt_value: null },
+        effective_price_per_canonical: { type: 'REAL', notnull: 1, dflt_value: null },
+        bundle_id: { type: 'TEXT', notnull: 0, dflt_value: null },
+        quality_rating: { type: 'INTEGER', notnull: 0, dflt_value: null },
+        notes: { type: 'TEXT', notnull: 0, dflt_value: null },
+        photo_uri: { type: 'TEXT', notnull: 0, dflt_value: null },
+        computed_by_version: { type: 'TEXT', notnull: 0, dflt_value: null },
+        created_at: { type: 'TEXT', notnull: 1, dflt_value: null },
+        updated_at: { type: 'TEXT', notnull: 1, dflt_value: null },
+        deleted_at: { type: 'TEXT', notnull: 0, dflt_value: null }
       }
     };
     
@@ -387,10 +421,10 @@ export class CSVBackupService {
             return 0;
           }
           
-          // Special validation for rating column
-          if (header === 'rating') {
-            if (isNaN(numValue) || numValue < 0 || numValue > 5) {
-              console.warn(`Invalid rating value '${value}' for column '${header}', using null`);
+          // Special validation for quality_rating column
+          if (header === 'quality_rating') {
+            if (isNaN(numValue) || numValue < 1 || numValue > 5) {
+              console.warn(`Invalid quality_rating value '${value}' for column '${header}', using null`);
               return null;
             }
           }
@@ -514,7 +548,25 @@ export class CSVBackupService {
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
-    return btoa(binary);
+    // Use global Buffer if available (Node.js), otherwise use a simple base64 implementation
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(binary, 'binary').toString('base64');
+    }
+    // Fallback: simple base64 encoding for React Native
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    let result = '';
+    let i = 0;
+    while (i < binary.length) {
+      const a = binary.charCodeAt(i++);
+      const b = i < binary.length ? binary.charCodeAt(i++) : 0;
+      const c = i < binary.length ? binary.charCodeAt(i++) : 0;
+      const bitmap = (a << 16) | (b << 8) | c;
+      result += chars.charAt((bitmap >> 18) & 63);
+      result += chars.charAt((bitmap >> 12) & 63);
+      result += i - 2 < binary.length ? chars.charAt((bitmap >> 6) & 63) : '=';
+      result += i - 1 < binary.length ? chars.charAt(bitmap & 63) : '=';
+    }
+    return result;
   }
 
 }

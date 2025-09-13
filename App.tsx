@@ -153,7 +153,7 @@ export default function App() {
             style={styles.menuButton}
             onPress={() => setShowMenu(true)}
           >
-            <Text style={styles.menuIcon}>⋯</Text>
+            <Text style={styles.menuIcon}>⋮</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -330,10 +330,7 @@ export default function App() {
         );
       case 'backup':
         return (
-          <BackupScreen
-            key="backup"
-            onBack={() => setCurrentScreen('home')}
-          />
+          <BackupScreen key="backup" onBack={() => setCurrentScreen('home')} />
         );
       default:
         return renderHomeScreen();
@@ -368,10 +365,9 @@ const styles = StyleSheet.create({
     marginRight: -8, // Align with the right edge
   },
   menuIcon: {
-    fontSize: 24,
-    color: colors.grayText,
-    fontWeight: 'bold',
-    transform: [{ rotate: '90deg' }], // Rotate to make it vertical
+    fontSize: 32,
+    color: colors.darkText,
+    fontWeight: '900',
   },
   title: {
     fontSize: 48,

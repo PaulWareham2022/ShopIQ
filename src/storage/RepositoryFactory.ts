@@ -16,11 +16,13 @@ import {
 // Repository implementations
 import { SupplierRepository } from './repositories/SupplierRepository';
 import { InventoryItemRepository } from './repositories/InventoryItemRepository';
+import { ProductVariantRepository } from './repositories/ProductVariantRepository';
 import { EnhancedOfferRepository } from './repositories/EnhancedOfferRepository';
 import { HistoricalPriceRepository } from './repositories/HistoricalPriceRepository';
 import {
   Supplier,
   InventoryItem,
+  ProductVariant,
   Offer,
   HistoricalPrice,
   UnitConversion,
@@ -125,6 +127,7 @@ export class RepositoryFactory implements IRepositoryFactory {
   // Repository instances (lazy-loaded)
   private supplierRepository: SupplierRepository | null = null;
   private inventoryItemRepository: InventoryItemRepository | null = null;
+  private productVariantRepository: ProductVariantRepository | null = null;
   private offerRepository: EnhancedOfferRepository | null = null;
   private historicalPriceRepository: HistoricalPriceRepository | null = null;
   // TODO: Add other repositories as they are implemented
@@ -264,6 +267,15 @@ export class RepositoryFactory implements IRepositoryFactory {
       this.inventoryItemRepository = new InventoryItemRepository();
     }
     return this.inventoryItemRepository;
+  }
+
+  async getProductVariantRepository(): Promise<Repository<ProductVariant>> {
+    await this.ensureInitialized();
+
+    if (!this.productVariantRepository) {
+      this.productVariantRepository = new ProductVariantRepository();
+    }
+    return this.productVariantRepository;
   }
 
   async getOfferRepository(): Promise<Repository<Offer>> {

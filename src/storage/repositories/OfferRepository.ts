@@ -176,7 +176,7 @@ export class OfferRepository extends BaseRepository<Offer> {
       // Use SQL query for native platforms
       const sql = `
         SELECT canonical_dimension 
-        FROM inventory_items 
+        FROM products 
         WHERE id = ? AND deleted_at IS NULL
       `;
       const result = await executeSql(sql, [inventoryItemId]);

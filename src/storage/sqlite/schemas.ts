@@ -51,11 +51,11 @@ export const SUPPLIERS_SCHEMA = `
 `;
 
 /**
- * INVENTORY_ITEMS TABLE
+ * PRODUCTS TABLE
  * Stores product/item definitions with canonical units and shelf-life information
  */
-export const INVENTORY_ITEMS_SCHEMA = `
-  CREATE TABLE IF NOT EXISTS inventory_items (
+export const PRODUCTS_SCHEMA = `
+  CREATE TABLE IF NOT EXISTS products (
     -- Primary identifier (UUIDv4)
     id TEXT PRIMARY KEY NOT NULL,
     
@@ -87,6 +87,41 @@ export const INVENTORY_ITEMS_SCHEMA = `
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     deleted_at TEXT
+  );
+`;
+
+/**
+ * PRODUCT_VARIANTS TABLE
+ * Stores product variants with package sizes, units, and barcodes for barcode integration
+ */
+export const PRODUCT_VARIANTS_SCHEMA = `
+  CREATE TABLE IF NOT EXISTS product_variants (
+    -- Primary identifier (UUIDv4)
+    id TEXT PRIMARY KEY NOT NULL,
+    
+    -- Foreign key relationship to inventory item
+    inventory_item_id TEXT NOT NULL,
+    
+    -- Package and unit information
+    package_size TEXT NOT NULL,
+    unit TEXT NOT NULL,
+    
+    -- Barcode information
+    barcode_value TEXT CHECK (barcode_value IS NULL OR (length(barcode_value) >= 8 AND length(barcode_value) <= 20)),
+    
+    -- Additional metadata stored as JSON
+    metadata TEXT, -- JSON object for variant-specific attributes
+    
+    -- Free-form notes
+    notes TEXT,
+    
+    -- Standard timestamps
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    deleted_at TEXT,
+    
+    -- Foreign key constraints
+    FOREIGN KEY (inventory_item_id) REFERENCES products (id) ON DELETE CASCADE
   );
 `;
 
@@ -159,7 +194,7 @@ export const OFFERS_SCHEMA = `
     deleted_at TEXT,
     
     -- Foreign key constraints
-    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id) ON DELETE CASCADE,
+    FOREIGN KEY (inventory_item_id) REFERENCES products (id) ON DELETE CASCADE,
     FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE,
     FOREIGN KEY (bundle_id) REFERENCES bundles (id) ON DELETE SET NULL
   );
@@ -256,7 +291,7 @@ export const HISTORICAL_PRICES_SCHEMA = `
     deleted_at TEXT,
     
     -- Foreign key constraints
-    FOREIGN KEY (inventory_item_id) REFERENCES inventory_items (id) ON DELETE CASCADE,
+    FOREIGN KEY (inventory_item_id) REFERENCES products (id) ON DELETE CASCADE,
     FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE SET NULL
   );
 `;
@@ -284,10 +319,16 @@ export const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_suppliers_deleted ON suppliers (deleted_at);',
 
   // Inventory item indexes
-  'CREATE INDEX IF NOT EXISTS idx_inventory_name ON inventory_items (name);',
-  'CREATE INDEX IF NOT EXISTS idx_inventory_category ON inventory_items (category);',
-  'CREATE INDEX IF NOT EXISTS idx_inventory_dimension ON inventory_items (canonical_dimension);',
-  'CREATE INDEX IF NOT EXISTS idx_inventory_deleted ON inventory_items (deleted_at);',
+  'CREATE INDEX IF NOT EXISTS idx_products_name ON products (name);',
+  'CREATE INDEX IF NOT EXISTS idx_products_category ON products (category);',
+  'CREATE INDEX IF NOT EXISTS idx_products_dimension ON products (canonical_dimension);',
+  'CREATE INDEX IF NOT EXISTS idx_products_deleted ON products (deleted_at);',
+
+  // Product variant indexes
+  'CREATE INDEX IF NOT EXISTS idx_product_variants_inventory_item ON product_variants (inventory_item_id);',
+  'CREATE INDEX IF NOT EXISTS idx_product_variants_barcode ON product_variants (barcode_value);',
+  'CREATE INDEX IF NOT EXISTS idx_product_variants_deleted ON product_variants (deleted_at);',
+  'CREATE UNIQUE INDEX IF NOT EXISTS idx_product_variants_barcode_unique ON product_variants (barcode_value) WHERE deleted_at IS NULL AND barcode_value IS NOT NULL;',
 
   // Offer indexes (critical for comparison queries)
   'CREATE INDEX IF NOT EXISTS idx_offers_inventory_item ON offers (inventory_item_id);',
@@ -336,10 +377,17 @@ export const TRIGGERS = [
    END;`,
 
   // Inventory items update trigger
-  `CREATE TRIGGER IF NOT EXISTS trg_inventory_items_updated_at
-   AFTER UPDATE ON inventory_items
+  `CREATE TRIGGER IF NOT EXISTS trg_products_updated_at
+   AFTER UPDATE ON products
    BEGIN
-     UPDATE inventory_items SET updated_at = datetime('now') WHERE id = NEW.id;
+     UPDATE products SET updated_at = datetime('now') WHERE id = NEW.id;
+   END;`,
+
+  // Product variants update trigger
+  `CREATE TRIGGER IF NOT EXISTS trg_product_variants_updated_at
+   AFTER UPDATE ON product_variants
+   BEGIN
+     UPDATE product_variants SET updated_at = datetime('now') WHERE id = NEW.id;
    END;`,
 
   // Offers update trigger
@@ -376,7 +424,8 @@ export const TRIGGERS = [
  */
 export const ALL_SCHEMAS = [
   SUPPLIERS_SCHEMA,
-  INVENTORY_ITEMS_SCHEMA,
+  PRODUCTS_SCHEMA,
+  PRODUCT_VARIANTS_SCHEMA,
   BUNDLES_SCHEMA,
   OFFERS_SCHEMA,
   HISTORICAL_PRICES_SCHEMA,
@@ -497,7 +546,8 @@ export const validateSchema = async (): Promise<boolean> => {
   const { db } = await import('./database');
   const requiredTables = [
     'suppliers',
-    'inventory_items',
+    'products',
+    'product_variants',
     'offers',
     'unit_conversions',
     'bundles',

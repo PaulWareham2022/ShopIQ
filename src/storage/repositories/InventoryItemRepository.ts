@@ -41,7 +41,7 @@ const MOCK_INVENTORY_ITEMS: InventoryItem[] = [
 ];
 
 export class InventoryItemRepository extends BaseRepository<InventoryItem> {
-  protected tableName = 'inventory_items';
+  protected tableName = 'products';
 
   // Override to allow ordering by inventory item-specific columns
   protected getAllowedOrderByColumns(): string[] {

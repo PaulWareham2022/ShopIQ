@@ -676,7 +676,7 @@ describe('InventoryItemRepository', () => {
     });
 
     it('should use correct table name for inherited operations', () => {
-      expect((repository as any).tableName).toBe('inventory_items');
+      expect((repository as any).tableName).toBe('products');
     });
 
     it('should properly map entities in inherited operations', async () => {

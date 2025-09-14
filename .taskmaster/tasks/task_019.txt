@@ -1,0 +1,15 @@
+# Task ID: 19
+# Title: Fix TypeScript Errors in UI Components for Inventory Comparison
+# Status: done
+# Dependencies: 3, 5, 8, 9, 17
+# Priority: high
+# Description: Resolve TypeScript errors in Button.tsx, BestOfferBadge.tsx, and ComparisonList.tsx that are preventing the test suite from running, focusing on style array type mismatches and related type issues.
+# Details:
+Audit Button.tsx, BestOfferBadge.tsx, and ComparisonList.tsx for TypeScript errors, with particular attention to array type mismatches in style props and other type annotation issues. Update type annotations to use consistent array types (e.g., StyleProp<ViewStyle>[] or Array<StyleProp<ViewStyle>>) as per project conventions. Ensure all props and state variables are explicitly typed, and refactor any code where implicit 'any' or incorrect types are used. Where style arrays are used, confirm compatibility with React Native's StyleProp typing. Run the TypeScript compiler and ESLint to identify and fix all outstanding issues. Refactor code to avoid type casting unless necessary, and add comments where type workarounds are unavoidable. Coordinate with theming and UI consistency guidelines if relevant changes are required.
+
+# Test Strategy:
+1. Run 'tsc' and ESLint to confirm all TypeScript errors and warnings in the three components are resolved.
+2. Execute the full test suite to ensure tests now run and pass for the affected components.
+3. Manually verify that UI rendering and style application are correct in the app for each component.
+4. Review code for consistent array type usage and absence of type mismatches, especially in style props.
+5. Peer review to confirm no regressions or new type issues were introduced.

@@ -2,46 +2,53 @@
  * Unit tests for RepositoryFactory
  */
 
+// Mock all dependencies first
+jest.mock('../sqlite/database', () => ({
+  initializeDatabase: jest.fn(),
+  executeSql: jest.fn(),
+  db: {
+    execAsync: jest.fn(),
+    getAllAsync: jest.fn(),
+    getFirstAsync: jest.fn(),
+    runAsync: jest.fn(),
+    prepareAsync: jest.fn(),
+    withTransactionAsync: jest.fn(),
+    closeAsync: jest.fn(),
+  },
+}));
+
+jest.mock('../mmkv/storage', () => ({
+  appStorageWrapper: {
+    set: jest.fn(),
+    getString: jest.fn(),
+    delete: jest.fn(),
+  },
+  cacheStorageWrapper: {
+    set: jest.fn(),
+    getString: jest.fn(),
+    delete: jest.fn(),
+  },
+  userPreferencesStorageWrapper: {
+    set: jest.fn(),
+    getString: jest.fn(),
+    delete: jest.fn(),
+  },
+}));
+
 import {
   RepositoryFactory,
   getRepositoryFactory,
   repositories,
 } from '../RepositoryFactory';
 import { StorageError } from '../types';
-import { mockSQLiteResponse, resetAllMocks, mockSQLiteDatabase } from './setup';
+import { mockSQLiteResponse, resetAllMocks } from './setup';
 
-// Mock all dependencies
-const mockInitializeDatabase = jest.fn();
-const mockExecuteSql = jest.fn();
+// Import mocked functions after mocking
+import { initializeDatabase, executeSql } from '../sqlite/database';
 
-jest.mock('../sqlite/database', () => ({
-  initializeDatabase: mockInitializeDatabase,
-  executeSql: mockExecuteSql,
-  db: mockSQLiteDatabase,
-}));
-
-// Mock MMKV storage wrappers
-const mockAppStorage = {
-  set: jest.fn(),
-  getString: jest.fn(),
-  delete: jest.fn(),
-};
-const mockCacheStorage = {
-  set: jest.fn(),
-  getString: jest.fn(),
-  delete: jest.fn(),
-};
-const mockUserPrefsStorage = {
-  set: jest.fn(),
-  getString: jest.fn(),
-  delete: jest.fn(),
-};
-
-jest.mock('../mmkv/storage', () => ({
-  appStorageWrapper: mockAppStorage,
-  cacheStorageWrapper: mockCacheStorage,
-  userPreferencesStorageWrapper: mockUserPrefsStorage,
-}));
+// Cast to Jest mocks
+const mockInitializeDatabase = initializeDatabase as jest.MockedFunction<typeof initializeDatabase>;
+const mockExecuteSql = executeSql as jest.MockedFunction<typeof executeSql>;
 
 // Mock migrations
 const mockInitializeMigrationSystem = jest.fn();
@@ -63,6 +70,7 @@ jest.mock('../migrations', () => ({
 // Mock repository classes
 jest.mock('../repositories/SupplierRepository');
 jest.mock('../repositories/InventoryItemRepository');
+jest.mock('../repositories/ProductVariantRepository');
 
 describe('RepositoryFactory', () => {
   beforeEach(() => {
@@ -260,13 +268,35 @@ describe('RepositoryFactory', () => {
       expect(repo1).toBe(repo2);
     });
 
+    it('should return ProductVariantRepository instance', async () => {
+      const repo = await factory.getProductVariantRepository();
+
+      expect(repo).toBeDefined();
+      expect(factory.isInitialized()).toBe(true);
+    });
+
+    it('should return the same ProductVariantRepository instance on multiple calls', async () => {
+      const repo1 = await factory.getProductVariantRepository();
+      const repo2 = await factory.getProductVariantRepository();
+
+      expect(repo1).toBe(repo2);
+    });
+
+    it('should return OfferRepository instance', async () => {
+      const repo = await factory.getOfferRepository();
+
+      expect(repo).toBeDefined();
+      expect(factory.isInitialized()).toBe(true);
+    });
+
+    it('should return the same OfferRepository instance on multiple calls', async () => {
+      const repo1 = await factory.getOfferRepository();
+      const repo2 = await factory.getOfferRepository();
+
+      expect(repo1).toBe(repo2);
+    });
+
     it('should throw StorageError for unimplemented repositories', async () => {
-      await expect(factory.getOfferRepository()).rejects.toThrow(StorageError);
-
-      await expect(factory.getOfferRepository()).rejects.toThrow(
-        'OfferRepository not yet implemented'
-      );
-
       await expect(factory.getUnitConversionRepository()).rejects.toThrow(
         StorageError
       );

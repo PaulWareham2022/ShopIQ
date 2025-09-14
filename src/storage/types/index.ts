@@ -92,6 +92,7 @@ export interface Transaction {
 export interface IRepositoryFactory {
   getSupplierRepository(): Promise<Repository<Supplier>>;
   getInventoryItemRepository(): Promise<Repository<InventoryItem>>;
+  getProductVariantRepository(): Promise<Repository<ProductVariant>>;
   getOfferRepository(): Promise<Repository<Offer>>;
   getUnitConversionRepository(): Promise<Repository<UnitConversion>>;
   getBundleRepository(): Promise<Repository<Bundle>>;
@@ -246,6 +247,29 @@ export interface InventoryItem extends BaseEntity {
   equivalenceFactor?: number;
 
   /** Free text notes */
+  notes?: string;
+}
+
+// =============================================================================
+// PRODUCT VARIANT ENTITY
+// =============================================================================
+export interface ProductVariant extends BaseEntity {
+  /** Foreign key to InventoryItem.id - which inventory item this variant belongs to */
+  inventoryItemId: string;
+
+  /** Package size description (e.g., "500ml bottle", "1kg bag", "12-pack") */
+  packageSize: string;
+
+  /** Unit of measurement for this variant (e.g., "ml", "g", "unit") */
+  unit: string;
+
+  /** Barcode value for this specific variant (e.g., "1234567890123") */
+  barcodeValue?: string;
+
+  /** Additional metadata stored as JSON (e.g., { brand: "Generic", flavor: "Original" }) */
+  metadata?: Record<string, any>;
+
+  /** Free text notes specific to this variant */
   notes?: string;
 }
 

@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
 import { initializeDatabase } from './src/storage/sqlite/database';
 import { seedSampleSuppliers } from './src/storage/seed-suppliers';
 import { seedSampleInventoryItems } from './src/storage/seed-inventory-items';
+import { seedTestProducts } from './src/storage/seed-test-products';
 import { colors } from './src/constants/colors';
 import { InventoryListScreen } from './src/screens/inventory/InventoryListScreen';
 import { InventoryItemDetailScreen } from './src/screens/inventory/InventoryItemDetailScreen';
@@ -14,7 +15,7 @@ import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
 import { OfferListScreen } from './src/screens/offers/OfferListScreen';
 import { BackupScreen } from './src/screens/BackupScreen';
 import { BarcodeScannerScreen } from './src/screens/BarcodeScannerScreen';
-import { InventoryItem, Supplier } from './src/storage/types';
+import { InventoryItem, Supplier, ProductVariant } from './src/storage/types';
 
 type Screen =
   | 'home'
@@ -34,6 +35,9 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null
+  );
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     null
   );
   const [storageStatus, setStorageStatus] = useState<
@@ -67,6 +71,17 @@ export default function App() {
             // eslint-disable-next-line no-console
             console.log(
               'Sample inventory items already exist or seeding failed:',
+              error
+            );
+          }
+
+          // Seed test products with known UPC codes for barcode scanner testing
+          try {
+            await seedTestProducts();
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(
+              'Test products already exist or seeding failed:',
               error
             );
           }
@@ -167,8 +182,8 @@ export default function App() {
           <View style={styles.buttonContent}>
             <Text style={styles.buttonIcon}>📦</Text>
             <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>Inventory</Text>
-              <Text style={styles.buttonSubtitle}>Manage your items</Text>
+              <Text style={styles.buttonTitle}>Products</Text>
+              <Text style={styles.buttonSubtitle}>Manage your products</Text>
             </View>
             <Text style={styles.chevron}>›</Text>
           </View>
@@ -320,7 +335,11 @@ export default function App() {
         return (
           <AddOfferScreen
             key="add-offer"
-            onBack={() => setCurrentScreen('home')}
+            onBack={() => {
+              setSelectedVariant(null);
+              setCurrentScreen('home');
+            }}
+            selectedVariant={selectedVariant}
           />
         );
       case 'inventory-comparison':
@@ -354,6 +373,10 @@ export default function App() {
           <BarcodeScannerScreen
             key="barcode-scanner"
             onBack={() => setCurrentScreen('home')}
+            onVariantFound={(variant) => {
+              setSelectedVariant(variant);
+              setCurrentScreen('add-offer');
+            }}
           />
         );
       default:

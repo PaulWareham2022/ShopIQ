@@ -253,7 +253,7 @@ export abstract class DatabaseMigration
       } catch (error) {
         throw new MigrationExecutionError(
           this.id,
-          `Failed to rollback database migration: ${error.message}`,
+          `Failed to rollback database migration: ${(error as Error).message}`,
           error as Error
         );
       }
@@ -403,7 +403,7 @@ export abstract class DataMigration
                   const sanitizedKey =
                     key.length > 50 ? '[LONG_KEY]' : '[KEY_SANITIZED]';
                   throw new Error(
-                    `Failed to transform key '${sanitizedKey}' in namespace '${namespace}': ${sanitizeErrorMessage(error.message)}`
+                    `Failed to transform key '${sanitizedKey}' in namespace '${namespace}': ${sanitizeErrorMessage((error as Error).message)}`
                   );
                 }
               }
@@ -469,7 +469,7 @@ export abstract class DataMigration
       } catch (error) {
         throw new MigrationExecutionError(
           this.id,
-          `Failed to rollback data migration: ${error.message}`,
+          `Failed to rollback data migration: ${(error as Error).message}`,
           error as Error
         );
       }

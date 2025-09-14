@@ -8,7 +8,7 @@ import {
   getSchemaVersion,
   SCHEMA_VERSION,
   SUPPLIERS_SCHEMA,
-  INVENTORY_ITEMS_SCHEMA,
+  PRODUCTS_SCHEMA,
   OFFERS_SCHEMA,
 } from '../schemas';
 import { getBatchUnitConversionSQL } from '../seed-data';
@@ -76,7 +76,7 @@ describe('SQLite Schemas', () => {
     it('should return true when all required tables exist', async () => {
       const mockTables = [
         { name: 'suppliers' },
-        { name: 'inventory_items' },
+        { name: 'products' },
         { name: 'offers' },
         { name: 'unit_conversions' },
         { name: 'bundles' },
@@ -158,16 +158,16 @@ describe('SQLite Schemas', () => {
       expect(SUPPLIERS_SCHEMA).toContain('deleted_at TEXT');
     });
 
-    it('should have all required fields in inventory items schema', () => {
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('id TEXT PRIMARY KEY');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('name TEXT NOT NULL');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+    it('should have all required fields in products schema', () => {
+      expect(PRODUCTS_SCHEMA).toContain('id TEXT PRIMARY KEY');
+      expect(PRODUCTS_SCHEMA).toContain('name TEXT NOT NULL');
+      expect(PRODUCTS_SCHEMA).toContain(
         'canonical_dimension TEXT NOT NULL'
       );
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('canonical_unit TEXT NOT NULL');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('shelf_life_sensitive INTEGER');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain('attributes TEXT');
-      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+      expect(PRODUCTS_SCHEMA).toContain('canonical_unit TEXT NOT NULL');
+      expect(PRODUCTS_SCHEMA).toContain('shelf_life_sensitive INTEGER');
+      expect(PRODUCTS_SCHEMA).toContain('attributes TEXT');
+      expect(PRODUCTS_SCHEMA).toContain(
         'equivalence_factor REAL DEFAULT 1.0'
       );
     });
@@ -218,12 +218,12 @@ describe('SQLite Schemas', () => {
 
       // For multiline constraints, check that all components are present
       const normalizedInventorySchema = normalizeWhitespace(
-        INVENTORY_ITEMS_SCHEMA
+        PRODUCTS_SCHEMA
       );
       expect(normalizedInventorySchema).toContain(
         "canonical_dimension IN ('mass', 'volume', 'count', 'length', 'area')"
       );
-      expect(INVENTORY_ITEMS_SCHEMA).toContain(
+      expect(PRODUCTS_SCHEMA).toContain(
         'CHECK (equivalence_factor > 0)'
       );
 

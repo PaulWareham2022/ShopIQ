@@ -87,7 +87,7 @@ describe('CSVBackupService', () => {
         }
       });
 
-      const csvContent = await (csvBackupService as any).generateCSV('inventory_items');
+      const csvContent = await (csvBackupService as any).generateCSV('products');
 
       expect(csvContent).toContain('id,name,quantity');
       expect(csvContent).toContain('1,Test Item,10');
@@ -180,15 +180,15 @@ describe('CSVBackupService', () => {
         .mockResolvedValueOnce(undefined) // First INSERT call
         .mockResolvedValueOnce(undefined); // Second INSERT call
 
-      await (csvBackupService as any).importCSV('inventory_items', csvContent);
+      await (csvBackupService as any).importCSV('products', csvContent);
 
-      expect(executeSql).toHaveBeenCalledWith('DELETE FROM inventory_items');
+      expect(executeSql).toHaveBeenCalledWith('DELETE FROM products');
       expect(executeSql).toHaveBeenCalledWith(
-        'INSERT INTO inventory_items (id,name,quantity) VALUES (?,?,?)',
+        'INSERT INTO products (id,name,quantity) VALUES (?,?,?)',
         ['1', 'Test Item', 10]
       );
       expect(executeSql).toHaveBeenCalledWith(
-        'INSERT INTO inventory_items (id,name,quantity) VALUES (?,?,?)',
+        'INSERT INTO products (id,name,quantity) VALUES (?,?,?)',
         ['2', 'Another Item', 5]
       );
     });
@@ -198,7 +198,7 @@ describe('CSVBackupService', () => {
       
       (executeSql as jest.Mock).mockResolvedValue(undefined);
       
-      await (csvBackupService as any).importCSV('inventory_items', csvContent);
+      await (csvBackupService as any).importCSV('products', csvContent);
 
       // For empty CSV (only headers), the method returns early without calling executeSql
       expect(executeSql).not.toHaveBeenCalled();
@@ -225,14 +225,14 @@ describe('CSVBackupService', () => {
         .mockResolvedValueOnce(undefined) // First INSERT call
         .mockResolvedValueOnce(undefined); // Second INSERT call
 
-      await (csvBackupService as any).importCSV('inventory_items', csvContent);
+      await (csvBackupService as any).importCSV('products', csvContent);
 
       expect(executeSql).toHaveBeenCalledWith(
-        'INSERT INTO inventory_items (id,name,quantity) VALUES (?,?,?)',
+        'INSERT INTO products (id,name,quantity) VALUES (?,?,?)',
         ['1', null, 10]
       );
       expect(executeSql).toHaveBeenCalledWith(
-        'INSERT INTO inventory_items (id,name,quantity) VALUES (?,?,?)',
+        'INSERT INTO products (id,name,quantity) VALUES (?,?,?)',
         ['2', 'Test Item', null]
       );
     });
@@ -318,7 +318,7 @@ describe('CSVBackupService', () => {
 
       expect(mockZipInstance.file).toHaveBeenCalledWith('metadata.json', expect.any(String));
       expect(mockZipInstance.file).toHaveBeenCalledWith('suppliers.csv', 'mock-csv-content');
-      expect(mockZipInstance.file).toHaveBeenCalledWith('inventory_items.csv', 'mock-csv-content');
+      expect(mockZipInstance.file).toHaveBeenCalledWith('products.csv', 'mock-csv-content');
       expect(mockZipInstance.file).toHaveBeenCalledWith('offers.csv', 'mock-csv-content');
       expect(mockZipInstance.file).toHaveBeenCalledWith('unit_conversions.csv', 'mock-csv-content');
       expect(mockZipInstance.file).toHaveBeenCalledWith('bundles.csv', 'mock-csv-content');

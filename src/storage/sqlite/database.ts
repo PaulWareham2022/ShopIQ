@@ -83,7 +83,7 @@ class WebDatabase {
             // Mock table list query
             const mockTables = [
               'suppliers',
-              'inventory_items',
+              'products',
               'offers',
               'unit_conversions',
               'bundles',
@@ -505,6 +505,18 @@ export const initializeDatabase = async (): Promise<void> => {
     // Populate unit conversion data
     // Temporarily disabled to investigate seeding issues
     // await seedUnitConversions();
+
+    // Clean up duplicate tables in development
+    if (__DEV__) {
+      try {
+        const { cleanupDuplicateTables } = await import('../cleanup-duplicate-tables');
+        await cleanupDuplicateTables();
+      } catch (error) {
+        console.warn('Failed to cleanup duplicate tables:', error);
+        // Don't fail initialization if cleanup fails
+      }
+      
+    }
 
     if (__DEV__) {
       console.log(

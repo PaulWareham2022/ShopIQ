@@ -30,6 +30,7 @@ module.exports = {
     '^expo-file-system$': '<rootDir>/src/services/__mocks__/expo-file-system.js',
     '^expo-document-picker$': '<rootDir>/src/services/__mocks__/expo-document-picker.js',
     '^expo-sharing$': '<rootDir>/src/services/__mocks__/expo-sharing.js',
+    '^expo-secure-store$': '<rootDir>/src/__mocks__/expo-secure-store.js',
     '^jszip$': '<rootDir>/src/services/__mocks__/jszip.js',
   },
   globals: {

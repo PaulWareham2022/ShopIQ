@@ -914,11 +914,116 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Implement Product Variants System for Barcode Integration",
+        "description": "Design and implement a product variants system that maps barcodes to specific package sizes, supports automatic extraction of package size data, and integrates with existing offer capture and comparison workflows.",
+        "details": "1. **Database Schema**: Extend the inventory schema to include a 'ProductVariant' table with fields for variant ID (UUID), inventory item reference, package size, unit, barcode value, and metadata. Ensure referential integrity and support for multiple variants per inventory item. \n\n2. **TypeScript Interfaces**: Define strict interfaces for ProductVariant, including barcode, package size, and extraction status. Use Zod for runtime validation and enforce backward compatibility with existing inventory and offer types.\n\n3. **Repository Implementation**: Implement repository methods for CRUD operations on product variants, barcode lookup, and migration logic. Ensure seamless integration with SQLite/MMKV and support for gradual migration from legacy barcode scanning.\n\n4. **Barcode Scanner Integration**: Upgrade the barcode scanner stub to support real barcode scanning (using Expo Camera v5+), lookup scanned barcodes in the ProductVariant table, and auto-populate package size in the offer form. Handle permissions and error states gracefully.\n\n5. **Automatic Package Size Extraction**: Build an extraction service that uses supplier APIs and/or web scraping (e.g., Cheerio, Puppeteer) to fetch package size data for new barcodes. Implement fallback logic and manual override for ambiguous cases. Log extraction attempts and results for auditability.\n\n6. **Offer Form and UI Updates**: Update offer entry forms to support selecting or auto-filling product variants based on barcode scan. Ensure UI components are consistent with app theming and provide clear feedback for variant selection and extraction status.\n\n7. **Backward Compatibility and Migration**: Design migration scripts and logic to transition existing barcode data to the new variant system. Allow legacy barcode scanning to coexist during migration, with clear UI indicators.\n\n8. **Maintain Offer Comparison Logic**: Ensure the comparison engine continues to operate on normalized price-per-unit, now using package size from product variants. Update relevant queries and UI components as needed.",
+        "testStrategy": "- Write unit tests for ProductVariant CRUD, barcode lookup, and extraction service logic.\n- Develop integration tests for barcode scanning, variant selection, and offer form population.\n- Perform E2E tests for offer capture and comparison workflows, verifying correct mapping and price normalization.\n- Validate migration scripts on sample legacy data sets.\n- Conduct manual UI tests for barcode scanning, variant selection, and error handling.\n- Audit for backward compatibility and regression in comparison logic.",
+        "status": "pending",
+        "dependencies": [
+          2,
+          3,
+          5,
+          8,
+          13
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create ProductVariants Database Schema",
+            "description": "Design and implement the 'ProductVariant' table in the database, including fields for variant ID (UUID), inventory item reference, package size, unit, barcode value, and metadata. Ensure referential integrity and support for multiple variants per inventory item.",
+            "dependencies": [],
+            "details": "Extend the existing inventory schema to add the ProductVariant table. Define foreign key relationships to InventoryItem. Support migration scripts for existing data.",
+            "status": "pending",
+            "testStrategy": "Write unit tests for schema creation and migration. Validate referential integrity and support for multiple variants per item."
+          },
+          {
+            "id": 2,
+            "title": "Define TypeScript Interfaces and Validation Schemas",
+            "description": "Create strict TypeScript interfaces for ProductVariant, including barcode, package size, unit, and extraction status. Implement Zod schemas for runtime validation and ensure backward compatibility with existing inventory and offer types.",
+            "dependencies": [
+              "20.1"
+            ],
+            "details": "Define interfaces and Zod schemas in the shared types module. Ensure all fields are covered and validation rules match database constraints.",
+            "status": "done",
+            "testStrategy": "Write unit tests for interface type-checking and Zod validation, including edge cases and backward compatibility checks."
+          },
+          {
+            "id": 3,
+            "title": "Implement ProductVariantRepository",
+            "description": "Develop repository methods for CRUD operations on product variants, barcode lookup, and migration logic. Integrate with SQLite/MMKV and support gradual migration from legacy barcode scanning.",
+            "dependencies": [
+              "20.1",
+              "20.2"
+            ],
+            "details": "Implement repository pattern for ProductVariant. Add methods for create, read, update, delete, and barcode lookup. Include migration helpers for legacy data.",
+            "status": "done",
+            "testStrategy": "Write unit tests for all repository methods, including CRUD, lookup, and migration. Mock database interactions for isolation."
+          },
+          {
+            "id": 4,
+            "title": "Update RepositoryFactory for ProductVariant Support",
+            "description": "Extend the RepositoryFactory to provide access to the new ProductVariantRepository, ensuring seamless integration with existing repositories and dependency injection patterns.",
+            "dependencies": [
+              "20.3"
+            ],
+            "details": "Modify RepositoryFactory to instantiate and expose ProductVariantRepository. Update dependency injection and ensure compatibility with existing modules.\n<info added on 2025-09-14T20:55:38.671Z>\nAdd the following implementation steps and verification tasks:\n\n- Add a mock implementation for ProductVariantRepository in the RepositoryFactory test file to enable isolated testing.\n- Correct the test expectations for getOfferRepository() to reflect its actual implementation status.\n- Implement comprehensive unit tests for the getProductVariantRepository() method, covering correct instantiation, return value, and integration with dependency injection.\n- Run and verify all RepositoryFactory tests to ensure ProductVariantRepository integration works as intended and does not break existing module compatibility.\n</info added on 2025-09-14T20:55:38.671Z>\n<info added on 2025-09-14T20:57:04.380Z>\nImplementation Complete! \n\nWhat was accomplished:\n1. Added missing mock for ProductVariantRepository in the RepositoryFactory test file.\n2. Fixed incorrect test expectations for getOfferRepository() (it was actually implemented).\n3. Added comprehensive tests for getProductVariantRepository() method, including:\n   - Test for correct instantiation\n   - Test for singleton behavior (same instance returned)\n4. Verified integration works correctly; all ProductVariantRepository tests pass.\n\nTest Results:\n- \"should return ProductVariantRepository instance\" - PASSED\n- \"should return the same ProductVariantRepository instance on multiple calls\" - PASSED\n\nKey Findings:\n- RepositoryFactory already had ProductVariantRepository properly integrated.\n- The issue was with missing/incorrect tests, not the implementation.\n- ProductVariantRepository is correctly instantiated and exposed via getProductVariantRepository().\n- Dependency injection pattern is working correctly.\n\nNote: Some other RepositoryFactory tests are failing, but these are pre-existing issues unrelated to ProductVariantRepository integration.\n</info added on 2025-09-14T20:57:04.380Z>",
+            "status": "done",
+            "testStrategy": "Write integration tests to verify correct instantiation and wiring of ProductVariantRepository via RepositoryFactory."
+          },
+          {
+            "id": 5,
+            "title": "Enhance Barcode Scanner with Variant Lookup",
+            "description": "Upgrade the barcode scanner to support real barcode scanning, lookup scanned barcodes in the ProductVariant table, and auto-populate package size in the offer form. Handle permissions and error states gracefully.",
+            "dependencies": [
+              "20.4"
+            ],
+            "details": "Integrate Expo Camera v5+ for barcode scanning. On scan, query ProductVariantRepository for matching variant and pre-fill offer form fields. Implement error handling for unknown barcodes and permission issues.",
+            "status": "pending",
+            "testStrategy": "Write integration and E2E tests for barcode scanning, variant lookup, and offer form pre-population. Test error and permission handling scenarios."
+          },
+          {
+            "id": 6,
+            "title": "Update Offer Form for Variant Pre-population",
+            "description": "Enhance OfferForm to accept and handle pre-selected product variant data from barcode scanning, ensuring form validation works with pre-populated data and allows user modifications.",
+            "details": "Add preSelectedVariant prop to OfferForm. Update form initialization to use variant data when provided. Ensure form validation works with pre-populated data and allows user modifications. Maintain backward compatibility with existing form behavior.",
+            "status": "pending",
+            "dependencies": [
+              "20.5"
+            ],
+            "parentTaskId": 20
+          },
+          {
+            "id": 7,
+            "title": "Create Barcode Extraction Service Stub",
+            "description": "Implement basic barcode extraction service with placeholder for future API integration, including confidence scoring and error handling.",
+            "details": "Create BarcodeExtractionService with methods for extracting package information from barcodes. Include placeholder implementations for UPC database, Open Food Facts, and web scraping. Add confidence scoring and error handling. Prepare for future API integrations.",
+            "status": "pending",
+            "dependencies": [
+              "20.6"
+            ],
+            "parentTaskId": 20
+          },
+          {
+            "id": 8,
+            "title": "Add Product Variant Management UI",
+            "description": "Create UI components for managing product variants, including adding new variants and editing existing ones.",
+            "details": "Create ProductVariantForm component for adding/editing variants. Add variant management screens to inventory item detail views. Include barcode scanning integration for creating new variants. Ensure proper validation and error handling.",
+            "status": "pending",
+            "dependencies": [
+              "20.7"
+            ],
+            "parentTaskId": 20
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-09T10:50:12.837Z",
+      "updated": "2025-09-14T20:57:06.372Z",
       "description": "Tasks for master context"
     }
   }

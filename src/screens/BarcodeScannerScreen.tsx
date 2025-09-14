@@ -11,9 +11,13 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Clipboard from 'expo-clipboard';
 import { colors } from '../constants/colors';
+import { ProductVariant } from '../storage/types';
+import { getRepositoryFactory } from '../storage/RepositoryFactory';
+import { ProductVariantRepository } from '../storage/repositories/ProductVariantRepository';
 
 interface BarcodeScannerScreenProps {
   onBack: () => void;
+  onVariantFound?: (variant: ProductVariant) => void;
 }
 
 interface ScannedBarcode {
@@ -22,7 +26,7 @@ interface ScannedBarcode {
   timestamp: Date;
 }
 
-export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
+export function BarcodeScannerScreen({ onBack, onVariantFound }: BarcodeScannerScreenProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedBarcodes, setScannedBarcodes] = useState<ScannedBarcode[]>([]);
@@ -32,12 +36,27 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
   const [currentScan, setCurrentScan] = useState<ScannedBarcode | null>(null);
   const [lastScanTime, setLastScanTime] = useState<number>(0);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [foundVariant, setFoundVariant] = useState<ProductVariant | null>(null);
+  const [isLookingUpVariant, setIsLookingUpVariant] = useState(false);
 
   // Use ref for immediate state tracking to prevent race conditions
   const isScanningRef = useRef(false);
   const lastDataRef = useRef('');
 
   const hasPermission = permission?.granted ?? null;
+
+  // Function to lookup product variant by barcode
+  const lookupVariantByBarcode = async (barcodeValue: string): Promise<ProductVariant | null> => {
+    try {
+      const factory = getRepositoryFactory();
+      const variantRepo = await factory.getProductVariantRepository() as ProductVariantRepository;
+      const variant = await variantRepo.findByBarcodeValue(barcodeValue);
+      return variant;
+    } catch (error) {
+      console.error('Error looking up variant:', error);
+      return null;
+    }
+  };
 
   // Request camera permission when component mounts
   useEffect(() => {
@@ -52,7 +71,7 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
     }
   }, [permission, requestPermission]);
 
-  const handleBarCodeScanned = ({
+  const handleBarCodeScanned = async ({
     type,
     data,
   }: {
@@ -99,6 +118,12 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
         setCopiedToClipboard(false);
       });
 
+    // Lookup variant by barcode
+    setIsLookingUpVariant(true);
+    const variant = await lookupVariantByBarcode(data);
+    setFoundVariant(variant);
+    setIsLookingUpVariant(false);
+
     setShowScanResult(true);
   };
 
@@ -107,6 +132,8 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
     setScanned(false);
     setIsProcessing(false);
     setCurrentScan(null);
+    setFoundVariant(null);
+    setIsLookingUpVariant(false);
     // Reset the last scanned data to allow scanning the same barcode again
     setLastScanTime(0); // Reset the timing to allow immediate scanning
     setCopiedToClipboard(false); // Reset clipboard state
@@ -120,6 +147,8 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
     setShowScanResult(false);
     setIsProcessing(false);
     setCurrentScan(null);
+    setFoundVariant(null);
+    setIsLookingUpVariant(false);
     setLastScanTime(0);
     setCopiedToClipboard(false);
 
@@ -141,6 +170,12 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
       Linking.openURL(url).catch(() => {
         Alert.alert('Error', 'Could not open browser. Please try again.');
       });
+    }
+  };
+
+  const handleCreateOffer = () => {
+    if (foundVariant && onVariantFound) {
+      onVariantFound(foundVariant);
     }
   };
 
@@ -236,7 +271,9 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
           </View>
           <Text style={styles.instructionText}>
             {isProcessing
-              ? 'Processing scan...'
+              ? isLookingUpVariant
+                ? 'Looking up product...'
+                : 'Processing scan...'
               : 'Point your camera at a barcode'}
           </Text>
         </View>
@@ -332,6 +369,29 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
                     ✓ Copied to clipboard
                   </Text>
                 )}
+                
+                {/* Variant Information */}
+                {foundVariant && (
+                  <View style={styles.variantInfoContainer}>
+                    <Text style={styles.variantInfoTitle}>Product Found!</Text>
+                    <Text style={styles.variantInfoText}>
+                      Package Size: {foundVariant.packageSize} {foundVariant.unit}
+                    </Text>
+                    {foundVariant.notes && (
+                      <Text style={styles.variantInfoNotes}>
+                        Notes: {foundVariant.notes}
+                      </Text>
+                    )}
+                  </View>
+                )}
+                
+                {!foundVariant && !isLookingUpVariant && (
+                  <View style={styles.noVariantContainer}>
+                    <Text style={styles.noVariantText}>
+                      No product variant found for this barcode
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
 
@@ -342,6 +402,20 @@ export function BarcodeScannerScreen({ onBack }: BarcodeScannerScreenProps) {
               >
                 <Text style={styles.scanResultButtonText}>Scan Another</Text>
               </TouchableOpacity>
+              
+              {foundVariant && onVariantFound && (
+                <TouchableOpacity
+                  style={[styles.scanResultButton, styles.createOfferButton]}
+                  onPress={handleCreateOffer}
+                >
+                  <Text
+                    style={[styles.scanResultButtonText, styles.createOfferButtonText]}
+                  >
+                    Create Offer
+                  </Text>
+                </TouchableOpacity>
+              )}
+              
               <TouchableOpacity
                 style={[styles.scanResultButton, styles.lookupButton]}
                 onPress={openGoUPC}
@@ -700,5 +774,53 @@ const styles = StyleSheet.create({
   },
   doneButtonText: {
     color: colors.primary,
+  },
+  // Variant information styles
+  variantInfoContainer: {
+    backgroundColor: '#E8F5E8',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+  },
+  variantInfoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2E7D32',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  variantInfoText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  variantInfoNotes: {
+    fontSize: 12,
+    color: '#2E7D32',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  noVariantContainer: {
+    backgroundColor: '#FFF3E0',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#FF9800',
+  },
+  noVariantText: {
+    fontSize: 14,
+    color: '#E65100',
+    textAlign: 'center',
+  },
+  createOfferButton: {
+    backgroundColor: '#4CAF50',
+  },
+  createOfferButtonText: {
+    color: colors.white,
+    fontWeight: '600',
   },
 });

@@ -1,0 +1,80 @@
+# Task ID: 20
+# Title: Implement Product Variants System for Barcode Integration
+# Status: pending
+# Dependencies: 2, 3, 5, 8, 13
+# Priority: high
+# Description: Design and implement a product variants system that maps barcodes to specific package sizes, supports automatic extraction of package size data, and integrates with existing offer capture and comparison workflows.
+# Details:
+1. **Database Schema**: Extend the inventory schema to include a 'ProductVariant' table with fields for variant ID (UUID), inventory item reference, package size, unit, barcode value, and metadata. Ensure referential integrity and support for multiple variants per inventory item. 
+
+2. **TypeScript Interfaces**: Define strict interfaces for ProductVariant, including barcode, package size, and extraction status. Use Zod for runtime validation and enforce backward compatibility with existing inventory and offer types.
+
+3. **Repository Implementation**: Implement repository methods for CRUD operations on product variants, barcode lookup, and migration logic. Ensure seamless integration with SQLite/MMKV and support for gradual migration from legacy barcode scanning.
+
+4. **Barcode Scanner Integration**: Upgrade the barcode scanner stub to support real barcode scanning (using Expo Camera v5+), lookup scanned barcodes in the ProductVariant table, and auto-populate package size in the offer form. Handle permissions and error states gracefully.
+
+5. **Automatic Package Size Extraction**: Build an extraction service that uses supplier APIs and/or web scraping (e.g., Cheerio, Puppeteer) to fetch package size data for new barcodes. Implement fallback logic and manual override for ambiguous cases. Log extraction attempts and results for auditability.
+
+6. **Offer Form and UI Updates**: Update offer entry forms to support selecting or auto-filling product variants based on barcode scan. Ensure UI components are consistent with app theming and provide clear feedback for variant selection and extraction status.
+
+7. **Backward Compatibility and Migration**: Design migration scripts and logic to transition existing barcode data to the new variant system. Allow legacy barcode scanning to coexist during migration, with clear UI indicators.
+
+8. **Maintain Offer Comparison Logic**: Ensure the comparison engine continues to operate on normalized price-per-unit, now using package size from product variants. Update relevant queries and UI components as needed.
+
+# Test Strategy:
+- Write unit tests for ProductVariant CRUD, barcode lookup, and extraction service logic.
+- Develop integration tests for barcode scanning, variant selection, and offer form population.
+- Perform E2E tests for offer capture and comparison workflows, verifying correct mapping and price normalization.
+- Validate migration scripts on sample legacy data sets.
+- Conduct manual UI tests for barcode scanning, variant selection, and error handling.
+- Audit for backward compatibility and regression in comparison logic.
+
+# Subtasks:
+## 1. Create ProductVariants Database Schema [pending]
+### Dependencies: None
+### Description: Design and implement the 'ProductVariant' table in the database, including fields for variant ID (UUID), inventory item reference, package size, unit, barcode value, and metadata. Ensure referential integrity and support for multiple variants per inventory item.
+### Details:
+Extend the existing inventory schema to add the ProductVariant table. Define foreign key relationships to InventoryItem. Support migration scripts for existing data.
+
+## 2. Define TypeScript Interfaces and Validation Schemas [pending]
+### Dependencies: 20.1
+### Description: Create strict TypeScript interfaces for ProductVariant, including barcode, package size, unit, and extraction status. Implement Zod schemas for runtime validation and ensure backward compatibility with existing inventory and offer types.
+### Details:
+Define interfaces and Zod schemas in the shared types module. Ensure all fields are covered and validation rules match database constraints.
+
+## 3. Implement ProductVariantRepository [pending]
+### Dependencies: 20.1, 20.2
+### Description: Develop repository methods for CRUD operations on product variants, barcode lookup, and migration logic. Integrate with SQLite/MMKV and support gradual migration from legacy barcode scanning.
+### Details:
+Implement repository pattern for ProductVariant. Add methods for create, read, update, delete, and barcode lookup. Include migration helpers for legacy data.
+
+## 4. Update RepositoryFactory for ProductVariant Support [pending]
+### Dependencies: 20.3
+### Description: Extend the RepositoryFactory to provide access to the new ProductVariantRepository, ensuring seamless integration with existing repositories and dependency injection patterns.
+### Details:
+Modify RepositoryFactory to instantiate and expose ProductVariantRepository. Update dependency injection and ensure compatibility with existing modules.
+
+## 5. Enhance Barcode Scanner with Variant Lookup [pending]
+### Dependencies: 20.4
+### Description: Upgrade the barcode scanner to support real barcode scanning, lookup scanned barcodes in the ProductVariant table, and auto-populate package size in the offer form. Handle permissions and error states gracefully.
+### Details:
+Integrate Expo Camera v5+ for barcode scanning. On scan, query ProductVariantRepository for matching variant and pre-fill offer form fields. Implement error handling for unknown barcodes and permission issues.
+
+## 6. Update Offer Form for Variant Pre-population [pending]
+### Dependencies: 20.5
+### Description: Enhance OfferForm to accept and handle pre-selected product variant data from barcode scanning, ensuring form validation works with pre-populated data and allows user modifications.
+### Details:
+Add preSelectedVariant prop to OfferForm. Update form initialization to use variant data when provided. Ensure form validation works with pre-populated data and allows user modifications. Maintain backward compatibility with existing form behavior.
+
+## 7. Create Barcode Extraction Service Stub [pending]
+### Dependencies: 20.6
+### Description: Implement basic barcode extraction service with placeholder for future API integration, including confidence scoring and error handling.
+### Details:
+Create BarcodeExtractionService with methods for extracting package information from barcodes. Include placeholder implementations for UPC database, Open Food Facts, and web scraping. Add confidence scoring and error handling. Prepare for future API integrations.
+
+## 8. Add Product Variant Management UI [pending]
+### Dependencies: 20.7
+### Description: Create UI components for managing product variants, including adding new variants and editing existing ones.
+### Details:
+Create ProductVariantForm component for adding/editing variants. Add variant management screens to inventory item detail views. Include barcode scanning integration for creating new variants. Ensure proper validation and error handling.
+

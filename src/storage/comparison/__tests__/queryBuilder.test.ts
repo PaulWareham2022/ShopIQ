@@ -37,7 +37,7 @@ describe('ComparisonQueryBuilder', () => {
 
       expect(query).toContain('SELECT');
       expect(query).toContain('FROM offers o');
-      expect(query).toContain('INNER JOIN inventory_items i');
+      expect(query).toContain('INNER JOIN products i');
       expect(query).toContain('INNER JOIN suppliers s');
       expect(query).toContain('WHERE o.deleted_at IS NULL');
       expect(query).toContain(
@@ -297,7 +297,7 @@ describe('ComparisonQueryBuilder', () => {
       const { query, parameters } =
         queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
 
-      expect(query).toContain('FROM inventory_items i');
+      expect(query).toContain('FROM products i');
       expect(query).toContain('LEFT JOIN');
       expect(query).toContain('ROW_NUMBER() OVER');
       expect(query).toContain('WHERE i.deleted_at IS NULL');
@@ -319,7 +319,7 @@ describe('ComparisonQueryBuilder', () => {
         queryBuilder.buildInventoryItemsWithBestOffersQuery(options);
 
       // The actual implementation might not apply filters as expected
-      expect(query).toContain('FROM inventory_items i');
+      expect(query).toContain('FROM products i');
       expect(query).toContain('LEFT JOIN');
     });
   });
@@ -613,7 +613,7 @@ describe('ComparisonQueryExecutor', () => {
 
       expect(result.results).toEqual(mockResults);
       expect(mockExecuteFn).toHaveBeenCalledWith(
-        expect.stringContaining('FROM inventory_items i'),
+        expect.stringContaining('FROM products i'),
         expect.any(Array)
       );
     });

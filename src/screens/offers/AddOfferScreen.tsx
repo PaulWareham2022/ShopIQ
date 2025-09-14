@@ -6,15 +6,15 @@ import {
   OfferInput,
   OfferRepository,
 } from '../../storage/repositories/OfferRepository';
-import { InventoryItem } from '../../storage/types';
-import { Supplier } from '../../storage/types';
+import { InventoryItem, Supplier, ProductVariant } from '../../storage/types';
 import { RepositoryFactory } from '../../storage/RepositoryFactory';
 
 interface AddOfferScreenProps {
   onBack: () => void;
+  selectedVariant?: ProductVariant | null;
 }
 
-export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
+export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack, selectedVariant }) => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,6 +107,18 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
     onBack();
   };
 
+  // Create initial values based on selected variant
+  const getInitialValues = (): Partial<OfferInput> | undefined => {
+    if (!selectedVariant) return undefined;
+    
+    return {
+      inventoryItemId: selectedVariant.inventoryItemId,
+      amount: 1, // Default amount
+      amountUnit: selectedVariant.unit,
+      // Other fields will be left empty for user to fill
+    };
+  };
+
   if (loading) {
     return (
       <Screen backgroundColor="#F8F9FA">
@@ -119,6 +131,7 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack }) => {
     <Screen backgroundColor="#F8F9FA">
       <Header title="Add New Offer" onBack={onBack} />
       <OfferForm
+        initialValues={getInitialValues()}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         availableInventoryItems={inventoryItems}

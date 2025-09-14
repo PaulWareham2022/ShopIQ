@@ -14,7 +14,7 @@ import { executeSql } from '../storage/sqlite/database';
 // Database tables to export/import
 const EXPORT_TABLES = [
   'suppliers',
-  'inventory_items', 
+  'products', 
   'offers',
   'unit_conversions',
   'bundles',
@@ -300,7 +300,7 @@ export class CSVBackupService {
         updated_at: { type: 'TEXT', notnull: 1, dflt_value: null },
         deleted_at: { type: 'TEXT', notnull: 0, dflt_value: null }
       },
-      inventory_items: {
+      products: {
         id: { type: 'TEXT', notnull: 1, dflt_value: null },
         name: { type: 'TEXT', notnull: 1, dflt_value: null },
         category: { type: 'TEXT', notnull: 0, dflt_value: null },

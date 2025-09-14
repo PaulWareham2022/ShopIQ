@@ -173,7 +173,7 @@ export class ComparisonQueryBuilder {
         s.country_code as supplier_country,
         s.default_currency as supplier_currency
       FROM offers o
-      INNER JOIN inventory_items i ON o.inventory_item_id = i.id
+      INNER JOIN products i ON o.inventory_item_id = i.id
       INNER JOIN suppliers s ON o.supplier_id = s.id
     `;
 
@@ -227,7 +227,7 @@ export class ComparisonQueryBuilder {
             ORDER BY ${this.getOrderByExpression(options)}
           ) as rank
         FROM offers o
-        INNER JOIN inventory_items i ON o.inventory_item_id = i.id
+        INNER JOIN products i ON o.inventory_item_id = i.id
         INNER JOIN suppliers s ON o.supplier_id = s.id
         ${this.getWhereClause()}
       )
@@ -274,7 +274,7 @@ export class ComparisonQueryBuilder {
         o.observed_at as best_offer_observed_at,
         s.name as best_offer_supplier_name,
         s.country_code as best_offer_supplier_country
-      FROM inventory_items i
+      FROM products i
       LEFT JOIN (
         SELECT 
           o.*,

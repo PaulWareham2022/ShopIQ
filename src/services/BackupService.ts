@@ -257,7 +257,7 @@ export class BackupService {
       // Verify each table exists and has data
       const tables = [
         'suppliers', 
-        'inventory_items', 
+        'products', 
         'offers', 
         'unit_conversions',
         'bundles',

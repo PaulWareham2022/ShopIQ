@@ -149,9 +149,9 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
       return (
         <EmptyState
           icon="📦"
-          title="No items yet"
-          subtitle="Tap the + button to add your first inventory item"
-          actionTitle="Add First Item"
+          title="No products yet"
+          subtitle="Tap the + button to add your first product"
+          actionTitle="Add First Product"
           onAction={onAddItem}
         />
       );
@@ -161,8 +161,8 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
     return (
       <EmptyState
         icon="🔍"
-        title="No matching items"
-        subtitle="Try adjusting your search or add a new item"
+        title="No matching products"
+        subtitle="Try adjusting your search or add a new product"
       />
     );
   };
@@ -174,7 +174,7 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
         <View style={styles.loadingContainer}>
           <EmptyState
             icon="⏳"
-            title="Loading inventory..."
+            title="Loading products..."
             subtitle="Please wait while we fetch your items"
           />
         </View>
@@ -186,18 +186,18 @@ export const InventoryListScreen: React.FC<InventoryListScreenProps> = ({
   if (!dataLoaded) {
     return (
       <Screen backgroundColor="#F2F2F7">
-        <Header title="Inventory" onBack={onBack} />
+        <Header title="Products" onBack={onBack} />
       </Screen>
     );
   }
 
   return (
     <Screen backgroundColor="#F2F2F7">
-      <Header title="Inventory" onBack={onBack} />
+      <Header title="Products" onBack={onBack} />
 
       <Animated.View style={{ opacity: fadeAnim }}>
         <SearchBar
-          placeholder="Search items..."
+          placeholder="Search products..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSearch={handleSearch}

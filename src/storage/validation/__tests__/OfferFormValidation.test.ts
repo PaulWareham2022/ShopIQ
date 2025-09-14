@@ -149,7 +149,7 @@ describe('OfferForm Zod Validation', () => {
   });
 
   describe('Optional field validation', () => {
-    it('should validate tax rate range', () => {
+    it('does not enforce tax rate validation (tax UI disabled)', () => {
       const values = {
         inventoryItemId: '123e4567-e89b-12d3-a456-426614174000',
         supplierId: '123e4567-e89b-12d3-a456-426614174001',
@@ -158,17 +158,15 @@ describe('OfferForm Zod Validation', () => {
         amount: '1',
         amountUnit: 'kg',
         observedAt: '2024-01-01T00:00:00.000Z',
-        isTaxIncluded: true,
+        isTaxIncluded: false,
         shippingIncluded: false,
         sourceType: 'manual' as const,
-        taxRate: '1.5', // Invalid: > 1
-      };
+        taxRate: '1.5',
+      } as any;
 
       const errors = validateForm(values);
 
-      expect(errors.taxRate).toBe(
-        'Tax rate must be a decimal between 0 and 1 (e.g., 0.15 for 15%)'
-      );
+      expect(errors.taxRate).toBeUndefined();
     });
 
     it('should validate quality rating range', () => {

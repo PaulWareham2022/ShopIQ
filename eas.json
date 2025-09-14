@@ -6,8 +6,11 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "development"
+      },
       "ios": {
-        "simulator": true,
+        "simulator": false,
         "buildConfiguration": "Debug"
       },
       "android": {
@@ -17,12 +20,18 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "preview"
+      },
       "ios": {
         "simulator": false
       }
     },
    "production": {
       "distribution": "store",
+      "env": {
+        "APP_VARIANT": "production"
+      },
       "ios": {
         "simulator": false,
         "buildConfiguration": "Release",

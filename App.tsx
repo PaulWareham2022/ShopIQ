@@ -13,6 +13,7 @@ import { SupplierDetailScreen } from './src/screens/suppliers/SupplierDetailScre
 import { AddOfferScreen } from './src/screens/offers/AddOfferScreen';
 import { OfferListScreen } from './src/screens/offers/OfferListScreen';
 import { BackupScreen } from './src/screens/BackupScreen';
+import { BarcodeScannerScreen } from './src/screens/BarcodeScannerScreen';
 import { InventoryItem, Supplier } from './src/storage/types';
 
 type Screen =
@@ -26,7 +27,8 @@ type Screen =
   | 'supplier-add'
   | 'add-offer'
   | 'offer-list'
-  | 'backup';
+  | 'backup'
+  | 'barcode-scanner';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -202,6 +204,22 @@ export default function App() {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setCurrentScreen('barcode-scanner')}
+        >
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonIcon}>📱</Text>
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonTitle}>Barcode Scanner</Text>
+              <Text style={styles.buttonSubtitle}>
+                Test UPC barcode scanning
+              </Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </TouchableOpacity>
+
         {storageStatus === 'error' && (
           <Text style={styles.warningText}>
             Running in demo mode - data won't persist
@@ -330,6 +348,13 @@ export default function App() {
       case 'backup':
         return (
           <BackupScreen key="backup" onBack={() => setCurrentScreen('home')} />
+        );
+      case 'barcode-scanner':
+        return (
+          <BarcodeScannerScreen
+            key="barcode-scanner"
+            onBack={() => setCurrentScreen('home')}
+          />
         );
       default:
         return renderHomeScreen();

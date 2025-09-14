@@ -48,7 +48,9 @@
     "react-native-uuid": "^2.0.3",
     "react-native-vector-icons": "^10.3.0",
     "react-native-web": "^0.20.0",
-    "zod": "^4.1.5"
+    "zod": "^4.1.5",
+    "expo-camera": "~16.1.11",
+    "expo-clipboard": "~7.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

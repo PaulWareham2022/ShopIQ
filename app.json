@@ -18,8 +18,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shopiq.app",
-      "buildNumber": "3",
-      "appleTeamId": "766Y9QHTNH"
+      "buildNumber": "10",
+      "appleTeamId": "766Y9QHTNH",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "This app uses the camera to scan barcodes for product identification and price comparison."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -49,7 +53,8 @@
       "expo-dev-client",
       "expo-secure-store",
       "expo-file-system",
-      "expo-document-picker"
+      "expo-document-picker",
+      "expo-camera"
     ],
     "web": {
       "favicon": "./assets/favicon.png",

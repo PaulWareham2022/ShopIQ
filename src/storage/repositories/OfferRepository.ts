@@ -238,7 +238,7 @@ export class OfferRepository extends BaseRepository<Offer> {
       : input.totalPrice + shippingCost;
     const pricePerCanonicalInclShipping = totalWithShipping / amountCanonical;
 
-    // For now, effective price equals price including shipping
+    // For now, effective price equals price including shipping (tax excluded)
     // In future, this might consider tax implications, bulk discounts, etc.
     const effectivePricePerCanonical = pricePerCanonicalInclShipping;
 
@@ -269,7 +269,8 @@ export class OfferRepository extends BaseRepository<Offer> {
       const entityData: Omit<Offer, 'id' | 'created_at' | 'updated_at'> = {
         ...input,
         capturedAt: input.observedAt, // Default capturedAt to observedAt if not provided
-        isTaxIncluded: input.isTaxIncluded ?? true, // Default to tax included
+        // Default to tax NOT included per current product decision
+        isTaxIncluded: false,
         shippingIncluded: input.shippingIncluded ?? false,
         amountCanonical: metrics.amountCanonical,
         pricePerCanonicalExclShipping: metrics.pricePerCanonicalExclShipping,

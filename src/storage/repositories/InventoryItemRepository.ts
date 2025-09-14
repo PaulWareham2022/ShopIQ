@@ -360,4 +360,169 @@ export class InventoryItemRepository extends BaseRepository<InventoryItem> {
       );
     }
   }
+
+  /**
+   * Update an inventory item with automatic offer mutation when canonical unit changes
+   * @param id The inventory item ID
+   * @param updates The updates to apply
+   * @param options Configuration for the update
+   * @returns The updated inventory item
+   */
+  async updateWithOfferMutation(
+    id: string,
+    updates: Partial<Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>>,
+    options: {
+      mutateOffers?: boolean;
+      onOfferMutation?: (result: any) => void;
+    } = {}
+  ): Promise<InventoryItem | null> {
+    const { mutateOffers = true, onOfferMutation } = options;
+
+    try {
+      // Get the current item to detect canonical unit changes
+      const currentItem = await this.findById(id);
+      if (!currentItem) {
+        return null;
+      }
+
+      // Check if canonical unit is changing
+      const canonicalUnitChanged =
+        updates.canonicalUnit !== undefined &&
+        updates.canonicalUnit !== currentItem.canonicalUnit;
+
+      // Perform the update
+      const updatedItem = await this.update(id, updates);
+      if (!updatedItem) {
+        return null;
+      }
+
+      // If canonical unit changed and we should mutate offers, do so
+      if (canonicalUnitChanged && mutateOffers) {
+        try {
+          // Import here to avoid circular dependencies
+          const { OfferMutationService } = await import(
+            '../services/OfferMutationService'
+          );
+          const { OfferRepository } = await import('./OfferRepository');
+
+          const offerRepository = new OfferRepository();
+          const mutationService = new OfferMutationService(
+            offerRepository,
+            this
+          );
+
+          const mutationResult =
+            await mutationService.mutateOffersForUnitChange({
+              itemId: id,
+              oldCanonicalUnit: currentItem.canonicalUnit,
+              newCanonicalUnit: updatedItem.canonicalUnit,
+              canonicalDimension: updatedItem.canonicalDimension,
+            });
+
+          // Notify callback if provided
+          if (onOfferMutation) {
+            onOfferMutation(mutationResult);
+          }
+
+          // Log the result
+          if (__DEV__) {
+            console.log(
+              `[InventoryItemRepository] Canonical unit changed for item ${id}: ` +
+                `${currentItem.canonicalUnit} → ${updatedItem.canonicalUnit}. ` +
+                `Updated ${mutationResult.updatedOffers} offers. ` +
+                `Failed: ${mutationResult.failedOffers.length}`
+            );
+          }
+        } catch (mutationError) {
+          // Log the error but don't fail the update
+          console.error(
+            `[InventoryItemRepository] Failed to mutate offers for item ${id}:`,
+            mutationError
+          );
+        }
+      }
+
+      return updatedItem;
+    } catch (error) {
+      throw new DatabaseError(
+        `Failed to update inventory item with offer mutation`,
+        error as Error
+      );
+    }
+  }
+
+  /**
+   * Preview the impact of changing an inventory item's canonical unit
+   * @param id The inventory item ID
+   * @param newCanonicalUnit The proposed new canonical unit
+   * @returns Preview of the impact
+   */
+  async previewCanonicalUnitChange(
+    id: string,
+    newCanonicalUnit: string
+  ): Promise<{
+    currentItem: InventoryItem | null;
+    affectedOffers: number;
+    sampleChanges: Array<{
+      offerId: string;
+      oldPricePerCanonical: number;
+      newPricePerCanonical: number;
+      oldAmountCanonical: number;
+      newAmountCanonical: number;
+    }>;
+    errors: string[];
+  }> {
+    try {
+      const currentItem = await this.findById(id);
+      if (!currentItem) {
+        return {
+          currentItem: null,
+          affectedOffers: 0,
+          sampleChanges: [],
+          errors: ['Inventory item not found'],
+        };
+      }
+
+      if (currentItem.canonicalUnit === newCanonicalUnit) {
+        return {
+          currentItem,
+          affectedOffers: 0,
+          sampleChanges: [],
+          errors: ['Canonical unit is already set to this value'],
+        };
+      }
+
+      // Import here to avoid circular dependencies
+      const { OfferMutationService } = await import(
+        '../services/OfferMutationService'
+      );
+      const { OfferRepository } = await import('./OfferRepository');
+
+      const offerRepository = new OfferRepository();
+      const mutationService = new OfferMutationService(offerRepository, this);
+
+      const preview = await mutationService.previewUnitChangeImpact({
+        itemId: id,
+        oldCanonicalUnit: currentItem.canonicalUnit,
+        newCanonicalUnit,
+        canonicalDimension: currentItem.canonicalDimension,
+      });
+
+      return {
+        currentItem,
+        ...preview,
+      };
+    } catch (error) {
+      return {
+        currentItem: null,
+        affectedOffers: 0,
+        sampleChanges: [],
+        errors: [
+          `Failed to preview canonical unit change: ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
+        ],
+      };
+    }
+  }
 }

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Alert, 
-  KeyboardAvoidingView, 
-  Platform 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Formik, FormikProps } from 'formik';
 import { colors } from '../../constants/colors';
@@ -186,24 +186,25 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     !propInventoryItems || !propSuppliers
   );
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [smartUnitSuggestions, setSmartUnitSuggestions] = useState<string[]>([]);
+  const [smartUnitSuggestions, setSmartUnitSuggestions] = useState<string[]>(
+    []
+  );
   const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Form focus management
   const fieldOrder = [
     'inventoryItemId',
-    'supplierId', 
+    'supplierId',
     'totalPrice',
     'amount',
     'amountUnit',
     'currency',
-    'taxRate',
     'shippingCost',
     'supplierUrl',
     'sourceUrl',
     'photoUri',
-    'notes'
+    'notes',
   ];
 
   const formFocus = useFormFocus({
@@ -225,20 +226,22 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
   // Update smart unit suggestions when inventory item is selected
   const updateSmartUnitSuggestions = (inventoryItemId: string) => {
-    const selectedItem = inventoryItems.find(item => item.id === inventoryItemId);
+    const selectedItem = inventoryItems.find(
+      item => item.id === inventoryItemId
+    );
     if (selectedItem) {
       const suggestions = getSmartUnitSuggestions({
         itemName: selectedItem.name,
         category: selectedItem.category,
         existingCanonicalUnit: selectedItem.canonicalUnit,
       });
-      
+
       // Get alternative units (not the canonical unit) and show top 3
       const alternativeSuggestions = suggestions
         .filter(s => s.unit !== selectedItem.canonicalUnit)
         .slice(0, 3)
         .map(s => s.unit);
-      
+
       setSmartUnitSuggestions(alternativeSuggestions);
       setShowSmartSuggestions(alternativeSuggestions.length > 0);
     } else {
@@ -315,8 +318,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       observedAt: initialValues?.observedAt || now,
       totalPrice: initialValues?.totalPrice?.toString() || '',
       currency: initialValues?.currency || '',
-      isTaxIncluded: initialValues?.isTaxIncluded ?? true,
-      taxRate: initialValues?.taxRate?.toString() || '',
+      // UI no longer collects tax; assume tax is extra (not included)
+      isTaxIncluded: false,
+      taxRate: '',
       shippingCost: initialValues?.shippingCost?.toString() || '',
       shippingIncluded: initialValues?.shippingIncluded ?? false,
       amount: initialValues?.amount?.toString() || '',
@@ -375,12 +379,16 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       );
 
       // Get currency from form or auto-populate from supplier
-      const currency = validatedValues.currency?.trim().toUpperCase() || 
-        selectedSupplier?.defaultCurrency || 'CAD';
-      
+      const currency =
+        validatedValues.currency?.trim().toUpperCase() ||
+        selectedSupplier?.defaultCurrency ||
+        'CAD';
+
       // Get amount unit from form or auto-populate from inventory item
-      const amountUnit = validatedValues.amountUnit?.trim() || 
-        selectedInventoryItem?.canonicalUnit || 'unit';
+      const amountUnit =
+        validatedValues.amountUnit?.trim() ||
+        selectedInventoryItem?.canonicalUnit ||
+        'unit';
 
       // Convert validated form values to OfferInput
       const offerInput: OfferInput = {
@@ -393,10 +401,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         observedAt: validatedValues.observedAt,
         totalPrice: Number(validatedValues.totalPrice),
         currency: currency,
-        isTaxIncluded: validatedValues.isTaxIncluded,
-        taxRate: validatedValues.taxRate
-          ? Number(validatedValues.taxRate)
-          : undefined,
+        // Since tax is not used in UI for now, always treat as not included and omit rate
+        isTaxIncluded: false,
+        taxRate: undefined,
         shippingCost: validatedValues.shippingCost
           ? Number(validatedValues.shippingCost)
           : undefined,
@@ -419,11 +426,13 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   };
 
   // Convert data to picker items
-  const inventoryPickerItems: OptimizedPickerItem[] = inventoryItems.map(item => ({
-    id: item.id,
-    label: item.name,
-    subtitle: item.category || undefined,
-  }));
+  const inventoryPickerItems: OptimizedPickerItem[] = inventoryItems.map(
+    item => ({
+      id: item.id,
+      label: item.name,
+      subtitle: item.category || undefined,
+    })
+  );
 
   // Debug logging for inventory items
   // eslint-disable-next-line no-console
@@ -437,11 +446,13 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     inventoryPickerItems.map(item => ({ id: item.id, label: item.label }))
   );
 
-  const supplierPickerItems: OptimizedPickerItem[] = suppliers.map(supplier => ({
-    id: supplier.id,
-    label: supplier.name,
-    subtitle: `${supplier.countryCode}${supplier.regionCode ? ` - ${supplier.regionCode}` : ''}`,
-  }));
+  const supplierPickerItems: OptimizedPickerItem[] = suppliers.map(
+    supplier => ({
+      id: supplier.id,
+      label: supplier.name,
+      subtitle: `${supplier.countryCode}${supplier.regionCode ? ` - ${supplier.regionCode}` : ''}`,
+    })
+  );
 
   // Debug logging for suppliers
   // eslint-disable-next-line no-console
@@ -524,7 +535,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         );
 
         return (
-          <KeyboardAvoidingView 
+          <KeyboardAvoidingView
             style={styles.formWrapper}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
@@ -541,7 +552,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 <View style={styles.mobileTipsContainer}>
                   <Text style={styles.mobileTipsTitle}>Quick Entry Tips</Text>
                   <Text style={styles.mobileTipsText}>
-                    Use keyboard "Next" button to move between fields • Currency and units auto-fill from selections
+                    Use keyboard "Next" button to move between fields • Currency
+                    and units auto-fill from selections
                   </Text>
                 </View>
 
@@ -554,7 +566,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                     onValueChange={value => {
                       setFieldValue('inventoryItemId', value);
                       // Auto-populate amount unit from inventory item's canonical unit
-                      const selectedItem = inventoryItems.find(item => item.id === value);
+                      const selectedItem = inventoryItems.find(
+                        item => item.id === value
+                      );
                       if (selectedItem?.canonicalUnit && !values.amountUnit) {
                         setFieldValue('amountUnit', selectedItem.canonicalUnit);
                       }
@@ -581,9 +595,14 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   onValueChange={value => {
                     setFieldValue('supplierId', value);
                     // Auto-populate currency from supplier's default currency
-                    const selectedSupplier = suppliers.find(s => s.id === value);
+                    const selectedSupplier = suppliers.find(
+                      s => s.id === value
+                    );
                     if (selectedSupplier?.defaultCurrency) {
-                      setFieldValue('currency', selectedSupplier.defaultCurrency);
+                      setFieldValue(
+                        'currency',
+                        selectedSupplier.defaultCurrency
+                      );
                     }
                   }}
                   items={supplierPickerItems}
@@ -701,7 +720,10 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       value={values.amountUnit}
                       onChangeText={handleChange('amountUnit')}
                       onBlur={handleBlur('amountUnit')}
-                      placeholder={selectedInventoryItem?.canonicalUnit || "e.g., kg, L, unit"}
+                      placeholder={
+                        selectedInventoryItem?.canonicalUnit ||
+                        'e.g., kg, L, unit'
+                      }
                       autoCapitalize="none"
                       autoCorrect={false}
                       returnKeyType="next"
@@ -718,27 +740,29 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 </View>
 
                 {/* Smart Unit Suggestions */}
-                {showSmartSuggestions && smartUnitSuggestions.length > 0 && selectedInventoryItem && (
-                  <View style={styles.smartSuggestionsContainer}>
-                    <Text style={styles.smartSuggestionsLabel}>
-                      Alternative units for "{selectedInventoryItem.name}":
-                    </Text>
-                    <View style={styles.smartSuggestionsChips}>
-                      {smartUnitSuggestions.map((unit) => (
-                        <Chip
-                          key={unit}
-                          label={unit}
-                          variant="default"
-                          onPress={() => {
-                            setFieldValue('amountUnit', unit);
-                            setShowSmartSuggestions(false); // Hide suggestions after selection
-                          }}
-                          style={styles.smartSuggestionChip}
-                        />
-                      ))}
+                {showSmartSuggestions &&
+                  smartUnitSuggestions.length > 0 &&
+                  selectedInventoryItem && (
+                    <View style={styles.smartSuggestionsContainer}>
+                      <Text style={styles.smartSuggestionsLabel}>
+                        Alternative units for "{selectedInventoryItem.name}":
+                      </Text>
+                      <View style={styles.smartSuggestionsChips}>
+                        {smartUnitSuggestions.map(unit => (
+                          <Chip
+                            key={unit}
+                            label={unit}
+                            variant="default"
+                            onPress={() => {
+                              setFieldValue('amountUnit', unit);
+                              setShowSmartSuggestions(false); // Hide suggestions after selection
+                            }}
+                            style={styles.smartSuggestionChip}
+                          />
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
 
                 {/* Shelf-Life Warning Banner */}
                 {priceMetrics.shelfLifeWarning?.shouldShowWarning && (
@@ -836,35 +860,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   showTime={true}
                 />
 
-                {/* Tax Information */}
-                <Text style={styles.sectionTitle}>Tax Information</Text>
-
-                <OptimizedSwitch
-                  label="Tax Included in Price"
-                  value={values.isTaxIncluded}
-                  onValueChange={value => setFieldValue('isTaxIncluded', value)}
-                  testID="offer-form-tax-included"
-                />
-
-                {!values.isTaxIncluded && (
-                  <OptimizedInput
-                    label="Tax Rate"
-                    value={values.taxRate}
-                    onChangeText={handleChange('taxRate')}
-                    onBlur={handleBlur('taxRate')}
-                    placeholder="e.g., 0.15 for 15%"
-                    keyboardType="numeric"
-                    returnKeyType="next"
-                    fieldName="taxRate"
-                    onSubmitEditing={formFocus.handleSubmitEditing}
-                    onFocus={formFocus.handleFieldFocus}
-                    error={
-                      errors.taxRate && touched.taxRate
-                        ? errors.taxRate
-                        : undefined
-                    }
-                  />
-                )}
+                {/* Tax UI removed intentionally for now */}
 
                 {/* Shipping Information */}
                 <Text style={styles.sectionTitle}>Shipping Information</Text>
@@ -900,10 +896,14 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
                 {/* Quality Rating */}
                 <View style={styles.ratingSection}>
-                  <Text style={styles.ratingLabel}>Quality Rating (1-5 stars)</Text>
+                  <Text style={styles.ratingLabel}>
+                    Quality Rating (1-5 stars)
+                  </Text>
                   <StarRatingInput
                     rating={Number(values.qualityRating) || 0}
-                    onRatingChange={(rating) => setFieldValue('qualityRating', rating.toString())}
+                    onRatingChange={rating =>
+                      setFieldValue('qualityRating', rating.toString())
+                    }
                     starSize={28}
                     testID="offer-form-quality-rating"
                   />
@@ -913,7 +913,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       {Number(values.qualityRating) === 2 && 'Below average'}
                       {Number(values.qualityRating) === 3 && 'Average quality'}
                       {Number(values.qualityRating) === 4 && 'Good quality'}
-                      {Number(values.qualityRating) === 5 && 'Excellent quality'}
+                      {Number(values.qualityRating) === 5 &&
+                        'Excellent quality'}
                     </Text>
                   )}
                 </View>

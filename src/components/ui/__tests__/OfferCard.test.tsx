@@ -262,15 +262,15 @@ describe('OfferCard', () => {
     expect(getByText('Free Shipping')).toBeTruthy();
   });
 
-  it('handles offers with tax included', () => {
+  it('does not render tax UI even if tax is included', () => {
     const offerWithTax = {
       ...mockOffer,
       isTaxIncluded: true,
     };
 
-    const { getByText } = render(<OfferCard offer={offerWithTax} />);
+    const { queryByText } = render(<OfferCard offer={offerWithTax} />);
 
-    expect(getByText('Tax Included')).toBeTruthy();
+    expect(queryByText('Tax Included')).toBeNull();
   });
 
   it('displays confidence level with appropriate color', () => {

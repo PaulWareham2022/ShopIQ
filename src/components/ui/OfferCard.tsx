@@ -99,13 +99,14 @@ export const OfferCard: React.FC<OfferCardProps> = ({
     // Add comparison flags
     if (comparisonResult?.metadata?.flags) {
       comparisonResult.metadata.flags.forEach((flag: string) => {
+        // Skip tax-related flags in UI for now
+        if (flag.includes('tax')) return;
         let variant: 'primary' | 'secondary' | 'warning' | 'success' =
           'secondary';
 
         if (flag.includes('high-quality')) variant = 'success';
         else if (flag.includes('low-quality')) variant = 'warning';
         else if (flag.includes('shipping-included')) variant = 'primary';
-        else if (flag.includes('tax-included')) variant = 'primary';
 
         chips.push({ label: flag.replace(/-/g, ' '), variant });
       });
@@ -116,9 +117,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({
       chips.push({ label: 'Free Shipping', variant: 'success' });
     }
 
-    if (offer.isTaxIncluded) {
-      chips.push({ label: 'Tax Included', variant: 'primary' });
-    }
+    // Hide tax UI chip for now
 
     return chips;
   };
@@ -243,17 +242,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({
               </Text>
             </View>
           )}
-
-          {offer.taxRate && offer.taxRate > 0 && (
-            <View style={styles.breakdownRow}>
-              <Text style={styles.breakdownItem}>
-                Tax ({offer.taxRate * 100}%):
-              </Text>
-              <Text style={styles.breakdownValue}>
-                {formatPrice(offer.totalPrice * offer.taxRate, offer.currency)}
-              </Text>
-            </View>
-          )}
+          {/* Tax breakdown hidden in UI for now */}
         </View>
       )}
 

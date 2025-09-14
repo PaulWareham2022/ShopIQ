@@ -557,19 +557,11 @@ export const OfferFormInputSchema = z.object({
     .string()
     .datetime('Observed date must be a valid ISO 8601 datetime'),
 
-  isTaxIncluded: z.boolean().default(true),
+  // Default UI assumption: tax is not included in price for now
+  isTaxIncluded: z.boolean().default(false),
 
-  taxRate: z
-    .string()
-    .refine(
-      val =>
-        !val || (!isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 1),
-      {
-        message:
-          'Tax rate must be a decimal between 0 and 1 (e.g., 0.15 for 15%)',
-      }
-    )
-    .optional(),
+  // Tax rate not collected in UI; keep validation but allow empty
+  taxRate: z.string().optional(),
 
   shippingCost: z
     .string()

@@ -14,7 +14,10 @@ interface AddOfferScreenProps {
   selectedVariant?: ProductVariant | null;
 }
 
-export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack, selectedVariant }) => {
+export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({
+  onBack,
+  selectedVariant,
+}) => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,19 +43,31 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack, selected
 
         // Filter out deleted items and suppliers
         const activeItems = items.filter(item => !item.deleted_at);
-        const activeSuppliers = suppliersList.filter(supplier => !supplier.deleted_at);
+        const activeSuppliers = suppliersList.filter(
+          supplier => !supplier.deleted_at
+        );
 
         // eslint-disable-next-line no-console
-        console.log('AddOfferScreen - Loaded inventory items:', activeItems.length, 'of', items.length);
+        console.log(
+          'AddOfferScreen - Loaded inventory items:',
+          activeItems.length,
+          'of',
+          items.length
+        );
         // eslint-disable-next-line no-console
-        console.log('AddOfferScreen - Loaded suppliers:', activeSuppliers.length, 'of', suppliersList.length);
+        console.log(
+          'AddOfferScreen - Loaded suppliers:',
+          activeSuppliers.length,
+          'of',
+          suppliersList.length
+        );
 
         setInventoryItems(activeItems);
         setSuppliers(activeSuppliers);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Failed to load data:', error);
-        Alert.alert('Error', 'Failed to load inventory items and suppliers');
+        Alert.alert('Error', 'Failed to load inventory items and stores');
       } finally {
         setLoading(false);
       }
@@ -110,7 +125,7 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({ onBack, selected
   // Create initial values based on selected variant
   const getInitialValues = (): Partial<OfferInput> | undefined => {
     if (!selectedVariant) return undefined;
-    
+
     return {
       inventoryItemId: selectedVariant.inventoryItemId,
       amount: 1, // Default amount

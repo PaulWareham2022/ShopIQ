@@ -473,7 +473,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingTitle}>Loading Form Data...</Text>
           <Text style={styles.loadingMessage}>
-            Please wait while we load inventory items and suppliers.
+            Please wait while we load inventory items and stores.
           </Text>
         </View>
       </View>
@@ -612,7 +612,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                       ? errors.supplierId
                       : undefined
                   }
-                  emptyText="No suppliers available. Add some suppliers first."
+                  emptyText="No stores available. Add some stores first."
                   testID="offer-form-supplier-picker"
                 />
 

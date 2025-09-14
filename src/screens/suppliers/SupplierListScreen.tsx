@@ -53,7 +53,7 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
         useNativeDriver: true,
       }).start();
     } catch {
-      Alert.alert('Error', 'Failed to load suppliers');
+      Alert.alert('Error', 'Failed to load stores');
       setDataLoaded(true); // Still mark as loaded even on error
     } finally {
       setLoading(false);
@@ -164,9 +164,9 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
       return (
         <EmptyState
           icon="🏪"
-          title="No suppliers yet"
-          subtitle="Tap the + button to add your first supplier"
-          actionTitle="Add First Supplier"
+          title="No stores yet"
+          subtitle="Tap the + button to add your first store"
+          actionTitle="Add First Store"
           onAction={onAddSupplier}
         />
       );
@@ -176,8 +176,8 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
     return (
       <EmptyState
         icon="🔍"
-        title="No matching suppliers"
-        subtitle="Try adjusting your search or add a new supplier"
+        title="No matching stores"
+        subtitle="Try adjusting your search or add a new store"
       />
     );
   };
@@ -189,8 +189,8 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
         <View style={styles.loadingContainer}>
           <EmptyState
             icon="⏳"
-            title="Loading suppliers..."
-            subtitle="Please wait while we fetch your suppliers"
+            title="Loading stores..."
+            subtitle="Please wait while we fetch your stores"
           />
         </View>
       </Screen>
@@ -201,18 +201,18 @@ export const SupplierListScreen: React.FC<SupplierListScreenProps> = ({
   if (!dataLoaded) {
     return (
       <Screen backgroundColor="#F2F2F7">
-        <Header title="Suppliers" onBack={onBack} />
+        <Header title="Stores" onBack={onBack} />
       </Screen>
     );
   }
 
   return (
     <Screen backgroundColor="#F2F2F7">
-      <Header title="Suppliers" onBack={onBack} />
+      <Header title="Stores" onBack={onBack} />
 
       <Animated.View style={{ opacity: fadeAnim }}>
         <SearchBar
-          placeholder="Search suppliers..."
+          placeholder="Search stores..."
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSearch={handleSearch}

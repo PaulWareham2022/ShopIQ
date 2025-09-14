@@ -196,8 +196,8 @@ export default function App() {
           <View style={styles.buttonContent}>
             <Text style={styles.buttonIcon}>🏪</Text>
             <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>Suppliers</Text>
-              <Text style={styles.buttonSubtitle}>Manage your suppliers</Text>
+              <Text style={styles.buttonTitle}>Stores</Text>
+              <Text style={styles.buttonSubtitle}>Manage your stores</Text>
             </View>
             <Text style={styles.chevron}>›</Text>
           </View>
@@ -373,7 +373,7 @@ export default function App() {
           <BarcodeScannerScreen
             key="barcode-scanner"
             onBack={() => setCurrentScreen('home')}
-            onVariantFound={(variant) => {
+            onVariantFound={variant => {
               setSelectedVariant(variant);
               setCurrentScreen('add-offer');
             }}

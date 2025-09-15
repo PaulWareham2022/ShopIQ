@@ -235,17 +235,17 @@ export const ProductVariantSchema = BaseEntitySchema.extend({
   /** Foreign key to inventory item */
   inventoryItemId: z.string().uuid('Inventory item ID must be a valid UUID'),
 
-  /** Package size description */
-  packageSize: z
-    .string()
-    .min(1, 'Package size cannot be empty')
-    .max(100, 'Package size too long'),
+  /** Net content quantity (GS1 standard) */
+  netContent: z
+    .number()
+    .positive('Net content must be positive')
+    .finite('Net content must be a valid number'),
 
-  /** Unit of measurement */
-  unit: z
+  /** Unit of measure (GS1 standard) */
+  uom: z
     .string()
-    .min(1, 'Unit cannot be empty')
-    .max(20, 'Unit too long'),
+    .min(1, 'UOM cannot be empty')
+    .max(20, 'UOM too long'),
 
   /** Barcode value */
   barcodeValue: z

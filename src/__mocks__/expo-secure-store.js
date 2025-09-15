@@ -11,4 +11,6 @@ const mockSecureStore = {
 };
 /* eslint-enable no-undef */
 
+/* eslint-disable no-undef */
 module.exports = mockSecureStore;
+/* eslint-enable no-undef */

@@ -28,8 +28,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       'created_at',
       'updated_at',
       'inventory_item_id',
-      'package_size',
-      'unit',
+      'net_content',
+      'uom',
       'barcode_value',
     ];
   }
@@ -38,8 +38,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
     return {
       id: row.id,
       inventoryItemId: row.inventory_item_id,
-      packageSize: row.package_size,
-      unit: row.unit,
+      netContent: row.net_content,
+      uom: row.uom,
       barcodeValue: row.barcode_value || undefined,
       metadata: row.metadata ? safeParseJson(row.metadata) : undefined,
       notes: row.notes || undefined,
@@ -54,8 +54,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
 
     if (entity.id !== undefined) row.id = entity.id;
     if (entity.inventoryItemId !== undefined) row.inventory_item_id = entity.inventoryItemId;
-    if (entity.packageSize !== undefined) row.package_size = entity.packageSize;
-    if (entity.unit !== undefined) row.unit = entity.unit;
+    if (entity.netContent !== undefined) row.net_content = entity.netContent;
+    if (entity.uom !== undefined) row.uom = entity.uom;
     if (entity.barcodeValue !== undefined) row.barcode_value = entity.barcodeValue;
     if (entity.metadata !== undefined) row.metadata = entity.metadata ? JSON.stringify(entity.metadata) : null;
     if (entity.notes !== undefined) row.notes = entity.notes;
@@ -223,8 +223,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
    */
   async createDefaultVariantForItem(
     inventoryItemId: string,
-    packageSize: string = '1 unit',
-    unit: string = 'unit'
+    netContent: number = 1,
+    uom: string = 'unit'
   ): Promise<ProductVariant> {
     try {
       // Check if item already has variants
@@ -237,8 +237,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
 
       const defaultVariant = {
         inventoryItemId,
-        packageSize,
-        unit,
+        netContent,
+        uom,
         // No barcode for default variant
         barcodeValue: undefined,
         metadata: { isDefault: true, migrated: true },
@@ -262,8 +262,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
     inventoryItemId: string,
     legacyBarcodeData: {
       barcodeValue: string;
-      packageSize?: string;
-      unit?: string;
+      netContent?: number;
+      uom?: string;
       metadata?: Record<string, any>;
       notes?: string;
     }
@@ -279,8 +279,8 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
 
       const migratedVariant = {
         inventoryItemId,
-        packageSize: legacyBarcodeData.packageSize || '1 unit',
-        unit: legacyBarcodeData.unit || 'unit',
+        netContent: legacyBarcodeData.netContent || 1,
+        uom: legacyBarcodeData.uom || 'unit',
         barcodeValue: legacyBarcodeData.barcodeValue,
         metadata: {
           ...legacyBarcodeData.metadata,

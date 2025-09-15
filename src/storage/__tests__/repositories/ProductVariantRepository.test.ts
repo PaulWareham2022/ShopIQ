@@ -3,7 +3,7 @@
  */
 
 import { ProductVariantRepository } from '../../repositories/ProductVariantRepository';
-import { ProductVariant, DatabaseError } from '../../types';
+import { DatabaseError } from '../../types';
 import { mockSQLiteResponse, resetAllMocks } from '../setup';
 
 // Mock the database module

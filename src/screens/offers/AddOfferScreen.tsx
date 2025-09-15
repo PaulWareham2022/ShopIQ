@@ -126,10 +126,12 @@ export const AddOfferScreen: React.FC<AddOfferScreenProps> = ({
   const getInitialValues = (): Partial<OfferInput> | undefined => {
     if (!selectedVariant) return undefined;
 
+    // Debug: Log the selectedVariant to see its structure
+
     return {
       inventoryItemId: selectedVariant.inventoryItemId,
       amount: 1, // Default amount
-      amountUnit: selectedVariant.unit,
+      amountUnit: selectedVariant.uom || 'unit', // Fallback to 'unit' if uom is not set
       // Other fields will be left empty for user to fill
     };
   };

@@ -113,9 +113,9 @@ export abstract class BaseRepository<T extends BaseEntity>
         .join(', ');
       const values = Object.values(row);
 
-      const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
+        const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders})`;
 
-      await executeSql(sql, values);
+        await executeSql(sql, values);
       return entity;
     } catch (error) {
       throw new DatabaseError(

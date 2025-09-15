@@ -264,7 +264,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       // If data is provided as props, use it directly
       if (propInventoryItems && propSuppliers) {
         // eslint-disable-next-line no-console
-        console.log('OfferForm - Using props data directly');
         setInventoryItems(propInventoryItems);
         setSuppliers(propSuppliers);
         setIsLoading(false);
@@ -324,7 +323,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       shippingCost: initialValues?.shippingCost?.toString() || '',
       shippingIncluded: initialValues?.shippingIncluded ?? false,
       amount: initialValues?.amount?.toString() || '',
-      amountUnit: initialValues?.amountUnit || '',
+      amountUnit: initialValues?.amountUnit || 'unit',
       qualityRating: initialValues?.qualityRating?.toString() || '',
       notes: initialValues?.notes || '',
       photoUri: initialValues?.photoUri || '',
@@ -390,6 +389,12 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         selectedInventoryItem?.canonicalUnit ||
         'unit';
 
+      // If the form value is just the default "unit" and we have a specific canonical unit, use the canonical unit
+      const finalAmountUnit = (validatedValues.amountUnit?.trim() === 'unit' && selectedInventoryItem?.canonicalUnit) 
+        ? selectedInventoryItem.canonicalUnit 
+        : amountUnit;
+
+
       // Convert validated form values to OfferInput
       const offerInput: OfferInput = {
         inventoryItemId: validatedValues.inventoryItemId,
@@ -409,7 +414,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
           : undefined,
         shippingIncluded: validatedValues.shippingIncluded,
         amount: Number(validatedValues.amount),
-        amountUnit: amountUnit,
+        amountUnit: finalAmountUnit,
         qualityRating: validatedValues.qualityRating
           ? Number(validatedValues.qualityRating)
           : undefined,
@@ -418,7 +423,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       };
 
       await onSubmit(offerInput);
-    } catch {
+    } catch (error) {
+      console.error('❌ Offer creation failed with error:', error);
       Alert.alert('Error', 'Failed to save offer. Please try again.');
     } finally {
       setSubmitting(false);

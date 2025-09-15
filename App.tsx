@@ -29,7 +29,8 @@ type Screen =
   | 'add-offer'
   | 'offer-list'
   | 'backup'
-  | 'barcode-scanner';
+  | 'barcode-scanner'
+;
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -234,6 +235,7 @@ export default function App() {
             <Text style={styles.chevron}>›</Text>
           </View>
         </TouchableOpacity>
+
 
         {storageStatus === 'error' && (
           <Text style={styles.warningText}>

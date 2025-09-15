@@ -257,11 +257,11 @@ export interface ProductVariant extends BaseEntity {
   /** Foreign key to InventoryItem.id - which inventory item this variant belongs to */
   inventoryItemId: string;
 
-  /** Package size description (e.g., "500ml bottle", "1kg bag", "12-pack") */
-  packageSize: string;
+  /** Net content quantity (GS1 standard) - numeric value (e.g., 500, 1, 12) */
+  netContent: number;
 
-  /** Unit of measurement for this variant (e.g., "ml", "g", "unit") */
-  unit: string;
+  /** Unit of measure (GS1 standard) - user-friendly units (e.g., "ml", "g", "unit") */
+  uom: string;
 
   /** Barcode value for this specific variant (e.g., "1234567890123") */
   barcodeValue?: string;

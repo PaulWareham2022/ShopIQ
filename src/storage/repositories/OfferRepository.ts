@@ -187,7 +187,8 @@ export class OfferRepository extends BaseRepository<Offer> {
         );
       }
 
-      return result.rows.item(0).canonical_dimension as CanonicalDimension;
+      const dimension = result.rows.item(0).canonical_dimension as CanonicalDimension;
+      return dimension;
     } catch (error) {
       throw new DatabaseError(
         'Failed to get inventory item dimension',
@@ -279,7 +280,8 @@ export class OfferRepository extends BaseRepository<Offer> {
         computedByVersion: this.COMPUTATION_VERSION,
       };
 
-      return this.create(entityData);
+      const result = await this.create(entityData);
+      return result;
     } catch (error) {
       if (error instanceof ValidationError || error instanceof DatabaseError) {
         throw error;

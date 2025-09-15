@@ -11,7 +11,7 @@ import { MigrationType } from '../types';
 
 export class AddSupplierContactInfoMigration extends DatabaseMigration {
   readonly id = '001_add_supplier_contact_info';
-  readonly version = 2;
+  readonly version = 1;
   readonly type = MigrationType.DATABASE;
   readonly description =
     'Add email, phone, and contact_person fields to suppliers table';

@@ -5,7 +5,7 @@
  */
 
 import { RepositoryFactory } from './RepositoryFactory';
-import { InventoryItem, Supplier } from './types';
+import { InventoryItem } from './types';
 
 // Test products with known UPC codes for barcode scanner testing
 const TEST_PRODUCTS = [
@@ -19,8 +19,8 @@ const TEST_PRODUCTS = [
     usageRatePerDay: 0.1,
     equivalenceFactor: 1.0,
     upc: '628451166511',
-    packageSize: '16 oz',
-    unit: 'jar'
+    netContent: 16,
+    uom: 'oz'
   },
   {
     name: 'Pure Honey',
@@ -32,8 +32,8 @@ const TEST_PRODUCTS = [
     usageRatePerDay: 0.05,
     equivalenceFactor: 1.0,
     upc: '055828917504',
-    packageSize: '12 oz',
-    unit: 'bottle'
+    netContent: 12,
+    uom: 'oz'
   }
 ];
 
@@ -56,14 +56,13 @@ export async function seedTestProducts(): Promise<void> {
     // Get repositories
     const inventoryRepo = await repositoryFactory.getInventoryItemRepository();
     const supplierRepo = await repositoryFactory.getSupplierRepository();
-    const variantRepo = await repositoryFactory.getProductVariantRepository();
+    const variantRepo = await repositoryFactory.getProductVariantRepository() as any; // Cast to access findByBarcodeValue
     
     // Create or find a test supplier
-    let testSupplier: Supplier;
     try {
       const existingSuppliers = await supplierRepo.findWhere({ name: 'Test Supplier' });
       if (existingSuppliers.length === 0) {
-        testSupplier = await supplierRepo.create({
+        await supplierRepo.create({
           name: 'Test Supplier',
           countryCode: 'CA',
           defaultCurrency: 'CAD',
@@ -72,7 +71,6 @@ export async function seedTestProducts(): Promise<void> {
         });
         console.log('✅ Created test supplier');
       } else {
-        testSupplier = existingSuppliers[0];
         console.log('✅ Found existing test supplier');
       }
     } catch (error) {
@@ -92,9 +90,7 @@ export async function seedTestProducts(): Promise<void> {
           // Create inventory item
           inventoryItem = await inventoryRepo.create({
             name: product.name,
-            description: product.description,
             category: product.category,
-            supplierId: testSupplier.id,
             canonicalDimension: product.canonicalDimension,
             canonicalUnit: product.canonicalUnit,
             shelfLifeSensitive: product.shelfLifeSensitive,
@@ -114,8 +110,8 @@ export async function seedTestProducts(): Promise<void> {
           // Create product variant with UPC barcode
           await variantRepo.create({
             inventoryItemId: inventoryItem.id,
-            packageSize: product.packageSize,
-            unit: product.unit,
+            netContent: product.netContent,
+            uom: product.uom,
             barcodeValue: product.upc,
             notes: `Test variant for barcode scanning - ${product.name}`,
             metadata: {

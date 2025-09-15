@@ -1,4 +1,5 @@
-import { DatabaseMigration, MigrationType } from './types';
+import { DatabaseMigration } from './BaseMigration';
+import { MigrationType } from './types';
 
 /**
  * Migration 004: Rename inventory_items table to products

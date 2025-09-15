@@ -102,9 +102,9 @@ export const PRODUCT_VARIANTS_SCHEMA = `
     -- Foreign key relationship to inventory item
     inventory_item_id TEXT NOT NULL,
     
-    -- Package and unit information
-    package_size TEXT NOT NULL,
-    unit TEXT NOT NULL,
+    -- Package and unit information (GS1 standard)
+    net_content REAL NOT NULL,
+    uom TEXT NOT NULL,
     
     -- Barcode information
     barcode_value TEXT CHECK (barcode_value IS NULL OR (length(barcode_value) >= 8 AND length(barcode_value) <= 20)),

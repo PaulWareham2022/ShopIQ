@@ -28,8 +28,9 @@ export { migration001Data } from './examples/001_migrate_user_preferences_v2';
 // Production migrations
 export { migration002 } from './002_add_supplier_rating';
 export { migration003 } from './003_add_product_variants_table';
-// Temporarily disable migration004 for fresh installs
-// export { migration004 } from './004_rename_inventory_items_to_products';
+export { migration004 } from './004_rename_inventory_items_to_products';
+export { migration005 } from './005_update_product_variants_net_content';
+export { migration006 } from './006_fix_offers_foreign_key';
 
 // Convenience functions for setting up migrations
 import { migrationRegistry } from './MigrationRegistry';
@@ -65,22 +66,27 @@ export const initializeMigrationSystem = async (): Promise<void> => {
         const { migration002 } = await import(
           './002_add_supplier_rating'
         );
-        // Temporarily disable migration003 for fresh installs
-        // const { migration003 } = await import(
-        //   './003_add_product_variants_table'
-        // );
-        // Temporarily disable migration004 for fresh installs
-        // const { migration004 } = await import(
-        //   './004_rename_inventory_items_to_products'
-        // );
+        const { migration003 } = await import(
+          './003_add_product_variants_table'
+        );
+        const { migration004 } = await import(
+          './004_rename_inventory_items_to_products'
+        );
+        const { migration005 } = await import(
+          './005_update_product_variants_net_content'
+        );
+        const { migration006 } = await import(
+          './006_fix_offers_foreign_key'
+        );
 
         // Register migrations with error handling
         migrationRegistry.register(migration001);
         migrationRegistry.register(migration001Data);
         migrationRegistry.register(migration002);
-        // Temporarily disable migration003 and migration004 for fresh installs
-        // migrationRegistry.register(migration003);
-        // migrationRegistry.register(migration004);
+        migrationRegistry.register(migration003);
+        migrationRegistry.register(migration004);
+        migrationRegistry.register(migration005);
+        migrationRegistry.register(migration006);
       } catch (importError) {
         if (typeof __DEV__ !== 'undefined' && __DEV__) {
           console.warn(

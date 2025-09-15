@@ -936,8 +936,8 @@
             "title": "Create ProductVariants Database Schema",
             "description": "Design and implement the 'ProductVariant' table in the database, including fields for variant ID (UUID), inventory item reference, package size, unit, barcode value, and metadata. Ensure referential integrity and support for multiple variants per inventory item.",
             "dependencies": [],
-            "details": "Extend the existing inventory schema to add the ProductVariant table. Define foreign key relationships to InventoryItem. Support migration scripts for existing data.",
-            "status": "pending",
+            "details": "Extend the existing inventory schema to add the ProductVariant table. Define foreign key relationships to InventoryItem. Support migration scripts for existing data.\n<info added on 2025-09-15T00:05:32.967Z>\nThe ProductVariants database schema implementation is complete and fully integrated. The following deliverables have been achieved: the PRODUCT_VARIANTS_SCHEMA was created in src/storage/sqlite/schemas.ts with all required fields and constraints; a migration script (003_add_product_variants_table.ts) was implemented with proper indexes, unique constraints, foreign key relationships, and rollback support; the schema is referenced in the main schemas file; and comprehensive unit tests (003_add_product_variants_table.test.ts) validate schema creation and migration. The database schema foundation for product variants is now production-ready and available for further development.\n</info added on 2025-09-15T00:05:32.967Z>",
+            "status": "done",
             "testStrategy": "Write unit tests for schema creation and migration. Validate referential integrity and support for multiple variants per item."
           },
           {
@@ -981,16 +981,16 @@
             "dependencies": [
               "20.4"
             ],
-            "details": "Integrate Expo Camera v5+ for barcode scanning. On scan, query ProductVariantRepository for matching variant and pre-fill offer form fields. Implement error handling for unknown barcodes and permission issues.",
-            "status": "pending",
+            "details": "Integrate Expo Camera v5+ for barcode scanning. On scan, query ProductVariantRepository for matching variant and pre-fill offer form fields. Implement error handling for unknown barcodes and permission issues.\n<info added on 2025-09-15T00:05:44.445Z>\nTask 20.5 is complete. The barcode scanner now features robust Expo Camera v5+ integration with multi-format support, real-time detection, and comprehensive permission handling. Barcode scans trigger automatic variant lookup via ProductVariantRepository, with successful matches enabling offer form pre-population and user actions. The implementation includes advanced error handling for unknown barcodes and permission issues, scan history tracking, visual feedback, clipboard support, and a professional overlay. External lookup fallback (GoUPC) is integrated for unmatched barcodes. The scanner is fully functional and seamlessly integrated with the product variants system.\n</info added on 2025-09-15T00:05:44.445Z>",
+            "status": "done",
             "testStrategy": "Write integration and E2E tests for barcode scanning, variant lookup, and offer form pre-population. Test error and permission handling scenarios."
           },
           {
             "id": 6,
             "title": "Update Offer Form for Variant Pre-population",
             "description": "Enhance OfferForm to accept and handle pre-selected product variant data from barcode scanning, ensuring form validation works with pre-populated data and allows user modifications.",
-            "details": "Add preSelectedVariant prop to OfferForm. Update form initialization to use variant data when provided. Ensure form validation works with pre-populated data and allows user modifications. Maintain backward compatibility with existing form behavior.",
-            "status": "pending",
+            "details": "Add preSelectedVariant prop to OfferForm. Update form initialization to use variant data when provided. Ensure form validation works with pre-populated data and allows user modifications. Maintain backward compatibility with existing form behavior.\n<info added on 2025-09-15T00:05:53.495Z>\nTask 20.6 is complete. The OfferForm now supports variant pre-population from barcode scanning, with seamless integration across AddOfferScreen and BarcodeScannerScreen. The form correctly initializes with variant data, allows user modifications, maintains validation integrity, and preserves backward compatibility. The end-to-end workflow enables users to scan a barcode, automatically look up the corresponding product variant, and have the offer form pre-filled for efficient offer creation.\n</info added on 2025-09-15T00:05:53.495Z>",
+            "status": "done",
             "dependencies": [
               "20.5"
             ],
@@ -1023,7 +1023,7 @@
     ],
     "metadata": {
       "created": "2025-09-03T00:35:08.862Z",
-      "updated": "2025-09-14T20:57:06.372Z",
+      "updated": "2025-09-15T00:05:23.444Z",
       "description": "Tasks for master context"
     }
   }

@@ -375,7 +375,7 @@ export function BarcodeScannerScreen({ onBack, onVariantFound }: BarcodeScannerS
                   <View style={styles.variantInfoContainer}>
                     <Text style={styles.variantInfoTitle}>Product Found!</Text>
                     <Text style={styles.variantInfoText}>
-                      Package Size: {foundVariant.packageSize} {foundVariant.unit}
+                      Net Content: {foundVariant.netContent} {foundVariant.uom}
                     </Text>
                     {foundVariant.notes && (
                       <Text style={styles.variantInfoNotes}>

@@ -1,5 +1,84 @@
 <context>
-#rrrr
+# Overview  
+ShopIQ is a personal shopping intelligence app to capture, normalize, and compare prices across suppliers so that purchases are consistently cost-effective. It targets a single primary user (the owner) with potential to expand later. The app removes friction by letting the user quickly record offers (price + quantity + units) and computes normalized price-per-unit to identify the cheapest source, powered initially by manual entry and later by scanning/URL ingestion.
+
+Problems addressed:
+- I want to save money but lack time to normalize prices across suppliers.
+- I can’t remember which supplier had the best price previously.
+- I don’t remember what I paid historically; need date-stamped records.
+- Risk of overpaying without data; fear of getting ripped off.
+- Buying too much can be wasteful; need guidance on quantity decisions.
+- Debate over which grocery chain is cheaper lacks objective data.
+
+Who it’s for: Me (single-user) initially, maybe others later.
+Primary domain for initial testing: Pool/spa chemicals. Future: groceries and general goods.
+
+# Core Features  
+- Quick offer capture
+  - Manual entry of item, supplier, total price, quantity, and units (g, kg, ml, L, etc.)
+  - Automatic unit conversion to a canonical unit (e.g., g/ml) and price per canonical unit
+  - Date-stamped record creation
+- Best-price computation
+  - For a given inventory item, compute the current cheapest source by normalized price-per-unit
+  - Show best current offer and historical trend
+- Inventory management
+  - Maintain a list of items I care about tracking (Inventory)
+  - Link captured offers to inventory items
+- Basic quality/notes
+  - Optional quality rating and free-form notes per offer and per supplier
+- Basic shelf-life awareness (non-blocking)
+  - Mark items as shelf-life sensitive and show an informational warning when high-quantity purchases risk expiry
+- Foundations for future capture modes (non-MVP)
+  - Barcode scanning stub in UI
+  - Share-sheet/URL parsing stub in UI
+
+# User Experience  
+- Personas
+  - Primary: Single user (me) optimizing purchases
+- Key flows
+  - Add inventory item (name, category, canonical unit, optional shelf-life sensitivity)
+  - Capture offer (choose inventory item or quick-create, supplier, total price, quantity, units, date auto-filled)
+  - View comparisons (per item: sorted list by price-per-unit; highlight best)
+  - Decide where to buy (tap to open supplier URL if present)
+  - Optional: add quality rating/notes to remember experience
+- UI/UX considerations
+  - Ultra-fast capture: minimal required fields; mobile-optimized form; smart defaults for units based on item
+  - Display normalized price-per-unit prominently
+  - Clear indication of best deal and historical prices
+  - Mobile-first form design: touch-friendly, auto-focus progression, mobile keyboard optimization
+</context>
+
+<PRD>
+# Technical Architecture  
+- Client: Expo React Native app (iOS-focused initially; Android optional later)
+- Storage (MVP): Local device storage (SQLite via Expo or MMKV). Path to cloud sync later (e.g., Supabase/Firebase or simple REST backend)
+- Modules
+  - Inventory module
+  - Offers module
+  - Comparison engine (unit conversion + price-per-unit)
+  - Shelf-life advisory (flag-only)
+  - Quality/notes
+
+# Mobile Form Optimization Guidelines
+## Core Principles
+- **Mobile-First Design**: All form optimizations must be designed for touch interfaces and mobile keyboards
+- **Ultra-Fast Capture**: Minimize required fields and cognitive load for rapid data entry
+- **Smart Defaults**: Auto-populate fields based on context (supplier currency, item units, etc.)
+- **Progressive Enhancement**: Start with basic mobile patterns, add advanced features incrementally
+
+## Mobile-Specific Optimizations
+### Auto-Focus and Navigation
+- **Return Key Progression**: "Next" button moves to next logical field, "Done" submits form
+- **Smart Keyboard Types**: Numeric for prices/quantities, email for URLs, default for text
+- **Field Ordering**: Logical top-to-bottom flow optimized for thumb navigation
+- **Auto-Capitalization**: Appropriate capitalization per field type (none for units, characters for currency)
+
+### Touch Interface Optimizations
+- **Touch-Friendly Sizing**: Minimum 44pt touch targets for all interactive elements
+- **Swipe Gestures**: Consider swipe-to-navigate between form sections (future enhancement)
+- **Voice Input**: Integration with device voice recognition for notes and item names
+- **Camera Integration**: Barcode scanning for product identification and quantity entry
+
 ### Mobile Keyboard Behavior
 - **Keyboard Types**: 
   - `numeric` for prices, quantities, tax rates

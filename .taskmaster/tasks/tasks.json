@@ -1026,5 +1026,679 @@
       "updated": "2025-09-15T00:05:23.444Z",
       "description": "Tasks for master context"
     }
+  },
+  "test": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Initialize Expo React Native Project with TypeScript",
+        "description": "Set up the project repository using Expo with TypeScript, configure ESLint/Prettier, and establish initial folder structure.",
+        "details": "Use Expo SDK 50+ for best support of modern APIs. Initialize with `npx create-expo-app@latest --template tabs --typescript`. Configure ESLint (airbnb-typescript config) and Prettier. Set up src/ for components, screens, models, and utils. Add Husky for pre-commit linting. Document setup in README.",
+        "testStrategy": "Verify project builds and runs on both iOS and Android simulators. Lint and format codebase. Ensure TypeScript type-checking passes.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Implement Local Database Schema and Persistence Layer",
+        "description": "Design and implement local data storage for all entities using SQLite (via expo-sqlite or WatermelonDB).",
+        "details": "Define schema for Supplier, InventoryItem, Offer, UnitConversion, and Bundle (future). Use WatermelonDB v0.25+ for performant offline-first sync-ready storage. Implement UUIDv4 for IDs (use 'react-native-uuid'). Store ISO timestamps. Add migration scripts and seed with sample CSVs.",
+        "testStrategy": "Write unit tests for CRUD operations on each entity. Validate schema creation and migration. Test data persistence across app restarts.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Entity Schemas",
+            "description": "Define the database schema for Supplier, InventoryItem, Offer, UnitConversion, and Bundle entities, specifying fields, data types, relationships, and constraints according to normalization and best practices.",
+            "dependencies": [],
+            "details": "Ensure each entity is normalized, uses appropriate data types (e.g., TEXT, INTEGER, REAL), and includes foreign key constraints where necessary. Document schema definitions for review.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Set Up WatermelonDB Integration",
+            "description": "Install and configure WatermelonDB v0.25+ in the project, establishing the database adapter and model registration for all entities.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Configure WatermelonDB with SQLite as the backend. Register all defined models and ensure the database is ready for offline-first and sync-ready operations.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate UUIDv4 for Entity IDs",
+            "description": "Implement UUIDv4 generation for all entity primary keys using 'react-native-uuid', ensuring unique and collision-resistant identifiers.",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Replace default integer IDs with UUIDv4 for all entities. Update model definitions and ensure UUIDs are generated on entity creation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement ISO Timestamp Handling",
+            "description": "Add createdAt and updatedAt fields to all entities, storing timestamps in ISO 8601 format and updating them appropriately on create and update operations.",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Ensure all timestamp fields are stored as TEXT in ISO format. Implement logic to automatically set and update these fields.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Develop Migration Scripts",
+            "description": "Write migration scripts to handle schema changes, including initial schema creation and future updates, ensuring data integrity and versioning.",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Use WatermelonDB's migration system to define and test migrations. Document migration steps and versioning strategy.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Seed Database with Sample CSV Data",
+            "description": "Implement logic to import sample CSV files for each entity, mapping CSV columns to schema fields and handling data validation.",
+            "dependencies": [
+              "2.5"
+            ],
+            "details": "Use a CSV parsing library to read and insert data. Validate data types, assign UUIDs, and ensure referential integrity during seeding.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Implement CRUD Logic for All Entities",
+            "description": "Develop create, read, update, and delete operations for each entity, ensuring proper handling of relationships, constraints, and offline persistence.",
+            "dependencies": [
+              "2.3",
+              "2.4",
+              "2.6"
+            ],
+            "details": "Expose CRUD functions via repository or service layer. Ensure operations are atomic and respect foreign key constraints.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Write Unit Tests for Persistence Layer",
+            "description": "Create unit tests covering CRUD operations, schema creation, migrations, and data persistence across app restarts for all entities.",
+            "dependencies": [
+              "2.7"
+            ],
+            "details": "Use a testing framework to validate all persistence logic. Test edge cases, error handling, and data integrity after migrations and seeding.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Develop Unit Conversion Utilities",
+        "description": "Create robust utilities for unit conversion and normalization based on UnitConversion entity.",
+        "details": "Implement conversion logic using a static reference table. Use TypeScript for type safety. Ensure conversions for mass, volume, count, length, and area. Add comprehensive unit tests for all conversion paths. Use memoization for performance.",
+        "testStrategy": "Test all conversion scenarios with edge cases. Validate against known conversion factors. Ensure no floating-point errors in canonicalization.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Build Inventory CRUD UI and Logic",
+        "description": "Implement screens and logic for creating, reading, updating, and deleting InventoryItems.",
+        "details": "Use React Navigation v7+ for navigation. Use React Hook Form v7+ for form state. Apply keyboard best practices: set keyboardType, returnKeyType, auto-correction, and auto-capitalization per PRD. Use FlatList for inventory display. Memoize components with React.memo and useCallback.",
+        "testStrategy": "Write E2E tests with Detox for all CRUD flows. Validate keyboard behavior and form navigation. Check for minimal re-renders using React DevTools.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Inventory List UI",
+            "description": "Create the screen to display the list of InventoryItems using FlatList, ensuring efficient rendering and item selection.",
+            "dependencies": [],
+            "details": "Design the inventory list layout. Integrate FlatList for performance. Support item selection for CRUD actions.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Develop CRUD Form Screens",
+            "description": "Build screens for creating, reading, updating, and deleting InventoryItems, each with appropriate form fields and validation.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Use React Hook Form v7+ for form state. Implement validation and error handling. Ensure forms support all CRUD operations.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Set Up Navigation",
+            "description": "Configure React Navigation v7+ to enable seamless transitions between inventory list and CRUD form screens.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "Define navigation stack and routes. Ensure navigation supports deep linking and back navigation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate Form State Management",
+            "description": "Apply React Hook Form v7+ to manage form state, validation, and submission logic for all CRUD screens.",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Set up controllers for each form field. Handle form submission and error states. Sync form data with inventory state.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Apply Keyboard UX Best Practices",
+            "description": "Implement keyboardType, returnKeyType, auto-correction, and auto-capitalization per PRD for all form fields.",
+            "dependencies": [
+              "4.2",
+              "4.4"
+            ],
+            "details": "Configure each input field for optimal keyboard behavior. Test on iOS and Android for consistency.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Optimize Components with Memoization",
+            "description": "Use React.memo and useCallback to minimize unnecessary re-renders and improve performance across inventory screens.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "Identify components for memoization. Refactor handlers with useCallback. Validate performance improvements.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Write End-to-End Tests for Inventory CRUD",
+            "description": "Develop E2E tests using Detox to validate all CRUD flows, keyboard behavior, navigation, and performance optimizations.",
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4",
+              "4.5",
+              "4.6"
+            ],
+            "details": "Create test cases for each CRUD operation. Validate keyboard and navigation UX. Check for minimal re-renders.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement Supplier CRUD UI and Reference Fields",
+        "description": "Create UI and logic for Supplier management, including all required and optional fields.",
+        "details": "Use React Hook Form for supplier forms. Enforce ISO code validation for country/region/currency. Implement JSON field editing for shippingPolicy. Ensure all keyboard and navigation UX rules are followed. Use dropdowns for country/currency selection (react-native-picker-select).",
+        "testStrategy": "Test all supplier CRUD flows. Validate field-level keyboard and navigation behavior. Check JSON field parsing and error handling.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Supplier Form UI with React Hook Form",
+            "description": "Create the Supplier form UI using React Hook Form, including all required and optional fields as per the data model.",
+            "dependencies": [],
+            "details": "Ensure the form layout is user-friendly and accommodates all supplier fields. Use React Hook Form's useForm and Controller for managing form state and integrating custom components.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Field Validation (Including ISO Code Checks)",
+            "description": "Add validation logic for all form fields, enforcing ISO code validation for country, region, and currency fields.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Use React Hook Form's validation features and integrate custom validation functions or schemas (e.g., with Zod or Yup) to ensure ISO codes are correct and all required fields are validated.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate JSON Field Editor for shippingPolicy",
+            "description": "Implement a JSON editor component within the form for the shippingPolicy field, supporting editing and validation of JSON structure.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Allow users to input and edit JSON for shippingPolicy, with real-time validation and error feedback for invalid JSON.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add Dropdowns for Country and Currency Selection",
+            "description": "Integrate react-native-picker-select dropdowns for country and currency fields, sourcing options from ISO code lists.",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "Populate dropdowns with valid ISO country and currency codes. Ensure selected values are correctly registered with React Hook Form.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Implement Keyboard and Navigation UX Rules",
+            "description": "Apply keyboard and navigation best practices to the form, ensuring accessibility and smooth user experience.",
+            "dependencies": [
+              "5.1",
+              "5.4"
+            ],
+            "details": "Set appropriate keyboard types, return key behavior, and navigation order. Ensure the form is accessible and supports keyboard navigation.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate CRUD Logic for Supplier Management",
+            "description": "Connect the form to CRUD operations for creating, reading, updating, and deleting suppliers.",
+            "dependencies": [
+              "5.2",
+              "5.3",
+              "5.4",
+              "5.5"
+            ],
+            "details": "Wire up form submission to backend or local persistence layer. Implement logic for loading existing supplier data for editing and handling deletions.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Implement Error Handling and Testing",
+            "description": "Add comprehensive error handling for form validation, JSON parsing, and CRUD operations. Write tests for all flows.",
+            "dependencies": [
+              "5.6"
+            ],
+            "details": "Display user-friendly error messages for validation and server errors. Write unit and integration tests for all supplier CRUD flows, including keyboard and navigation behavior.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Offer Capture Form with Normalization and Computed Fields",
+        "description": "Develop the Offer entry form with real-time normalization, price-per-unit computation, and validation.",
+        "details": "Implement form with React Hook Form. Use unit conversion utilities for amountCanonical. Compute pricePerCanonicalExclShipping, pricePerCanonicalInclShipping, and effectivePricePerCanonical live. Apply debounced validation (lodash.debounce). Use correct keyboardType and returnKeyType for each field. Show optimistic UI updates for computed fields.",
+        "testStrategy": "Test all offer entry scenarios, including edge cases (tax, shipping, bundles). Validate computed fields update instantly and correctly. E2E test for full offer entry flow.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Offer Form UI with React Hook Form",
+            "description": "Create the user interface for the Offer entry form using React Hook Form, ensuring all required fields are present and properly registered.",
+            "dependencies": [],
+            "details": "Include fields for offer details, amounts, shipping, and any other relevant data. Ensure each input is connected to React Hook Form and displays validation errors appropriately.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Normalization Logic for Canonical Amounts",
+            "description": "Integrate unit conversion utilities to normalize entered amounts to canonical units in real time.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Use the unit conversion utilities to convert user-entered values to canonical units (amountCanonical) as the user types. Ensure conversions are accurate and update the form state accordingly.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Develop Computed Fields for Price Per Canonical Unit",
+            "description": "Calculate and display pricePerCanonicalExclShipping, pricePerCanonicalInclShipping, and effectivePricePerCanonical live as form values change.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Implement logic to compute these fields based on normalized amounts and entered prices. Ensure computed fields update instantly and are shown optimistically in the UI.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Integrate Debounced Validation for Form Inputs",
+            "description": "Apply debounced validation using lodash.debounce to validate user input without excessive re-renders.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Configure validation rules for each field and debounce validation triggers to improve performance and user experience. Display validation errors in real time.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Configure Keyboard UX for All Input Fields",
+            "description": "Set appropriate keyboardType and returnKeyType for each input field to optimize mobile user experience.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Ensure numeric fields use numeric keyboards, email fields use email keyboards, and navigation between fields is smooth using correct returnKeyType settings.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Optimistic UI Updates for Computed Fields",
+            "description": "Show computed field values instantly as the user types, reflecting changes optimistically before final validation.",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Update computed fields in the UI immediately upon input changes, providing instant feedback and a responsive experience.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "End-to-End Testing of Offer Capture Form",
+            "description": "Write and execute E2E tests to validate the full offer entry flow, including edge cases and computed field accuracy.",
+            "dependencies": [
+              "6.1",
+              "6.2",
+              "6.3",
+              "6.4",
+              "6.5",
+              "6.6"
+            ],
+            "details": "Test all scenarios such as tax, shipping, bundles, and ensure computed fields update correctly. Use Detox or equivalent for mobile E2E coverage.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Consistent Mobile Keyboard and Navigation UX",
+        "description": "Enforce consistent keyboard types, return key navigation, and field behaviors across all forms.",
+        "details": "Implement per-field keyboardType and returnKeyType as specified. Use FocusNode (React Native: useRef + onSubmitEditing) to move focus. Disable auto-correction/capitalization where required. Add accurate tip text. Test on both iOS and Android. Use KeyboardAwareScrollView (react-native-keyboard-aware-scroll-view v0.9+) to handle keyboard overlap and scrolling.",
+        "testStrategy": "Manual and automated E2E tests on iOS/Android for all form fields. Validate navigation with 'Next' and 'Done' keys. Confirm no keyboard overflow or layout issues.",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Per-Item Comparison View with Best Offer Highlight",
+        "description": "Create a comparison screen for InventoryItems showing all Offers, highlighting the best effective price.",
+        "details": "Use FlatList for offers. Sort by effectivePricePerCanonical. Highlight best offer visually. Allow filtering by supplier, currency, etc. Memoize list items for performance. Add accessibility labels for screen readers.",
+        "testStrategy": "Test sorting and highlighting logic. Validate accessibility with VoiceOver/TalkBack. E2E test for navigation from inventory to comparison view.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Comparison Screen UI with FlatList",
+            "description": "Implement the main comparison screen for InventoryItems using FlatList to display all offers. Ensure the layout supports clear visual grouping and prepares for highlighting and filtering features.",
+            "dependencies": [],
+            "details": "Set up a FlatList with appropriate item rendering for offers. Ensure the UI is visually organized and ready for further enhancements such as highlighting and filtering.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Offer Sorting Logic",
+            "description": "Develop logic to sort offers by effectivePricePerCanonical before rendering in the FlatList, ensuring the best offer appears at the top or in a consistent position.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Sort the offers array by effectivePricePerCanonical in ascending order before passing to FlatList. Ensure sorting is stable and updates correctly when offers change.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Highlight Best Offer Visually",
+            "description": "Add logic and UI styling to visually highlight the offer with the lowest effectivePricePerCanonical in the list.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Determine the best offer after sorting and apply distinct visual styles (e.g., background color, border, icon) to its list item. Ensure the highlight is accessible and clear.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Add Filtering Controls for Offers",
+            "description": "Implement UI controls to filter offers by supplier, currency, and other relevant criteria, updating the FlatList display accordingly.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Provide dropdowns or chips for supplier and currency filters. Ensure filtering logic updates the displayed offers and interacts correctly with sorting and highlighting.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Optimize List Performance with Memoization",
+            "description": "Apply memoization techniques to FlatList item rendering to minimize unnecessary re-renders and improve performance, especially with large or complex offer lists.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Use React.memo and useCallback for item components and handlers. Pass extraData to FlatList as needed to ensure correct updates without excessive re-renders.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Enhance Accessibility for Comparison View",
+            "description": "Add accessibility labels and roles to all interactive and informational elements in the comparison view, ensuring compatibility with screen readers.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Label offer items, highlight state, and filter controls for screen readers. Test with VoiceOver/TalkBack to validate accessibility compliance.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Shelf-Life Sensitivity Warning Implementation",
+        "description": "Flag inventory items with shelfLifeSensitive=true and show warnings for large quantities.",
+        "details": "Add logic to detect when quantity exceeds a threshold for shelf-life-sensitive items. Show warning banner or icon in UI. Make warning accessible for screen readers.",
+        "testStrategy": "Test with various shelfLifeSensitive items and quantities. Validate warning appears/disappears as expected. Accessibility test for warning.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Quality Rating and Notes Enhancements",
+        "description": "Enable users to add/edit quality ratings (1–5) and notes for Offers and InventoryItems.",
+        "details": "Use star rating component (react-native-star-rating-widget v1.1+). Text input for notes with correct keyboard settings. Persist ratings and notes in local DB. Ensure accessibility for rating input.",
+        "testStrategy": "Test adding/editing ratings and notes. Validate persistence and accessibility. E2E test for full flow.",
+        "priority": "medium",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "CSV Import/Export for Inventory and Offers",
+        "description": "Implement CSV import/export for InventoryItems and Offers, including UUID assignment and schema versioning.",
+        "details": "Use papaparse v5+ for CSV parsing. Map CSV columns to entity fields. Validate and assign UUIDs where missing. Export with current schema version. Add import/export UI in settings.",
+        "testStrategy": "Test import/export with sample CSVs. Validate data integrity and schema compliance. Handle errors gracefully.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement CSV Parsing Logic",
+            "description": "Develop robust CSV parsing using papaparse v5+ to handle both InventoryItems and Offers, supporting large files and various delimiters.",
+            "dependencies": [],
+            "details": "Ensure efficient parsing with chunked streaming for large files. Support configurable delimiters and handle edge cases such as quoted fields and line breaks.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Map CSV Columns to Entity Fields",
+            "description": "Create logic to map parsed CSV columns to InventoryItem and Offer entity fields, supporting flexible column order and optional fields.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Allow users to map CSV headers to entity fields via configuration or UI. Handle missing or extra columns gracefully. Ensure type conversion and normalization as needed.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Validate and Assign UUIDs",
+            "description": "Validate presence and format of UUIDs for all imported entities, generating new UUIDs where missing or invalid.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Check each row for a valid UUID. If missing or malformed, generate a new UUID and assign it to the entity. Ensure UUID uniqueness across the dataset.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Schema Versioning for Import/Export",
+            "description": "Add schema version metadata to all exported CSVs and validate schema version on import.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Embed current schema version in exported files. On import, check for version compatibility and handle migrations or warnings if versions differ.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Develop Import/Export UI in Settings",
+            "description": "Build user interface components in the settings area for importing and exporting InventoryItems and Offers via CSV.",
+            "dependencies": [
+              "11.1",
+              "11.2",
+              "11.3",
+              "11.4"
+            ],
+            "details": "Provide file upload and download controls, progress indicators, and mapping configuration. Ensure accessibility and clear user feedback throughout the process.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Implement Error Handling and Validation Feedback",
+            "description": "Add comprehensive error handling and validation feedback for CSV import/export, including user-friendly error messages and resolution guidance.",
+            "dependencies": [
+              "11.1",
+              "11.2",
+              "11.3",
+              "11.4",
+              "11.5"
+            ],
+            "details": "Detect and report parsing errors, mapping mismatches, UUID conflicts, and schema version issues. Provide actionable feedback and allow users to resolve errors before finalizing import.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Performance Optimization: Memoization, Lazy Loading, Debounced Validation",
+        "description": "Optimize form and list performance using React.memo, useCallback, lazy loading, and debounced validation.",
+        "details": "Profile app with React DevTools. Memoize heavy components. Use lazy loading for picker options (load on focus). Debounce validation with lodash.debounce (300ms). Avoid unnecessary re-renders.",
+        "testStrategy": "Profile before/after optimizations. Test lazy loading and debounced validation. Validate no performance regressions.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Accessibility and Haptic Feedback Integration",
+        "description": "Ensure all interactive elements are accessible and provide haptic feedback for key actions.",
+        "details": "Add accessibility labels, roles, and hints for all form fields and buttons. Use expo-haptics for subtle feedback on form completion/errors. Test with VoiceOver/TalkBack.",
+        "testStrategy": "Manual accessibility audit. Automated tests with react-native-accessibility-engine. Validate haptic feedback triggers correctly.",
+        "priority": "medium",
+        "dependencies": [
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Offline-First Support and Sync Readiness",
+        "description": "Ensure all features work offline and prepare data layer for future cloud sync.",
+        "details": "Test all CRUD and comparison flows with no network. Use WatermelonDB for sync-ready architecture. Mark sync status in DB for future cloud integration. Document offline limitations.",
+        "testStrategy": "Simulate offline mode. Validate all features work. Check data consistency after reconnect.",
+        "priority": "medium",
+        "dependencies": [
+          13
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Testing: Unit, Integration, and E2E Coverage",
+        "description": "Establish comprehensive test coverage for all utilities, forms, and flows.",
+        "details": "Use Jest for unit/integration tests. Use Detox for E2E tests on iOS/Android. Cover unit conversion, normalization, CRUD, navigation, and keyboard behaviors. Add CI workflow (GitHub Actions) for automated testing.",
+        "testStrategy": "Achieve >90% code coverage. Run E2E tests on both platforms. Validate all critical flows and edge cases.",
+        "priority": "high",
+        "dependencies": [
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-18T15:48:13.693Z",
+      "updated": "2025-09-18T16:27:54.052Z",
+      "description": "Tasks for test context"
+    }
   }
 }
